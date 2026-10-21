@@ -1,0 +1,67 @@
+# backend
+/data/
+*.db
+*.db-wal
+*.db-shm
+config.json
+scheduler_state.json
+__pycache__/
+*.pyc
+*.pyo
+
+# frontend
+web/node_modules/
+web/.next/
+web/tsconfig.tsbuildinfo
+web/next-env.d.ts
+*.local
+
+# development tools
+.playwright-mcp/
+.playwright-cli/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+
+# os
+.DS_Store
+Thumbs.db
+
+# claude code local state
+.claude/
+
+# Binary with embedded frontend
+/artex
+# Self-update staging, backup, failed binary and marker
+/artex.new
+/artex.new.sha256
+/artex.old
+/artex.failed
+/artex.upgrade.json
+/server/webui/dist/
+/dist/
+
+# Runtime JWT signing key; never commit
+/jwt.key
+
+# Local Docker environment with passwords/keys; never commit
+.env
+/tls/
+
+# Scheduler test event logs
+*-events.csv
+
+# Local benchmark artifacts
+/bench/
+/Dockerfile.bench
+/Dockerfile.bench.v2
+/skopos
+/skopos.exe
+/skopos.new
+/skopos.new.sha256
+/skopos.old
+/skopos.failed
+/skopos.upgrade.json
+node_modules/

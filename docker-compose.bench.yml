@@ -1,0 +1,18 @@
+# Optional upstream benchmark setup: requires untracked Dockerfile.bench and bench/.env.
+# This repository does not include those private benchmark inputs.
+# Host networking exposes ports 8787, 8788 and 5432; they must be available.
+
+services:
+  skopos-bench:
+    build:
+      context: .
+      dockerfile: Dockerfile.bench
+    image: skopos-bench:latest
+    container_name: skopos-bench
+    env_file:
+      - bench/.env
+    network_mode: host
+    restart: "no"
+
+volumes:
+  skopos_bench_data:

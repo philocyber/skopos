@@ -1,0 +1,35 @@
+Skopos
+Copyright (C) 2026 The Skopos authors
+Maintained by PhiloCyber: https://github.com/Philocyber/skopos
+
+This product is a derivative work licensed under the GNU Affero General Public
+License, version 3.0 (AGPL-3.0). See the LICENSE file for the full terms.
+
+
+Attribution
+-----------
+
+Skopos is built on ARTEX, an autonomous AI penetration-testing system by
+Autumn-27, from which this project derives its code and architecture:
+
+    ARTEX        https://github.com/Autumn-27/ARTEX        (AGPL-3.0)
+
+Skopos descends from the intermediate "ScopeWeaver" derivative of ARTEX:
+
+    ScopeWeaver  https://github.com/cskwork/scopeweaver
+
+Additional upstream components credited:
+
+    norma SDK    https://github.com/Autumn-27/norma         (agent capabilities)
+    ScopeSentry  https://github.com/Autumn-27/ScopeSentry    (asset-sync concepts)
+
+The original ARTEX copyright, authorship, contributor acknowledgments, and
+upstream changelog history are retained and remain attributed to their authors.
+This project changes the product name, the user-facing interface and messages,
+the documentation, and the distribution targets, and renames ARTEX's internal
+identifiers (module path, environment variables, database/login defaults) to
+Skopos's own.
+
+Under the AGPL-3.0, if you run a modified version of this software and let users
+interact with it over a network, you must offer those users the complete
+corresponding source code of your modified version.
