@@ -25,7 +25,7 @@ export function ThemeSwitcher() {
   };
 
   return (
-    <Button size="icon" onClick={cycleTheme} aria-label={t("app.cycleTheme", { theme: t(themeMode === "light" ? "english.e012" : themeMode === "dark" ? "english.e014" : "english.e016") })}>
+    <Button variant="ghost" size="icon" onClick={cycleTheme} aria-label={t("app.cycleTheme", { theme: t(themeMode === "light" ? "english.e012" : themeMode === "dark" ? "english.e014" : "english.e016") })}>
       {/* SYSTEM */}
       <Monitor className="hidden [html[data-theme-mode=system]_&]:block" />
 

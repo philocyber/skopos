@@ -47,8 +47,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton asChild>
               <Link prefetch={false} href="/function/tasks">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/skopos.svg" alt="Skopos" width={40} height={40} className="shrink-0" />
-                <span className="font-semibold text-base">{APP_CONFIG.name}</span>
+                <img src="/skopos.svg" alt="" width={32} height={32} className="shrink-0 grayscale" />
+                <span className="console-brand-copy flex min-w-0 flex-col leading-tight">
+                  <span className="text-[15px] font-semibold tracking-tight">{APP_CONFIG.name}</span>
+                  <span className="mt-0.5 text-[10px] text-muted-foreground">PhiloCyber</span>
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

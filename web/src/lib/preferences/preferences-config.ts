@@ -68,10 +68,10 @@ type PreferencePersistenceConfig = {
 export const PREFERENCE_DEFAULTS: PreferenceValueMap = {
   theme_mode: "light",
   theme_preset: "default",
-  font: "geist",
+  font: "inter",
   content_layout: "full-width",
   navbar_style: "sticky",
-  sidebar_variant: "floating",
+  sidebar_variant: "sidebar",
   sidebar_collapsible: "icon",
 };
 

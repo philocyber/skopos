@@ -1,10 +1,9 @@
-// TEMPORARY: offline build fallback — uses local Geist fonts instead of Google Fonts.
-// Restore registry.ts.bak after build.
+// Self-hosted typefaces keep the embedded console independent of font CDNs.
 import localFont from "next/font/local";
 import { GeistPixelSquare } from "geist/font/pixel";
 
 const geist = localFont({ src: "../../../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2", variable: "--font-geist" });
-const inter = localFont({ src: "../../../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2", variable: "--font-inter" });
+const inter = localFont({ src: [{ path: "./brand/Inter-Regular.ttf", weight: "400" }, { path: "./brand/Inter-Medium.ttf", weight: "500" }, { path: "./brand/Inter-SemiBold.ttf", weight: "600" }], variable: "--font-inter", display: "swap" });
 const notoSans = localFont({ src: "../../../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2", variable: "--font-noto-sans" });
 const roboto = localFont({ src: "../../../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2", variable: "--font-roboto" });
 const outfit = localFont({ src: "../../../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2", variable: "--font-outfit" });
@@ -19,7 +18,7 @@ const merriweather = localFont({ src: "../../../node_modules/geist/dist/fonts/ge
 const lora = localFont({ src: "../../../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2", variable: "--font-lora" });
 const playfairDisplay = localFont({ src: "../../../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2", variable: "--font-playfair-display" });
 const geistMono = localFont({ src: "../../../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2", variable: "--font-geist-mono" });
-const jetBrainsMono = localFont({ src: "../../../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2", variable: "--font-jetbrains-mono" });
+const jetBrainsMono = localFont({ src: "./brand/JetBrainsMono-Regular.ttf", weight: "400", variable: "--font-jetbrains-mono", display: "swap" });
 
 export const fontRegistry = {
   geist: { label: "Geist", font: geist },

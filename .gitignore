@@ -65,3 +65,11 @@ Thumbs.db
 /skopos.failed
 /skopos.upgrade.json
 node_modules/
+
+# Local visual QA captures
+/.impeccable/review/
+/.impeccable/questions/
+
+# Local Codex Security tooling, separate from application package manifests
+/package.json
+/package-lock.json

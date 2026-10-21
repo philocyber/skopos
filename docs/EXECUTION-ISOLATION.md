@@ -1,5 +1,7 @@
 # Restricted execution boundary
 
+`LOCAL_SECURITY_ARTIFACTS` below denotes private local verification outputs. These artifacts are not bundled with this repository.
+
 Status: implementation requirements, verified preflight and executor credential masks; no implemented OS sandbox. REC-003, REC-022 and REC-034 remain partial. The existing 36 closed families are unchanged.
 
 ## Required boundary
@@ -11,7 +13,7 @@ Restricting only the Bash tool name is insufficient. Foreground commands, backgr
 ## Verified preflight, 2026-10-11
 
 - The existing skopos-security-tests-20261010 container runs Linux 6.18.40.1-microsoft-standard-WSL2. No new container/service was launched.
-- A cached-dependency Linux/amd64 Go probe returned landlock_abi=7 and no_new_privs=0. This queries kernel capability/current process state; it does not apply restrictions or prove a prohibited effect is blocked. Source, binary and output are in C:/Users/richi/AppData/Local/SkoposSecurityTests/isolation-capability-probe*.
+- A cached-dependency Linux/amd64 Go probe returned landlock_abi=7 and no_new_privs=0. This queries kernel capability/current process state; it does not apply restrictions or prove a prohibited effect is blocked. Source, binary and output are in LOCAL_SECURITY_ARTIFACTS/isolation-capability-probe*.
 - docker exec skopos-security-tests-20261010 unshare --user --map-root-user --mount --net true returned Operation not permitted, exit 1. Output is retained in isolation-namespace-probe.log. Do not assume a process can create its own isolation namespaces inside the current container policy, or silently request broader privileges as a fallback.
 - norma v0.4.3 agentcore.Options exposes Tools, WorkingDir and BashEnv. BashEnv overrides inherited child environment entries; tool/task.go withEnv begins with os.Environ(). A working directory and injected proxy variables do not remove server credentials or prevent another destination.
 - SDK foreground Bash, background Manager and ShellSessionManager call exec.CommandContext directly (tool/bash.go, tool/task.go and tool/shell_session.go). Session options inspected provide no process sandbox callback. The module cache was not modified.

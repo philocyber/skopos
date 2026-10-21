@@ -96,22 +96,26 @@ export function NavMain({ items }: NavMainProps) {
   // Decode percent-encoded path segments before comparing navigation URLs so active highlighting works.
   const path = (() => {
     try {
-      return decodeURIComponent(rawPath);
+      return decodeURIComponent(rawPath).replace(/\/+$/, "");
     } catch {
-      return rawPath;
+      return rawPath.replace(/\/+$/, "");
     }
   })();
+  const activeUrl = items
+    .flatMap((group) => group.items.flatMap((item) => item.subItems ?? [item]))
+    .filter((item) => item.url && (path === item.url || path.startsWith(`${item.url}/`)))
+    .sort((a, b) => (b.url?.length ?? 0) - (a.url?.length ?? 0))[0]?.url;
 
   const isItemActive = (item: NavMainItem) => {
     if (hasSubItems(item)) {
       return item.subItems.some((sub) => path.startsWith(sub.url));
     }
 
-    return path === item.url;
+    return item.url === activeUrl;
   };
 
   const isSubItemActive = (url: string) => {
-    return path === url;
+    return activeUrl === url;
   };
 
   const isSubmenuOpen = (item: NavMainParentItem) => {
