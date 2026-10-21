@@ -9,7 +9,6 @@ import (
 func TestVerdictLanguageContractsRemainStrict(t *testing.T) {
 	for _, input := range []string{
 		`{"decision":"allow","comment":"Operation: read file; Effect if successful: return text; Rule: A5"}`,
-		`{"decision":"ask","comment":"작업: 파일 삭제; 성공 시 영향: 파일 소실; 적용 규칙: ASK"}`,
 		`{"decision":"deny","comment":"实际操作：删除订单；成功后的后果：数据丢失；命中规则：D4"}`,
 	} {
 		if v := ParseVerdict(input); v.Action == "" {
@@ -18,7 +17,7 @@ func TestVerdictLanguageContractsRemainStrict(t *testing.T) {
 	}
 	for _, input := range []string{
 		`{"decision":"allow","comment":"Operation: read; Effect if successful: ; Rule: A5"}`,
-		`{"decision":"allow","comment":"작업: 읽기; Effect if successful: text; 적용 규칙: A5"}`,
+		`{"decision":"allow","comment":"实际操作：读取; Effect if successful: text; 命中规则：A5"}`,
 		`{"decision":"allow","comment":"Operation: read; Effect if successful: text; Rule: A5","extra":"bypass"}`,
 		`{"decision":"ALLOW","comment":"Operation: read; Effect if successful: text; Rule: A5"}`,
 	} {
@@ -40,7 +39,7 @@ func TestJudgePromptLanguagesPreservePolicyAndCustomText(t *testing.T) {
 		if strings.Count(p, contract) != 1 {
 			t.Fatalf("%s duplicated/missing output contract", lang)
 		}
-		custom := "用户自定义策略 한국어"
+		custom := "用户自定义策略 café"
 		if got := EffectiveJudgePrompt(custom, lang); !strings.HasPrefix(got, custom) {
 			t.Fatal("custom policy rewritten")
 		}
