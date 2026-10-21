@@ -254,7 +254,7 @@ export default function AssetInterceptPage() {
       <div className="flex items-center gap-2.5">
         <BanIcon className="h-5 w-5 shrink-0" />
         <div>
-          <h1 className="text-lg font-semibold leading-tight">{swt("interface.m1166")}</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m1166")}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{swt("interface.m1167")}</p>
         </div>
       </div>

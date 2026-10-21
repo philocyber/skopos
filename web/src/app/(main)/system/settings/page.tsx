@@ -5,6 +5,8 @@ import * as React from "react";
 import { CpuIcon, FlaskConicalIcon, KeyboardIcon, RadioTowerIcon, SearchIcon, ShieldAlertIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { ExpandableText } from "@/components/expandable-text";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -261,10 +263,7 @@ export default function SystemSettingsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m1644")}</h1>
-        <p className="text-muted-foreground text-sm">{swt("interface.m1645")}</p>
-      </div>
+      <PageHeader title={swt("interface.m1644")} description={swt("interface.m1645")} />
 
       {/* Use columns instead of grid: search cards vary greatly in height with conditional provider-key inputs. Columns balance content without grid row gaps. Cards provide margin-bottom because column-gap handles only horizontal spacing. */}
       <div className="columns-1 gap-4 md:gap-6 lg:columns-2">
@@ -277,13 +276,15 @@ export default function SystemSettingsPage() {
               {swt("interface.m0209")}
             </CardTitle>
             <CardDescription>
-              {swt("interface.m1646")}
-              <br />
-              {rich(
-                "settings.captureDisabled",
-                {},
-                { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
-              )}
+              <ExpandableText>
+                {swt("interface.m1646")}
+                <br />
+                {rich(
+                  "settings.captureDisabled",
+                  {},
+                  { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
+                )}
+              </ExpandableText>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
@@ -306,9 +307,11 @@ export default function SystemSettingsPage() {
               {swt("interface.m1654")}
             </CardTitle>
             <CardDescription id="agent-traffic-binding-description">
-              {rich("settings.binding", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
-              <br />
-              {swt("interface.m1657")}
+              <ExpandableText>
+                {rich("settings.binding", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+                <br />
+                {swt("interface.m1657")}
+              </ExpandableText>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
@@ -332,11 +335,13 @@ export default function SystemSettingsPage() {
               {swt("interface.m1660")}
             </CardTitle>
             <CardDescription>
-              {rich("settings.proxy", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
-              <br />
-              {rich("settings.proxyCapture", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
-              <br />
-              {rich("settings.proxySocks", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <ExpandableText>
+                {rich("settings.proxy", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+                <br />
+                {rich("settings.proxyCapture", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+                <br />
+                {rich("settings.proxySocks", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              </ExpandableText>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
@@ -369,13 +374,15 @@ export default function SystemSettingsPage() {
               {swt("interface.m1677")}
             </CardTitle>
             <CardDescription>
-              {rich("settings.constraints", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
-              <br />
-              {rich(
-                "settings.constraintTargets",
-                {},
-                { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
-              )}
+              <ExpandableText>
+                {rich("settings.constraints", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+                <br />
+                {rich(
+                  "settings.constraintTargets",
+                  {},
+                  { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
+                )}
+              </ExpandableText>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -411,9 +418,11 @@ export default function SystemSettingsPage() {
               {swt("interface.m1689")}
             </CardTitle>
             <CardDescription>
-              {swt("interface.m1690")}
-              <br />
-              {rich("settings.compression", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <ExpandableText>
+                {swt("interface.m1690")}
+                <br />
+                {rich("settings.compression", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              </ExpandableText>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
@@ -436,9 +445,15 @@ export default function SystemSettingsPage() {
               {swt("interface.m1187")}
             </CardTitle>
             <CardDescription>
-              {rich("settings.webSearch", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
-              <br />
-              {rich("settings.searchSources", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <ExpandableText>
+                {rich("settings.webSearch", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+                <br />
+                {rich(
+                  "settings.searchSources",
+                  {},
+                  { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
+                )}
+              </ExpandableText>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -468,7 +483,7 @@ export default function SystemSettingsPage() {
                     saveWebSearch({ web_search_backend: v });
                   }}
                 >
-                  <SelectTrigger className="w-48 shrink-0">
+                  <SelectTrigger className="w-72 shrink-0">
                     <SelectValue placeholder={swt("interface.m1712")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -608,7 +623,9 @@ export default function SystemSettingsPage() {
               {swt("interface.m1747")}
             </CardTitle>
             <CardDescription>
-              {rich("settings.python", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <ExpandableText>
+                {rich("settings.python", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              </ExpandableText>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
@@ -637,7 +654,9 @@ export default function SystemSettingsPage() {
               {swt("interface.m1751")}
             </CardTitle>
             <CardDescription>
-              {rich("settings.workers", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <ExpandableText>
+                {rich("settings.workers", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              </ExpandableText>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
@@ -665,9 +684,15 @@ export default function SystemSettingsPage() {
               {swt("interface.m1755")}
             </CardTitle>
             <CardDescription>
-              {swt("interface.m1756")}
-              <br />
-              {rich("settings.sendPreference", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <ExpandableText>
+                {swt("interface.m1756")}
+                <br />
+                {rich(
+                  "settings.sendPreference",
+                  {},
+                  { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
+                )}
+              </ExpandableText>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">

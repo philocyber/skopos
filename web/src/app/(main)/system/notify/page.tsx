@@ -265,8 +265,8 @@ export default function NotifyPage() {
   }
 
   const fields = CHANNEL_FIELDS[form.kind] ?? [];
-  const secretKeys = new Set(meta?.kinds.find((k) => k.kind === form.kind)?.secret_keys ?? []);
-  const defaultRate = meta?.kinds.find((k) => k.kind === form.kind)?.default_rate_per_min ?? 0;
+  const secretKeys = new Set(meta?.kinds?.find((k) => k.kind === form.kind)?.secret_keys ?? []);
+  const defaultRate = meta?.kinds?.find((k) => k.kind === form.kind)?.default_rate_per_min ?? 0;
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
