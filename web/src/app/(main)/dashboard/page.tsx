@@ -1104,7 +1104,7 @@ export default function DashboardPage() {
                     <td className="px-4 py-3">
                       {goalsPct !== null ? (
                         <div className="flex items-center gap-2">
-                          <Progress value={goalsPct} className="h-1 w-14" />
+                          <Progress value={goalsPct} aria-label={swt("interface.m0193")} className="h-1 w-14" />
                           <span className="tabular-nums text-muted-foreground">
                             {t.goals_met ?? 0}/{t.goals_total}
                           </span>

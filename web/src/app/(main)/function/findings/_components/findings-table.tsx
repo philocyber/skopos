@@ -173,18 +173,7 @@ export function FindingsTable({
           const retest = f.finding_id ? activeRetests[f.finding_id] : undefined;
           return (
             <React.Fragment key={rowKey}>
-              <TableRow
-                className="cursor-pointer"
-                role="button"
-                tabIndex={0}
-                aria-expanded={open}
-                onClick={() => onToggleRow(f)}
-                onKeyDown={(event) => {
-                  if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
-                  event.preventDefault();
-                  onToggleRow(f);
-                }}
-              >
+              <TableRow className="cursor-pointer" onClick={() => onToggleRow(f)}>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   {f.finding_id && (
                     <Checkbox
@@ -194,10 +183,18 @@ export function FindingsTable({
                     />
                   )}
                 </TableCell>
-                <TableCell>
-                  <ChevronRightIcon
-                    className={cn("size-4 text-muted-foreground transition-transform", open && "rotate-90")}
-                  />
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    aria-label={swt("english.e215")}
+                    onClick={() => onToggleRow(f)}
+                    className="inline-flex rounded outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <ChevronRightIcon
+                      className={cn("size-4 text-muted-foreground transition-transform", open && "rotate-90")}
+                    />
+                  </button>
                 </TableCell>
                 <TableCell>
                   <StatusBadge domain="severity" value={f.severity} dot />

@@ -94,7 +94,8 @@ function AgentGridCard({ agent, onOpen, onDeleted }: { agent: Agent; onOpen: () 
             <Button
               variant="ghost"
               size="icon-sm"
-              className="text-muted-foreground hover:text-destructive absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
+              aria-label={swt("interface.m0101")}
+              className="text-muted-foreground hover:text-destructive absolute top-2 right-2 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
             >
               <Trash2Icon className="size-3.5" />
             </Button>
