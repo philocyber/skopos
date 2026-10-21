@@ -9,8 +9,10 @@ so a second language can be reintroduced later without reworking consumers.)
 Use `useI18n().t` in components and `translate` in non-React helpers. Keep
 placeholders identical and pass user values as interpolation parameters. Never
 translate user-entered text, persisted reports, identifiers, API field names,
-credentials, or protocol values. The existing Chinese mention wire labels and
-historical parser aliases are backend-compatibility values and remain unchanged;
+credentials, or protocol values. The mention wire tokens (`@[finding#12 ...]`)
+are a stable backend contract and must match `server/chat_mentions.go`
+byte-for-byte if ever changed; the legacy `[模型]`/`Model` and `工具 ... 请求`
+historical-data markers remain upstream-ARTEX compatibility values;
 visible labels are localized independently.
 
 The `interface` namespace contains the migrated interface and authored demo

@@ -121,7 +121,7 @@ function MatchCell({ row, showReason = true }: { row: InterceptApprovalRow; show
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
 
-  const reason = row.reason?.replace(/^\[(?:模型|Model|모델)\]\s*/, "");
+  const reason = row.reason?.replace(/^\[(?:模型|Model)\]\s*/, "");
   return (
     <div className="flex min-w-0 flex-col gap-1">
       {source(row) === "model" ? (
@@ -388,7 +388,7 @@ export function ApprovalDetail({
             <MatchCell row={current} showReason={false} />
           </div>
           <p className="whitespace-pre-wrap break-words text-sm leading-7 [overflow-wrap:anywhere]">
-            {current.reason?.replace(/^\[(?:模型|Model|모델)\]\s*/, "") || swt("interface.m2105")}
+            {current.reason?.replace(/^\[(?:模型|Model)\]\s*/, "") || swt("interface.m2105")}
           </p>
           {audit?.decision_reason ? <p className="text-sm">{audit.decision_reason}</p> : null}
           {audit?.effective_action ? <p className="text-sm">{swt("interface.m2106")}{actionLabels[audit.effective_action]}</p> : null}
@@ -500,7 +500,7 @@ export function ApprovalDetail({
               ) : null}
               <CodeBlock
                 label={`${initialLabel}：${actionLabels[audit.initial_action] ?? audit.initial_action}`}
-                text={audit.initial_reason.replace(/^\[(?:模型|Model|모델)\]\s*/, "")}
+                text={audit.initial_reason.replace(/^\[(?:模型|Model)\]\s*/, "")}
               />
               <CodeBlock
                 label={swt("interface.m2127")}

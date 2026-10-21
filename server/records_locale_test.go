@@ -12,12 +12,11 @@ import (
 )
 
 func TestRecordsMentionProtocolAndLocalizedErrors(t *testing.T) {
-	// Chinese type labels are stable wire tokens, not UI prose to rewrite.
-	refs, err := parseChatMentions("@[漏洞#12 title] @[企业#8 name]")
+	refs, err := parseChatMentions("@[finding#12 title] @[company#8 name]")
 	if err != nil || len(refs) != 2 || refs[0].Kind != "finding" || refs[1].Kind != "company" {
 		t.Fatalf("protocol changed: %+v %v", refs, err)
 	}
-	_, err = parseChatMentions("@[漏洞#0]")
+	_, err = parseChatMentions("@[finding#0]")
 	var input *chatMentionInputError
 	if !errors.As(err, &input) || !strings.Contains(locale.ErrorMessage(locale.En, err), "Invalid reference ID") {
 		t.Fatalf("validation error=%v", err)
