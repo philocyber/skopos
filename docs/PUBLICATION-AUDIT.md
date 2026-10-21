@@ -1,5 +1,36 @@
 # Public-repository privacy audit
 
+## Publication refresh, 2026-10-21
+
+The current source snapshot passes the publication checker and Gitleaks v8.30.1:
+1,048 prospective files, approximately 10 MB, no unresolved source findings.
+Gitleaks also scanned the 12 commits reachable from the pre-publication branch
+HEAD with no secret findings. These are bounded automated checks, not a proof
+that every possible confidential datum is absent.
+
+Personal home paths in the three documents listed below now use portable artifact
+references, and the internal scan identifier has been removed. Technical evidence
+and unresolved execution-isolation limits are retained. Root Codex Security
+package manifests are untracked and ignored; application manifests remain tracked.
+Local visual QA captures, decision-server payloads and runtime files are excluded.
+The ARTEX attribution and license remain in place.
+
+**Historical metadata remains:** the existing remote `main` commit already contains
+some of the old machine paths and internal scan identifier. This publication is a
+normal update; it does not rewrite that existing public history. A full metadata
+scan of all local refs will therefore continue to report those historical values.
+The older snapshot below records the original findings and verification limits.
+
+Commands executed for this refresh:
+
+- `node tools/audit-publication.mjs --secrets`: passed.
+- `gitleaks git . --log-opts=HEAD --redact --no-banner --no-color`: passed, 12 commits.
+- `npm.cmd test` in `web`: 28 passed, 1 skipped, 0 failed.
+- `git -c core.safecrlf=false diff --check`: passed.
+
+## Earlier audit snapshot
+
+
 Audited on **2026-10-21**, with HEAD at `3bf3fb6`. Another process was actively
 editing this checkout. This is a snapshot of the privacy review, not approval
 to publish the changing working tree.

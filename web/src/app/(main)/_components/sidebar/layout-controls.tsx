@@ -104,7 +104,7 @@ export function LayoutControls() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button size="icon">
+        <Button variant="ghost" size="icon" aria-label={swt("english.e004")}>
           <Settings />
         </Button>
       </PopoverTrigger>

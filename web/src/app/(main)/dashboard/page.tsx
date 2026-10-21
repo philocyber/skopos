@@ -46,9 +46,9 @@ import { cn } from "@/lib/utils";
 // ── chart constants ───────────────────────────────────────────────────────────
 
 const dailyTrendConfig = {
-  input: { get label() { return swt("interface.m0135"); }, color: "hsl(217 91% 60%)" },
-  output: { get label() { return swt("interface.m0136"); }, color: "hsl(263 70% 60%)" },
-  cacheRead: { get label() { return swt("interface.m0137"); }, color: "hsl(160 60% 45%)" },
+  input: { get label() { return swt("interface.m0135"); }, color: "var(--chart-1)" },
+  output: { get label() { return swt("interface.m0136"); }, color: "var(--chart-2)" },
+  cacheRead: { get label() { return swt("interface.m0137"); }, color: "var(--chart-3)" },
 } satisfies ChartConfig;
 
 // ── helpers ──────────────────────────────────────────────────────────────────

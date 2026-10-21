@@ -12,12 +12,13 @@ import { toast } from "sonner";
 
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { api } from "@/lib/api";
 import { useStoredSortPreference } from "@/lib/sort-preference";
 import { statusMeta } from "@/lib/status";
-import type { Finding, FindingStatus } from "@/lib/types";
+import type { Finding, FindingsPage, FindingStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type FindingSortField = "time";
@@ -73,13 +74,17 @@ function Row({
               <span className="truncate font-medium">{findingLabel(f)}</span>
               {f.inherited && f.source_task_id && (
                 <Badge variant="outline" className="shrink-0">
-                  {swt("interface.m0570")}{f.source_task_id} {swt("interface.m0357")}</Badge>
+                  {swt("interface.m0570")}
+                  {f.source_task_id} {swt("interface.m0357")}
+                </Badge>
               )}
             </div>
             <span className="truncate text-xs text-muted-foreground">{f.summary}</span>
           </div>
         </button>
-        <Badge variant="outline">{swt("interface.m0327")}{" "}{f.traffic_count ?? 0} {swt("interface.m0328")}</Badge>
+        <Badge variant="outline">
+          {swt("interface.m0327")} {f.traffic_count ?? 0} {swt("interface.m0328")}
+        </Badge>
         {f.assets && f.assets.length > 0 && (
           <div className="hidden shrink-0 flex-wrap justify-end gap-1 sm:flex">
             {f.assets.slice(0, 2).map((a) => (
@@ -125,7 +130,8 @@ function Row({
             className="text-muted-foreground hover:text-primary inline-flex shrink-0 items-center gap-0.5 text-xs"
             title={swt("interface.m0591")}
           >
-            {swt("interface.m0592")}<ArrowUpRightIcon className="size-3" />
+            {swt("interface.m0592")}
+            <ArrowUpRightIcon className="size-3" />
           </Link>
         )}
       </div>
@@ -138,6 +144,106 @@ function Row({
         </div>
       )}
     </div>
+  );
+}
+
+function RegisteredFindings({ taskId }: { taskId: string }) {
+  const [page, setPage] = React.useState(1);
+  const [data, setData] = React.useState<FindingsPage | null>(null);
+  const [error, setError] = React.useState(false);
+  const [revision, refresh] = React.useReducer((n: number) => n + 1, 0);
+  React.useEffect(() => {
+    let live = true;
+    let timer: ReturnType<typeof setTimeout>;
+    setData(null);
+    async function load() {
+      try {
+        const result = await api.findingsPage({ task: taskId, page, pageSize: 25, sort: "severity" });
+        if (live) {
+          setData(result);
+          setError(false);
+        }
+      } catch {
+        if (live) setError(true);
+      } finally {
+        if (live) timer = setTimeout(load, 5000);
+      }
+    }
+    void load();
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [taskId, page, revision]);
+  async function onStatus(finding: Finding, next: FindingStatus) {
+    try {
+      await api.setFindingStatus(finding.finding_id || finding.id, next);
+      refresh();
+    } catch (err) {
+      toast.error(`Finding status could not be updated: ${(err as Error).message}`);
+    }
+  }
+  return (
+    <Card className="overflow-hidden py-0">
+      <CardHeader className="gap-1 border-b py-4">
+        <CardTitle className="flex items-center gap-2 text-sm">
+          Registered findings <Badge variant="secondary">{data?.total ?? "—"}</Badge>
+        </CardTitle>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          All review statuses for this task, including pending and standalone findings. This is the register used by
+          task context and the report.
+        </p>
+      </CardHeader>
+      <CardContent className="px-0">
+        {error && (
+          <div role="alert" className="flex items-center justify-between gap-3 p-4 text-sm">
+            <span>Registered findings could not be refreshed.</span>
+            <Button size="sm" variant="outline" onClick={refresh}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!data && !error && (
+          <p role="status" className="p-6 text-sm text-muted-foreground">
+            Loading registered findings…
+          </p>
+        )}
+        {data?.items.map((finding) => (
+          <Row
+            key={finding.id}
+            f={{ ...finding, finding_id: finding.finding_id || finding.id }}
+            contextTaskId={taskId}
+            onStatus={onStatus}
+          />
+        ))}
+        {data?.total === 0 && (
+          <p className="p-6 text-sm text-muted-foreground">
+            No findings registered for this task. Review Results ledger for recorded conclusions and incomplete
+            attempts.
+          </p>
+        )}
+        {data && data.total > 25 && (
+          <div className="flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground">
+            <span>
+              Page {page} of {Math.ceil(data.total / 25)}
+            </span>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" disabled={page === 1} onClick={() => setPage((n) => n - 1)}>
+                Previous
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={page * 25 >= data.total}
+                onClick={() => setPage((n) => n + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -173,18 +279,21 @@ export function FindingsTab({ taskId }: { taskId: string }) {
     };
   }, [taskId]);
 
-  const onStatus = React.useCallback(async (f: Finding, next: FindingStatus) => {
-    if (f.inherited || !f.finding_id || next === f.status) return;
-    const prev = f.status;
-    setFindings((cur) => cur.map((x) => (x.id === f.id ? { ...x, status: next } : x)));
-    try {
-      await api.setFindingStatus(f.finding_id, next);
-      toast.success(swt("interface.m0375", { p0: statusMeta("finding", next).label }));
-    } catch (e) {
-      setFindings((cur) => cur.map((x) => (x.id === f.id ? { ...x, status: prev } : x)));
-      toast.error(swt("interface.m0352") + (e as Error).message);
-    }
-  }, [swLocale]);
+  const onStatus = React.useCallback(
+    async (f: Finding, next: FindingStatus) => {
+      if (f.inherited || !f.finding_id || next === f.status) return;
+      const prev = f.status;
+      setFindings((cur) => cur.map((x) => (x.id === f.id ? { ...x, status: next } : x)));
+      try {
+        await api.setFindingStatus(f.finding_id, next);
+        toast.success(swt("interface.m0375", { p0: statusMeta("finding", next).label }));
+      } catch (e) {
+        setFindings((cur) => cur.map((x) => (x.id === f.id ? { ...x, status: prev } : x)));
+        toast.error(swt("interface.m0352") + (e as Error).message);
+      }
+    },
+    [swLocale],
+  );
 
   const items = findings
     .filter((f) => f.task_id === taskId || f.inherited)
@@ -195,36 +304,47 @@ export function FindingsTab({ taskId }: { taskId: string }) {
     });
 
   return (
-    <Card className="overflow-hidden py-0">
-      <CardContent className="px-0">
-        <div className="flex items-center border-b px-4 py-2 text-xs text-muted-foreground">
-          <span className="min-w-0 flex-1">{swt("interface.m0526")}</span>
-          <button
-            type="button"
-            className="inline-flex items-center gap-1 outline-none focus-visible:underline"
-            aria-label={swt("interface.m0593", { p0: sortPreference.direction === "asc" ? swt("interface.m0594") : swt("interface.m0595") })}
-            onClick={() =>
-              setSortPreference((current) => ({
-                field: "time",
-                direction: current.direction === "asc" ? "desc" : "asc",
-              }))
-            }
-          >
-            <span>{swt("interface.m0370")}</span>
-            {sortPreference.direction === "asc" ? (
-              <ArrowUpIcon className="size-3.5" />
-            ) : (
-              <ArrowDownIcon className="size-3.5" />
+    <div className="space-y-5">
+      <RegisteredFindings key={taskId} taskId={taskId} />
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold">Exploration findings</h2>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          The original exploration view, including read-only findings inherited from source tasks.
+        </p>
+        <Card className="overflow-hidden py-0">
+          <CardContent className="px-0">
+            <div className="flex items-center border-b px-4 py-2 text-xs text-muted-foreground">
+              <span className="min-w-0 flex-1">{swt("interface.m0526")}</span>
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 outline-none focus-visible:underline"
+                aria-label={swt("interface.m0593", {
+                  p0: sortPreference.direction === "asc" ? swt("interface.m0594") : swt("interface.m0595"),
+                })}
+                onClick={() =>
+                  setSortPreference((current) => ({
+                    field: "time",
+                    direction: current.direction === "asc" ? "desc" : "asc",
+                  }))
+                }
+              >
+                <span>{swt("interface.m0370")}</span>
+                {sortPreference.direction === "asc" ? (
+                  <ArrowUpIcon className="size-3.5" />
+                ) : (
+                  <ArrowDownIcon className="size-3.5" />
+                )}
+              </button>
+            </div>
+            {items.map((f) => (
+              <Row key={f.id} f={f} contextTaskId={taskId} onStatus={onStatus} />
+            ))}
+            {items.length === 0 && (
+              <p className="px-4 py-8 text-center text-sm text-muted-foreground">{swt("interface.m0596")}</p>
             )}
-          </button>
-        </div>
-        {items.map((f) => (
-          <Row key={f.id} f={f} contextTaskId={taskId} onStatus={onStatus} />
-        ))}
-        {items.length === 0 && (
-          <p className="px-4 py-8 text-center text-sm text-muted-foreground">{swt("interface.m0596")}</p>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </section>
+    </div>
   );
 }

@@ -2,6 +2,9 @@
 
 <!-- impeccable:design-schema 1 -->
 
+The operational application console has a separate design system at
+[web/DESIGN.md](web/DESIGN.md).
+
 Static GitHub Pages landing page for Skopos. English is the default
 (`landing/index.html`); Korean is a peer (`landing/ko/index.html`). Plain
 HTML/CSS/JS, no framework, no CDN, no tracker, no backend. Served under the

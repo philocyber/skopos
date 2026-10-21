@@ -3,29 +3,15 @@
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
 import * as React from "react";
+import { useTheme } from "next-themes";
 import type { Graph as G6Graph } from "@antv/g6";
-import {
-  AppWindow,
-  Building2,
-  Globe,
-  Link2,
-  type LucideIcon,
-  Radio,
-  RefreshCw,
-  Server,
-  Waypoints,
-} from "lucide-react";
+import { AppWindow, Building2, Globe, Link2, type LucideIcon, Radio, RefreshCw, Server, Waypoints } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { api } from "@/lib/api";
 import type { CoverageAssetRef, CoverageAssetRefs, CoverageGraphEdge, CoverageGraphNode } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -39,13 +25,61 @@ type Kind = CoverageGraphNode["kind"];
 type KindMeta = { label: string; icon: LucideIcon; iconBg: string; hex: string; size: number };
 
 const kindMeta: Record<Kind, KindMeta> = {
-  company: { get label() { return swt("interface.m0568"); }, icon: Building2, iconBg: "bg-slate-500", hex: "#64748b", size: 46 },
-  root_domain: { get label() { return swt("interface.m0142"); }, icon: Globe, iconBg: "bg-indigo-500", hex: "#6366f1", size: 38 },
-  subdomain: { get label() { return swt("interface.m0143"); }, icon: Waypoints, iconBg: "bg-blue-500", hex: "#3b82f6", size: 30 },
+  company: {
+    get label() {
+      return swt("interface.m0568");
+    },
+    icon: Building2,
+    iconBg: "bg-slate-500",
+    hex: "#64748b",
+    size: 46,
+  },
+  root_domain: {
+    get label() {
+      return swt("interface.m0142");
+    },
+    icon: Globe,
+    iconBg: "bg-indigo-500",
+    hex: "#6366f1",
+    size: 38,
+  },
+  subdomain: {
+    get label() {
+      return swt("interface.m0143");
+    },
+    icon: Waypoints,
+    iconBg: "bg-blue-500",
+    hex: "#3b82f6",
+    size: 30,
+  },
   ip: { label: "IP", icon: Server, iconBg: "bg-cyan-600", hex: "#0891b2", size: 28 },
-  service: { get label() { return swt("interface.m0145"); }, icon: Radio, iconBg: "bg-amber-500", hex: "#f59e0b", size: 26 },
-  app: { get label() { return swt("english.e066"); }, icon: AppWindow, iconBg: "bg-fuchsia-500", hex: "#d946ef", size: 26 },
-  endpoint: { get label() { return swt("interface.m0146"); }, icon: Link2, iconBg: "bg-rose-500", hex: "#f43f5e", size: 20 },
+  service: {
+    get label() {
+      return swt("interface.m0145");
+    },
+    icon: Radio,
+    iconBg: "bg-amber-500",
+    hex: "#f59e0b",
+    size: 26,
+  },
+  app: {
+    get label() {
+      return swt("english.e066");
+    },
+    icon: AppWindow,
+    iconBg: "bg-fuchsia-500",
+    hex: "#d946ef",
+    size: 26,
+  },
+  endpoint: {
+    get label() {
+      return swt("interface.m0146");
+    },
+    icon: Link2,
+    iconBg: "bg-rose-500",
+    hex: "#f43f5e",
+    size: 20,
+  },
 };
 
 // Use the platform's Lucide icons for G6 nodes. Render Lucide v1.22 SVG paths as white-stroke
@@ -292,7 +326,9 @@ function RefList({ title, items }: { title: string; items: CoverageAssetRef[] })
             <span className="min-w-32 flex-1 break-words text-foreground">{r.summary || "—"}</span>
             {r.inherited && r.source_task_id && (
               <Badge variant="outline" className="shrink-0">
-                {swt("interface.m0570")}{r.source_task_id} {swt("interface.m0357")}</Badge>
+                {swt("interface.m0570")}
+                {r.source_task_id} {swt("interface.m0357")}
+              </Badge>
             )}
           </div>
         ))}
@@ -341,7 +377,9 @@ function AssetSheet({
           <>
             <SheetHeader className="border-b p-4">
               <div className="flex items-center gap-2.5 pr-8">
-                <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg shadow-sm", meta.iconBg)}>
+                <span
+                  className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg shadow-sm", meta.iconBg)}
+                >
                   <Icon className="size-4 text-white" />
                 </span>
                 <div className="min-w-0">
@@ -376,7 +414,9 @@ function AssetSheet({
                     {node.url ? <span className="font-mono text-xs break-all">{node.url}</span> : undefined}
                   </DetailRow>
                   <DetailRow label={swt("interface.m0246")}>{node.page_title}</DetailRow>
-                  <DetailRow label={swt("interface.m0245")}>{node.status_code ? node.status_code : undefined}</DetailRow>
+                  <DetailRow label={swt("interface.m0245")}>
+                    {node.status_code ? node.status_code : undefined}
+                  </DetailRow>
                   <DetailRow label="App">{node.app_name}</DetailRow>
                   <DetailRow label={swt("interface.m0576")}>
                     {node.asset_id ? <span className="font-mono text-xs">{node.asset_id}</span> : undefined}
@@ -427,7 +467,7 @@ function FoldSheet({
           <>
             <SheetHeader className="border-b p-4">
               <SheetTitle className="text-base">
-                {swt("interface.m0581")}{" "}{meta.label}（{fold.hidden.length}）
+                {swt("interface.m0581")} {meta.label}（{fold.hidden.length}）
               </SheetTitle>
               <p className="text-muted-foreground text-xs">{swt("interface.m0582")}</p>
             </SheetHeader>
@@ -458,7 +498,8 @@ function FoldSheet({
             </ScrollArea>
             <div className="border-t p-3">
               <Button className="w-full" variant="outline" onClick={() => onShowMore(fold.groupId)}>
-                {swt("interface.m0583")}{FOLD_STEP}）
+                {swt("interface.m0583")}
+                {FOLD_STEP}）
               </Button>
             </div>
           </>
@@ -472,6 +513,7 @@ function FoldSheet({
 function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; coverageEnabled?: boolean }) {
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
+  const { resolvedTheme } = useTheme();
 
   const [data, setData] = React.useState<{
     nodes: CoverageGraphNode[];
@@ -522,7 +564,10 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
   // Rebuild and relayout only when visible node/edge structure changes, avoiding jitter.
   const sig = React.useMemo(
     () =>
-      `${renderNodes.map((n) => `${n.key}:${n.fold ? "f" : n.node.tested ? "t" : "u"}`).sort().join(",")}|${renderEdges.length}`,
+      `${renderNodes
+        .map((n) => `${n.key}:${n.fold ? "f" : n.node.tested ? "t" : "u"}`)
+        .sort()
+        .join(",")}|${renderEdges.length}`,
     [swLocale, renderNodes, renderEdges],
   );
 
@@ -558,7 +603,7 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
         container: containerRef.current,
         autoResize: true,
         autoFit: "view",
-        background: "#f0f2f7",
+        background: "transparent",
         node: {
           style: {
             size: (d: unknown) => nd(d).size,
@@ -572,15 +617,15 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
             labelText: (d: unknown) => nd(d).lbl,
             labelFontSize: 10,
             labelPlacement: "bottom",
-            labelFill: "#475569",
+            labelFill: resolvedTheme === "dark" ? "#c7d2df" : "#475569",
             labelBackground: true,
-            labelBackgroundFill: "rgba(255,255,255,0.75)",
+            labelBackgroundFill: resolvedTheme === "dark" ? "#19232f" : "rgba(255,255,255,0.75)",
             labelBackgroundRadius: 3,
             labelPadding: [1, 3],
           },
         },
         edge: {
-          style: { stroke: "#cbd5e1", lineWidth: 1, endArrow: false },
+          style: { stroke: resolvedTheme === "dark" ? "#435365" : "#cbd5e1", lineWidth: 1, endArrow: false },
         },
         layout: {
           type: "d3-force",
@@ -623,7 +668,7 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
       graph?.destroy();
       graphRef.current = null;
     };
-  }, [applyData]);
+  }, [applyData, resolvedTheme]);
 
   // Visible set changes reapply data and layout. sig only triggers relayout; applyData reads gDataRef.
   // biome-ignore lint/correctness/useExhaustiveDependencies: sig intentionally triggers relayout
@@ -652,7 +697,7 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
   const inScope = data?.nodes.filter((n) => n.in_scope).length ?? 0;
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full bg-card">
       <div ref={containerRef} className="h-full w-full" />
 
       {/* Legend, statistics, and refresh overlay. */}
@@ -660,7 +705,8 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
         <div className="flex items-center justify-between gap-3">
           {total > 0 ? (
             <span className="text-muted-foreground">
-              {swt("interface.m0584")}<span className="text-foreground font-semibold tabular-nums">{inScope}</span>
+              {swt("interface.m0584")}
+              <span className="text-foreground font-semibold tabular-nums">{inScope}</span>
               {coverageEnabled && (
                 <>
                   {" "}
@@ -694,16 +740,21 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
           {coverageEnabled && (
             <>
               <span className="inline-flex items-center gap-1.5">
-                <span className="size-3 rounded-full bg-emerald-500" /> {swt("interface.m0587")}</span>
+                <span className="size-3 rounded-full bg-emerald-500" /> {swt("interface.m0587")}
+              </span>
               <span className="inline-flex items-center gap-1.5">
-                <span className="size-3 rounded-full bg-neutral-400" /> {swt("interface.m0588")}</span>
+                <span className="size-3 rounded-full bg-neutral-400" /> {swt("interface.m0588")}
+              </span>
             </>
           )}
           <span className="inline-flex items-center gap-1.5">
-            <span className="size-3 rounded-full border border-dashed border-neutral-400 bg-neutral-200" /> {swt("interface.m0589")}</span>
+            <span className="size-3 rounded-full border border-dashed border-neutral-400 bg-neutral-200" />{" "}
+            {swt("interface.m0589")}
+          </span>
         </div>
         <p className="text-muted-foreground/80 border-border/60 border-t pt-2 leading-relaxed">
-          {swt("interface.m0590")}</p>
+          {swt("interface.m0590")}
+        </p>
       </div>
 
       <AssetSheet node={selectedAsset} taskId={taskId} onOpenChange={(o) => !o && setSelectedAsset(null)} />

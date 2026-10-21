@@ -7,7 +7,16 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { ArchiveIcon, ArrowLeftIcon, BrainIcon, CheckIcon, CircleAlertIcon, PauseIcon, PlayIcon } from "lucide-react";
+import {
+  ArchiveIcon,
+  ArrowLeftIcon,
+  BrainIcon,
+  CheckIcon,
+  CircleAlertIcon,
+  MessageSquareIcon,
+  PauseIcon,
+  PlayIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { StatusBadge } from "@/components/status-badge";
@@ -40,6 +49,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { api } from "@/lib/api";
 import type { LLMProfile, Task } from "@/lib/types";
+import { validTaskTab } from "@/lib/task-workspace";
 
 import { AssetsTab } from "./_tabs/assets-tab";
 import { BroadcastTab } from "./_tabs/broadcast-tab";
@@ -49,20 +59,72 @@ import { GraphTab } from "./_tabs/graph-tab";
 import { InterceptTab } from "./_tabs/intercept-tab";
 import { OverviewTab } from "./_tabs/overview-tab";
 import { ReportTab } from "./_tabs/report-tab";
+import { ResultsTab } from "./_tabs/results-tab";
 import { RetestsTab } from "./_tabs/retests-tab";
 import { SessionsTab } from "./_tabs/sessions-tab";
 
 const TABS = [
-  { value: "sessions", get label() { return swt("interface.m0779"); } },
-  { value: "overview", get label() { return swt("interface.m0147"); } },
-  { value: "graph", get label() { return swt("interface.m0780"); } },
-  { value: "broadcast", get label() { return swt("interface.m0781"); } },
-  { value: "findings", get label() { return swt("interface.m0188"); } },
-  { value: "retests", get label() { return swt("interface.m0332"); } },
-  { value: "assets", get label() { return swt("interface.m0510"); } },
-  { value: "coverage", get label() { return swt("interface.m0782"); } },
-  { value: "intercept", get label() { return swt("interface.m0783"); } },
-  { value: "report", get label() { return swt("interface.m0784"); } },
+  {
+    value: "sessions",
+    get label() {
+      return swt("interface.m0779");
+    },
+  },
+  {
+    value: "overview",
+    get label() {
+      return swt("interface.m0147");
+    },
+  },
+  { value: "checks", label: "Results ledger" },
+  {
+    value: "graph",
+    get label() {
+      return swt("interface.m0780");
+    },
+  },
+  {
+    value: "broadcast",
+    get label() {
+      return swt("interface.m0781");
+    },
+  },
+  {
+    value: "findings",
+    get label() {
+      return swt("interface.m0188");
+    },
+  },
+  {
+    value: "retests",
+    get label() {
+      return swt("interface.m0332");
+    },
+  },
+  {
+    value: "assets",
+    get label() {
+      return swt("interface.m0510");
+    },
+  },
+  {
+    value: "coverage",
+    get label() {
+      return swt("interface.m0782");
+    },
+  },
+  {
+    value: "intercept",
+    get label() {
+      return swt("interface.m0783");
+    },
+  },
+  {
+    value: "report",
+    get label() {
+      return swt("interface.m0784");
+    },
+  },
 ];
 
 function taskProfileIDs(task: Task): string[] {
@@ -101,7 +163,11 @@ function TaskLLMControl({ task, profiles, onUpdated }: { task: Task; profiles: L
     : (activeProfile?.name ?? (activeID ? swt("interface.m0786", { p0: activeID }) : swt("interface.m0787")));
   const activeIndex = chain.indexOf(activeID);
   const backupCount = activeIndex >= 0 ? Math.max(0, chain.length - activeIndex - 1) : 0;
-  const currentTitle = [currentLabel, activeProfile?.model, backupCount > 0 ? swt("interface.m0788", { p0: backupCount }) : ""]
+  const currentTitle = [
+    currentLabel,
+    activeProfile?.model,
+    backupCount > 0 ? swt("interface.m0788", { p0: backupCount }) : "",
+  ]
     .filter(Boolean)
     .join(" · ");
   let editorDescription = swt("interface.m0789");
@@ -176,9 +242,7 @@ function TaskLLMControl({ task, profiles, onUpdated }: { task: Task; profiles: L
           <Alert variant="destructive">
             <CircleAlertIcon />
             <AlertTitle>{swt("interface.m0797")}</AlertTitle>
-            <AlertDescription>
-              {task.llm_failover_reason ?? swt("interface.m0798")}
-            </AlertDescription>
+            <AlertDescription>{task.llm_failover_reason ?? swt("interface.m0798")}</AlertDescription>
           </Alert>
         )}
 
@@ -195,7 +259,8 @@ function TaskLLMControl({ task, profiles, onUpdated }: { task: Task; profiles: L
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
-            {swt("interface.m0211")}</Button>
+            {swt("interface.m0211")}
+          </Button>
           <Button type="button" size="sm" onClick={save} disabled={saving}>
             {saving && <Spinner data-icon="inline-start" />}
             {saveLabel}
@@ -217,6 +282,19 @@ function TaskDetailInner() {
   const [paused, setPaused] = React.useState(false);
   const [loaded, setLoaded] = React.useState(false);
   const [tab, setTab] = React.useState("sessions");
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    contentRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [tab, id]);
+  React.useEffect(() => {
+    setTab(validTaskTab(searchParams.get("tab")));
+  }, [searchParams]);
+  function changeTab(value: string) {
+    setTab(value);
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", value);
+    window.history.replaceState(null, "", url);
+  }
   const [interceptPendingCount, setInterceptPendingCount] = React.useState(0);
   const [profiles, setProfiles] = React.useState<LLMProfile[]>([]);
   const [archiving, setArchiving] = React.useState(false);
@@ -314,7 +392,8 @@ function TaskDetailInner() {
         {loaded && (
           <Button asChild variant="outline">
             <Link href="/function/tasks">
-              <ArrowLeftIcon /> {swt("interface.m0805")}</Link>
+              <ArrowLeftIcon /> {swt("interface.m0805")}
+            </Link>
           </Button>
         )}
       </div>
@@ -354,9 +433,13 @@ function TaskDetailInner() {
   );
 
   return (
-    <Tabs value={tab} onValueChange={setTab} className="flex flex-1 flex-col gap-0">
+    <Tabs
+      value={tab}
+      onValueChange={changeTab}
+      className="flex h-dvh min-h-0 min-w-0 flex-none flex-col gap-0 overflow-hidden"
+    >
       {/* Top fixed area */}
-      <header className="sticky top-0 z-10 flex flex-col gap-2 border-b bg-background/95 px-4 py-2.5 backdrop-blur lg:px-6">
+      <header className="z-10 flex shrink-0 flex-col gap-2 border-b bg-card px-4 py-3 lg:px-6">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
           <Button asChild variant="ghost" size="icon" className="size-7">
@@ -373,14 +456,23 @@ function TaskDetailInner() {
           <Separator orientation="vertical" className="mx-1 hidden h-4 sm:block" />
           <TaskLLMControl task={task} profiles={profiles} onUpdated={load} />
           <StatusBadge domain={terminal ? "task" : "engine"} value={terminal ? task.status : engineMode} dot />
+          <Button size="sm" variant="outline" asChild>
+            <Link
+              href={`/chat/?task=${encodeURIComponent(id)}${/^[1-9]\d*$/.test(searchParams.get("chat") ?? "") ? `&c=${searchParams.get("chat")}` : ""}`}
+            >
+              <MessageSquareIcon /> Open Chat
+            </Link>
+          </Button>
           {canArchive ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>{archiveTrigger}</AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>{swt("interface.m0813")}{task.id}？</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {swt("interface.m0814")}</AlertDialogDescription>
+                  <AlertDialogTitle>
+                    {swt("interface.m0813")}
+                    {task.id}？
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>{swt("interface.m0814")}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>{swt("interface.m0063")}</AlertDialogCancel>
@@ -403,10 +495,13 @@ function TaskDetailInner() {
         </div>
         <p className="truncate text-xs text-muted-foreground">{task.goal}</p>
         {/* Tabs */}
-        <div className="no-scrollbar min-w-0 overflow-x-auto">
-          <TabsList variant="default" className="min-w-max">
+        <div className="min-w-0">
+          <TabsList
+            variant="line"
+            className="h-auto w-full flex-wrap gap-x-3 gap-y-1 overflow-visible group-data-horizontal/tabs:h-auto"
+          >
             {TABS.map((t) => (
-              <TabsTrigger key={t.value} value={t.value}>
+              <TabsTrigger key={t.value} value={t.value} className="h-8 flex-none">
                 {t.label}
                 {t.value === "intercept" && interceptPendingCount > 0 && (
                   <span className="ml-1.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold leading-none text-white">
@@ -420,12 +515,15 @@ function TaskDetailInner() {
       </header>
 
       {/* Tab content */}
-      <div className="flex-1 p-4 lg:p-6">
+      <div key={tab} ref={contentRef} className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4 lg:p-6">
         <TabsContent value="sessions" className="mt-0">
           <SessionsTab taskId={id} />
         </TabsContent>
         <TabsContent value="overview" className="mt-0">
           <OverviewTab taskId={id} />
+        </TabsContent>
+        <TabsContent value="checks" className="mt-0">
+          <ResultsTab key={id} taskId={id} />
         </TabsContent>
         <TabsContent value="graph" className="mt-0">
           <GraphTab taskId={id} />

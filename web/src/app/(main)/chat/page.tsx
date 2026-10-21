@@ -8,6 +8,8 @@ import * as React from "react";
 import {
   ArrowUpIcon,
   Bot,
+  HistoryIcon,
+  PanelRightIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   ListChecksIcon,
@@ -30,6 +32,7 @@ import { SideQuestionButton, SideQuestionWorkspace } from "@/components/side-que
 import { TodoPopover } from "@/components/todo-popover";
 import { ApprovalExecutionFocus, useApprovalFocus, useApprovalHistory } from "@/components/approval-execution-focus";
 import { Transcript } from "@/components/transcript";
+import { TaskContextPanel } from "@/components/task-context-panel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -63,6 +66,7 @@ import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.
 import { isBtwCommand } from "@/lib/side-questions";
 import type { Activity, Agent, ChatAttachment, Conversation, LLMProfile } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { latestSpawnedTask } from "@/lib/task-workspace";
 
 // fmtBytes renders a human file size for attachment chips (mirrors transcript.tsx).
 function fmtBytes(n: number): string {
@@ -143,7 +147,8 @@ function LiveBadge() {
   return (
     <span className="inline-flex items-center gap-1 rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
       <span className="size-1 animate-pulse rounded-full bg-blue-500" />
-      {swt("interface.m0068")}</span>
+      {swt("interface.m0068")}
+    </span>
   );
 }
 
@@ -265,7 +270,13 @@ function Composer({
         {running ? (
           // while a run is in flight the send button becomes a stop button —
           // aborts just this session (the trigger queue keeps going).
-          <Button size="icon" variant="destructive" onClick={onStop} disabled={stopDisabled} title={swt("interface.m0072")}>
+          <Button
+            size="icon"
+            variant="destructive"
+            onClick={onStop}
+            disabled={stopDisabled}
+            title={swt("interface.m0072")}
+          >
             <Square className="size-3.5 fill-current" />
           </Button>
         ) : (
@@ -305,7 +316,9 @@ function LLMProfileRow({
   const [open, setOpen] = React.useState(false);
   const activeDefault = profiles.find((p) => p.is_default);
   const current = selected != null ? profiles.find((p) => Number(p.id) === selected) : null;
-  const label = current ? current.name : swt("interface.m0074", { p0: activeDefault ? `（${activeDefault.name}）` : "" });
+  const label = current
+    ? current.name
+    : swt("interface.m0074", { p0: activeDefault ? `（${activeDefault.name}）` : "" });
 
   return (
     <div className="flex min-w-0 shrink-0 items-center gap-1 px-1 pt-0.5 pb-1">
@@ -320,7 +333,8 @@ function LLMProfileRow({
             disabled={disabled}
             className="flex shrink-0 items-center gap-0.5 text-primary text-xs hover:underline disabled:pointer-events-none disabled:opacity-40"
           >
-            {swt("interface.m0075")}<ChevronDownIcon className="size-3" />
+            {swt("interface.m0075")}
+            <ChevronDownIcon className="size-3" />
           </button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-64 p-1">
@@ -337,7 +351,9 @@ function LLMProfileRow({
               selected == null && "bg-accent",
             )}
           >
-            <span className="text-sm">{swt("interface.m0077")}{" "}{activeDefault ? `（${activeDefault.name}）` : ""}</span>
+            <span className="text-sm">
+              {swt("interface.m0077")} {activeDefault ? `（${activeDefault.name}）` : ""}
+            </span>
             {activeDefault && (
               <span className="text-muted-foreground text-[11px]">
                 {activeDefault.format} · {activeDefault.model}
@@ -445,7 +461,8 @@ function DraftChat({
                 {a.name}
                 {!a.builtin && (
                   <Badge variant="outline" className="px-1 py-0 text-[9px]">
-                    {swt("interface.m0081")}</Badge>
+                    {swt("interface.m0081")}
+                  </Badge>
                 )}
               </span>
             </SelectItem>
@@ -462,8 +479,24 @@ function DraftChat({
         <div className="bg-primary/10 flex size-12 items-center justify-center rounded-full">
           <Bot className="text-primary size-6" />
         </div>
-        <div className="text-sm font-medium">{swt("interface.m0082")}{agent?.name ?? "Agent"}{swt("interface.m0083")}</div>
+        <h2 className="text-xl font-semibold tracking-tight">Plan and run from chat</h2>
+        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+          Describe your authorized targets, objectives and exclusions. Auto can help configure and coordinate the
+          exercise.
+        </p>
         {agent?.description && <p className="text-muted-foreground max-w-md text-xs">{agent.description}</p>}
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-3"
+          onClick={() =>
+            setInput(
+              "Help me plan an authorized security exercise. Ask me for the target scope, exclusions, objectives and approval requirements before creating or starting a task.",
+            )
+          }
+        >
+          Help me plan an exercise
+        </Button>
       </div>
 
       <Composer
@@ -496,6 +529,7 @@ function ChatView({
   initial,
   onTitleMaybeChanged,
   onConvUpdated,
+  onTaskCreated,
 }: {
   conv: Conversation;
   agents: Agent[];
@@ -505,6 +539,7 @@ function ChatView({
   initial?: { input?: string; attachments?: ChatAttachment[] };
   onTitleMaybeChanged: () => void;
   onConvUpdated: () => void;
+  onTaskCreated: (id: string) => void;
 }) {
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
@@ -527,6 +562,10 @@ function ChatView({
   const agent = agents.find((a) => a.key === conv.agent_key);
   const currentProfileId = conv.llm_profile_id ?? null;
   const side = useSideQuestions(`/api/conversations/${conv.id}`);
+  const spawnedTaskId = React.useMemo(() => latestSpawnedTask(messages), [messages]);
+  React.useEffect(() => {
+    if (spawnedTaskId) onTaskCreated(spawnedTaskId);
+  }, [spawnedTaskId, onTaskCreated]);
 
   async function changeProfile(id: number | null) {
     try {
@@ -622,14 +661,23 @@ function ChatView({
     };
   }, [running, conv.id, onTitleMaybeChanged]);
 
-  const loadFocusPage = React.useCallback((before: number) => api.conversationHistory(conv.id, before, HISTORY_PAGE), [conv.id]);
+  const loadFocusPage = React.useCallback(
+    (before: number) => api.conversationHistory(conv.id, before, HISTORY_PAGE),
+    [conv.id],
+  );
   const mergeFocusPage = React.useCallback((page: { items: Activity[]; hasMore: boolean }) => {
     setMessages((prev) => mergeActivities(page.items, prev));
     earliestRef.current = page.items[0]?.seq ?? earliestRef.current;
     hasMoreRef.current = page.hasMore;
     setHasMore(page.hasMore);
   }, []);
-  const focusHistory = useApprovalHistory(approvalFocus.state?.source, historyLoaded, messages, loadFocusPage, mergeFocusPage);
+  const focusHistory = useApprovalHistory(
+    approvalFocus.state?.source,
+    historyLoaded,
+    messages,
+    loadFocusPage,
+    mergeFocusPage,
+  );
 
   // ---- transcript auto-scroll (open → bottom; stick to bottom unless scrolled up) ----
   const contentRef = React.useRef<HTMLDivElement | null>(null);
@@ -783,7 +831,8 @@ function ChatView({
         <span className="text-muted-foreground hidden shrink-0 font-mono text-xs sm:inline">{conv.agent_key}</span>
         {agent && !agent.builtin && (
           <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px]">
-            {swt("interface.m0081")}</Badge>
+            {swt("interface.m0081")}
+          </Badge>
         )}
         {agent?.description && (
           <span className="text-muted-foreground min-w-0 truncate text-xs">{agent.description}</span>
@@ -793,11 +842,13 @@ function ChatView({
         <div className="text-muted-foreground ml-auto flex min-w-0 max-w-full items-center justify-end gap-x-3 gap-y-1 text-xs max-sm:w-full max-sm:flex-wrap">
           {tokenTotal.turns > 0 && (
             <span title={swt("interface.m0087")} className="tabular-nums">
-              {tokenTotal.turns} {swt("interface.m0088")}</span>
+              {tokenTotal.turns} {swt("interface.m0088")}
+            </span>
           )}
           {tokenTotal.any && (
             <span title={swt("english.e052")} className="min-w-0 truncate tabular-nums">
-              {swt("english.e053")}{" "}{fmtTokens(tokenTotal.i)} {swt("english.e054")}{" "}{fmtTokens(tokenTotal.cr)} {swt("english.e055")}{" "}{fmtTokens(tokenTotal.o)}
+              {swt("english.e053")} {fmtTokens(tokenTotal.i)} {swt("english.e054")} {fmtTokens(tokenTotal.cr)}{" "}
+              {swt("english.e055")} {fmtTokens(tokenTotal.o)}
             </span>
           )}
         </div>
@@ -810,13 +861,22 @@ function ChatView({
         <div className="min-w-0 max-w-full px-4 py-3" ref={contentRef}>
           {messages.length === 0 && !running ? (
             <div className="text-muted-foreground py-10 text-center text-sm">
-              {swt("interface.m0082")}{agent?.name ?? conv.agent_key}{swt("interface.m0083")}</div>
+              {swt("interface.m0082")}
+              {agent?.name ?? conv.agent_key}
+              {swt("interface.m0083")}
+            </div>
           ) : (
             <>
               {hasMore && (
                 <div className="text-muted-foreground/70 pb-2 text-center text-[11px]">{swt("interface.m0089")}</div>
               )}
-              <Transcript activity={messages} live={running} chat fetchDetail={fetchDetail} focusedSeq={focusHistory.ready ? approvalFocus.state?.source?.seq : undefined} />
+              <Transcript
+                activity={messages}
+                live={running}
+                chat
+                fetchDetail={fetchDetail}
+                focusedSeq={focusHistory.ready ? approvalFocus.state?.source?.seq : undefined}
+              />
             </>
           )}
         </div>
@@ -948,7 +1008,8 @@ const ConversationItem = React.memo(function ConversationItem({
             {conv.running ? (
               <Badge variant="secondary" className="shrink-0 gap-1" title={swt("interface.m0095")}>
                 <Spinner className="size-3" aria-hidden="true" />
-                {swt("interface.m0096")}</Badge>
+                {swt("interface.m0096")}
+              </Badge>
             ) : null}
           </div>
           <div className="text-muted-foreground flex min-w-0 items-center gap-1 text-[11px]">
@@ -986,7 +1047,8 @@ const ConversationItem = React.memo(function ConversationItem({
           <DropdownMenuGroup>
             <DropdownMenuItem onSelect={() => onStartRename(conv)}>
               <PencilIcon />
-              {swt("interface.m0098")}</DropdownMenuItem>
+              {swt("interface.m0098")}
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => onTogglePinned(conv)}>
               {pinned ? <PinOffIcon /> : <PinIcon />}
               {pinned ? swt("interface.m0099") : swt("interface.m0100")}
@@ -996,14 +1058,18 @@ const ConversationItem = React.memo(function ConversationItem({
           <DropdownMenuGroup>
             <DropdownMenuItem variant="destructive" onSelect={() => setDeleteOpen(true)}>
               <Trash2Icon />
-              {swt("interface.m0101")}</DropdownMenuItem>
+              {swt("interface.m0101")}
+            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m0102")}{conv.title || swt("interface.m0092")}」？</AlertDialogTitle>
+            <AlertDialogTitle>
+              {swt("interface.m0102")}
+              {conv.title || swt("interface.m0092")}」？
+            </AlertDialogTitle>
             <AlertDialogDescription>{swt("interface.m0103")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1064,19 +1130,34 @@ export default function ChatPage() {
   const [agents, setAgents] = React.useState<Agent[]>([]);
   const [profiles, setProfiles] = React.useState<LLMProfile[]>([]);
   const [convs, setConvs] = React.useState<Conversation[]>([]);
+  const [historyOpen, setHistoryOpen] = React.useState(false);
+  const [contextOpen, setContextOpen] = React.useState(true);
+  const [createdTask, setCreatedTask] = React.useState<{ conversationId: number; id: string } | null>(null);
   const [agentFilter, setAgentFilter] = React.useState<string | null>(null);
   const [selectedId, setSelectedId] = React.useState<number | null>(null);
+  const handleTaskCreated = React.useCallback(
+    (id: string) => {
+      if (selectedId === null) return;
+      setCreatedTask((current) =>
+        current?.id === id && current.conversationId === selectedId ? current : { conversationId: selectedId, id },
+      );
+    },
+    [selectedId],
+  );
   const [sourceRequested, setSourceRequested] = React.useState(false);
   const [convsLoaded, setConvsLoaded] = React.useState(false);
-  const selectConversation = React.useCallback((id: number | null) => {
-    if (id !== selectedId) {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("approval");
-      setSourceRequested(false);
-      window.history.replaceState(null, "", url);
-    }
-    setSelectedId(id);
-  }, [selectedId]);
+  const selectConversation = React.useCallback(
+    (id: number | null) => {
+      if (id !== selectedId) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("approval");
+        setSourceRequested(false);
+        window.history.replaceState(null, "", url);
+      }
+      setSelectedId(id);
+    },
+    [selectedId],
+  );
 
   const [renamingId, setRenamingId] = React.useState<number | null>(null);
   const [renameText, setRenameText] = React.useState("");
@@ -1103,7 +1184,10 @@ export default function ChatPage() {
     const seq = ++conversationListSeq.current;
     try {
       const items = await api.conversations();
-      if (seq === conversationListSeq.current) { setConvs(items); setConvsLoaded(true); }
+      if (seq === conversationListSeq.current) {
+        setConvs(items);
+        setConvsLoaded(true);
+      }
     } catch {
       // Preserve the selected transcript and list on a transient poll failure.
     }
@@ -1218,7 +1302,10 @@ export default function ChatPage() {
   // conversation agents: custom agents + conversational built-ins (role=assistant,
   // e.g. Auto / Penetration testing). The orchestration built-ins (goals/planner/mainagent/worker)
   // are task-specific and stay hidden from the chat page.
-  const chatAgents = React.useMemo(() => agents.filter((a) => !a.builtin || a.role === "assistant"), [swLocale, agents]);
+  const chatAgents = React.useMemo(
+    () => agents.filter((a) => !a.builtin || a.role === "assistant"),
+    [swLocale, agents],
+  );
   const agentFilterOptions = React.useMemo(() => {
     const counts = new Map<string, number>();
     for (const conversation of convs) {
@@ -1232,7 +1319,9 @@ export default function ChatPage() {
       .sort((a, b) => a.name.localeCompare(b.name, getIntlLocale()));
   }, [swLocale, convs, chatAgents, agentByKey, agentFilter]);
   const conversationCountLabel =
-    agentFilter === null ? swt("interface.m0108", { p0: convs.length }) : swt("interface.m0109", { p0: filteredConversations.length, p1: convs.length });
+    agentFilter === null
+      ? swt("interface.m0108", { p0: convs.length })
+      : swt("interface.m0109", { p0: filteredConversations.length, p1: convs.length });
 
   function changeAgentFilter(key: string | null) {
     setAgentFilter(key);
@@ -1315,7 +1404,13 @@ export default function ChatPage() {
           .slice(0, 3)
           .map((item) => `#${item.id}（${item.error}）`)
           .join("；");
-        toast.error(swt("interface.m0113", { p0: failed.length, p1: details, p2: failed.length > 3 ? swt("interface.m0114") : "" }));
+        toast.error(
+          swt("interface.m0113", {
+            p0: failed.length,
+            p1: details,
+            p2: failed.length > 3 ? swt("interface.m0114") : "",
+          }),
+        );
       }
       setBulkDeleteOpen(false);
       // Fully successful → return to the clean list; keep selection mode on if
@@ -1337,7 +1432,12 @@ export default function ChatPage() {
         await api.pinConversation(conversation.id, !pinned);
         void reloadConvs();
       } catch (e) {
-        toast.error(swt("interface.m0116", { p0: pinned ? swt("interface.m0099") : swt("interface.m0100"), p1: (e as Error).message }));
+        toast.error(
+          swt("interface.m0116", {
+            p0: pinned ? swt("interface.m0099") : swt("interface.m0100"),
+            p1: (e as Error).message,
+          }),
+        );
       }
     },
     [swLocale, reloadConvs],
@@ -1366,14 +1466,60 @@ export default function ChatPage() {
   return (
     <div
       data-content-padding="false"
-      className="flex h-[calc(100svh-3rem)] min-w-0 flex-col overflow-hidden p-3 sm:p-4 md:h-[calc(100svh-4rem)] md:p-6"
+      data-design-direction="owner-approved-chat-auto-task-context"
+      className="flex h-[calc(100dvh-3.5rem)] min-h-0 min-w-0 flex-col gap-3 overflow-hidden p-4"
     >
-      <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-[minmax(10rem,15rem)_minmax(0,1fr)] gap-3 md:grid-cols-[18rem_minmax(0,1fr)] md:grid-rows-[minmax(0,1fr)] md:gap-4">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
+        <div>
+          <h1 className="text-base font-semibold">Chat</h1>
+          <p className="text-xs text-muted-foreground">Natural-language planning, Auto and your task workspace.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant={historyOpen ? "secondary" : "outline"}
+            aria-expanded={historyOpen}
+            aria-controls="chat-history"
+            onClick={() => {
+              setHistoryOpen((open) => !open);
+              setContextOpen(false);
+            }}
+          >
+            <HistoryIcon /> History <span className="text-muted-foreground tabular-nums">{convs.length}</span>
+          </Button>
+          <Button
+            size="sm"
+            variant={contextOpen ? "secondary" : "outline"}
+            aria-expanded={contextOpen}
+            aria-controls="chat-task-panel"
+            onClick={() => {
+              setContextOpen((open) => !open);
+              setHistoryOpen(false);
+            }}
+          >
+            <PanelRightIcon /> Task context
+          </Button>
+        </div>
+      </div>
+      <div
+        className={cn(
+          "console-chat-grid grid min-h-0 min-w-0 flex-1 gap-4",
+          historyOpen
+            ? "grid-cols-[14rem_minmax(0,1fr)]"
+            : contextOpen
+              ? "grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]"
+              : "grid-cols-1",
+        )}
+      >
         {/* left: conversation list */}
-        <div className="bg-card flex flex-col overflow-hidden rounded-lg border">
+        <div
+          id="chat-history"
+          className={cn("bg-card min-h-0 flex-col overflow-hidden rounded-lg border", historyOpen ? "flex" : "hidden")}
+        >
           <div className="flex flex-col gap-2 border-b p-2">
             <Button size="sm" className="w-full" onClick={() => selectConversation(null)}>
-              <PlusIcon /> {swt("interface.m0118")}</Button>
+              <PlusIcon /> {swt("interface.m0118")}
+            </Button>
             <Select
               value={agentFilter === null ? "all" : `agent:${agentFilter}`}
               onValueChange={(value) => changeAgentFilter(value === "all" ? null : value.slice(6))}
@@ -1404,7 +1550,9 @@ export default function ChatPage() {
                     disabled={filteredConversations.length === 0 || bulkDeleting}
                   />
                   <span className="text-muted-foreground min-w-0 flex-1 text-xs tabular-nums">
-                    {selectedConversationCount > 0 ? swt("interface.m0122", { p0: selectedConversationCount }) : conversationCountLabel}
+                    {selectedConversationCount > 0
+                      ? swt("interface.m0122", { p0: selectedConversationCount })
+                      : conversationCountLabel}
                   </span>
                   {selectedConversationCount > 0 && (
                     <Button
@@ -1414,10 +1562,12 @@ export default function ChatPage() {
                       onClick={() => setBulkDeleteOpen(true)}
                     >
                       <Trash2Icon data-icon="inline-start" />
-                      {swt("interface.m0101")}</Button>
+                      {swt("interface.m0101")}
+                    </Button>
                   )}
                   <Button size="sm" variant="ghost" onClick={exitSelectionMode}>
-                    {swt("interface.m0123")}</Button>
+                    {swt("interface.m0123")}
+                  </Button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 px-1">
@@ -1432,7 +1582,8 @@ export default function ChatPage() {
                     disabled={filteredConversations.length === 0}
                   >
                     <ListChecksIcon data-icon="inline-start" />
-                    {swt("interface.m0124")}</Button>
+                    {swt("interface.m0124")}
+                  </Button>
                 </div>
               ))}
           </div>
@@ -1510,7 +1661,8 @@ export default function ChatPage() {
                   className="mt-1 w-full"
                   onClick={() => setVisibleConversationCount((count) => count + CONVERSATION_LIST_PAGE)}
                 >
-                  {swt("interface.m0127")}</Button>
+                  {swt("interface.m0127")}
+                </Button>
               )}
             </div>
           </ScrollArea>
@@ -1527,6 +1679,7 @@ export default function ChatPage() {
               initial={pendingByConv[selected.id]}
               onTitleMaybeChanged={reloadConvs}
               onConvUpdated={reloadConvs}
+              onTaskCreated={handleTaskCreated}
             />
           ) : sourceRequested ? (
             <div role="status" className="p-6 text-sm text-muted-foreground">
@@ -1554,11 +1707,22 @@ export default function ChatPage() {
             />
           )}
         </div>
+        {contextOpen && (
+          <div id="chat-task-panel" className="flex min-h-0 min-w-0 [&>aside]:flex-1">
+            <TaskContextPanel
+              key={selectedId ?? "draft"}
+              conversationId={selectedId}
+              createdTaskId={createdTask?.conversationId === selectedId ? createdTask.id : null}
+            />
+          </div>
+        )}
       </div>
       <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m0130")}{" "}{selectedConversationCount} {swt("interface.m0131")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {swt("interface.m0130")} {selectedConversationCount} {swt("interface.m0131")}
+            </AlertDialogTitle>
             <AlertDialogDescription>{swt("interface.m0132")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -1,6 +1,6 @@
 # Local Windows validation, 2026-10-21
 
-Product names and command examples in this historical report have been normalized to the current Skopos branding. The rename validation log is `C:/Users/richi/AppData/Local/Temp/skopos-rename-tests.jsonl`; the original run's temporary log filename used the former product name.
+Product names and command examples in this historical report have been normalized to the current Skopos branding. The rename validation log is `skopos-rename-tests.jsonl`, retained in the local temporary directory; the original run's temporary log filename used the former product name.
 
 Environment: Windows amd64, PowerShell. Existing working-tree changes were preserved; no product code or tests were edited. This report describes this run, not the older results in VERIFICATION.md.
 

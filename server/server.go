@@ -19,6 +19,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Autumn-27/norma/llm"
+	actool "github.com/Autumn-27/norma/tool"
+	"github.com/Autumn-27/norma/transcript"
 	"github.com/Philocyber/skopos/agent"
 	"github.com/Philocyber/skopos/db"
 	"github.com/Philocyber/skopos/intercept"
@@ -27,9 +30,6 @@ import (
 	"github.com/Philocyber/skopos/locale"
 	"github.com/Philocyber/skopos/report"
 	"github.com/Philocyber/skopos/traffic"
-	"github.com/Autumn-27/norma/llm"
-	actool "github.com/Autumn-27/norma/tool"
-	"github.com/Autumn-27/norma/transcript"
 )
 
 // BuildVersion is the backend application version, injected from cmd/skopos at
@@ -223,8 +223,8 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 		wireAgentAugment(m.pg, s.skillDir, s.hostTools) // Assemble visible skills/MCP and traffic/orchestration host tools into agent toolsets.
 		domainReg := buildDomainReg(m.Assets())
 		wireTools(m.pg, domainReg) // Built-in tools: filter by agent, override descriptions/schemas, and inject defaults.
-		seedPrompts(m.pg)                                  // Seed built-in agent prompt bodies into agent_prompts only when empty.
-		s.seedOrchestrationTools()                         // Seed P2 cross-task orchestration tools for per-agent bindings.
+		seedPrompts(m.pg)          // Seed built-in agent prompt bodies into agent_prompts only when empty.
+		s.seedOrchestrationTools() // Seed P2 cross-task orchestration tools for per-agent bindings.
 		if err := s.seedFindingRetester(); err != nil {
 			log.Printf("[retester] seed: %v", err)
 		}
@@ -3871,17 +3871,84 @@ func (s *Server) getReport(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 404, "no active task")
 		return
 	}
-	findings, _ := t.Store.ListByKind(db.KindFinding, 1000) // Findings only; facts have separate KindFact nodes and do not enter the report.
-	counts := map[string]int{}
-	for _, ty := range []string{"root_domain", "ip", "subdomain", "app", "service", "endpoint"} {
-		ns, _ := s.m.Assets().QueryByType(ty, 100000, 0)
-		if len(ns) > 0 {
-			counts[ty] = len(ns)
+	// Read bounded pages rather than silently losing everything beyond the old
+	// 1,000-node cap. A bounded export always declares its truncation.
+	truncated := false
+	loadRecords := func(kind string) ([]*db.Node, error) {
+		var out []*db.Node
+		var before int64
+		for len(out) < 5000 {
+			page, more, err := t.Store.ListByKindPage(kind, before, 500)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, page...)
+			if !more || len(page) == 0 {
+				return out, nil
+			}
+			before = page[len(page)-1].ID
 		}
+		truncated = true
+		return out, nil
+	}
+	findings, err := loadRecords(db.KindFinding)
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	facts, err := loadRecords(db.KindFact)
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	intents, err := loadRecords(db.KindIntent)
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	as := s.m.Assets()
+	if as == nil {
+		writeErr(w, 503, "Asset store is unavailable")
+		return
+	}
+	taskID, err := strconv.ParseInt(t.ID, 10, 64)
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	scope, err := as.ListTaskScopeWithSources(taskID)
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	coverage, err := as.TaskCoverageWithSources(taskID)
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	counts := map[string]int{}
+	for _, row := range coverage.ByType {
+		counts[row.Type] = row.Total
+	}
+	if !t.CoverageEnabled {
+		coverage = nil
+	}
+	registeredFindings, findingTotal, err := s.m.pg.ListFindingsPage(db.FindingFilter{TaskID: t.ID, Sort: "severity"}, 1, 5000)
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	if registeredFindings == nil {
+		registeredFindings = []*db.DBFinding{}
+	}
+	if findingTotal > len(registeredFindings) {
+		truncated = true
 	}
 	md := report.Markdown(report.Input{
 		Title: t.Description, Goal: t.Goal, GeneratedAt: time.Now(),
 		AssetCounts: counts, Findings: findings, Language: locale.FromRequest(r),
+		Facts: facts, Intents: intents, Scope: scope, Coverage: coverage, Truncated: truncated,
+		FindingRecords: registeredFindings,
 	})
 	w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
 	w.WriteHeader(200)
