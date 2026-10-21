@@ -73,7 +73,10 @@
         "noMisusedPromises": "error"
       },
       "a11y": {
-        "noLabelWithoutControl": "warn",
+        "noLabelWithoutControl": {
+          "level": "error",
+          "options": { "inputComponents": ["Checkbox", "Switch"] }
+        },
         "noStaticElementInteractions": "warn",
         "noSvgWithoutTitle": "warn",
         "useKeyWithClickEvents": "warn"

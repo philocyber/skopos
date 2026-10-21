@@ -667,7 +667,7 @@ function ApprovalTable({
           <TableHead className="hidden md:table-cell">{swt("interface.m0512")}</TableHead>
           <TableHead className="hidden lg:table-cell">{swt("interface.m2138")}</TableHead>
           <TableHead className="hidden xl:table-cell">{swt("interface.m0251")}</TableHead>
-          <TableHead className="w-24">{swt("interface.m0191")}</TableHead>
+          <TableHead className="w-36">{swt("interface.m0191")}</TableHead>
           <TableHead className="hidden w-36 lg:table-cell">{swt("interface.m2107")}</TableHead>
           <TableHead className="hidden w-36 xl:table-cell">{swt("interface.m2108")}</TableHead>
         </TableRow>

@@ -385,7 +385,13 @@ export default function MCPPage() {
                 <Badge variant="outline" className="uppercase">
                   {s.transport}
                 </Badge>
-                <div className="ml-auto flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                {/* biome-ignore lint/a11y/noStaticElementInteractions: only stops clicks and keys from reaching the clickable card; it is not a control */}
+                <div
+                  role="presentation"
+                  className="ml-auto flex items-center gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                >
                   <Switch
                     checked={s.enabled}
                     onCheckedChange={() => toggleEnabled(s)}
@@ -408,7 +414,13 @@ export default function MCPPage() {
                   ? swt("interface.m1468", { p0: s.tools.length })
                   : swt("interface.m1469")}
               </p>
-              <div className="grid gap-2" onClick={(e) => e.stopPropagation()}>
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: only stops clicks and keys from reaching the clickable card; it is not a control */}
+              <div
+                role="presentation"
+                className="grid gap-2"
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
                 <span className="text-muted-foreground text-xs">{swt("interface.m1470")}</span>
                 <div className="flex flex-wrap gap-x-4 gap-y-2">
                   {agents.map((a) => (
