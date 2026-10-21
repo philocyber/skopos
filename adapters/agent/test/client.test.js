@@ -48,7 +48,7 @@ test("concurrent calls share login, send authorization and Korean locale, and pa
       logins++;
       let body = "";
       for await (const chunk of req) body += chunk;
-      assert.deepEqual(JSON.parse(body), { username: "ARTEX", password: "fixture-password" });
+      assert.deepEqual(JSON.parse(body), { username: "SKOPOS", password: "fixture-password" });
       return res.end(JSON.stringify({ token: "fixture-token" }));
     }
     assert.equal(req.headers.authorization, "Bearer fixture-token");

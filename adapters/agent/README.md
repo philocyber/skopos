@@ -15,7 +15,7 @@ export SKOPOS_URL=http://127.0.0.1:8787
 export SKOPOS_PASSWORD='your-existing-admin-password'
 ```
 
-The password is used to log in as the backend's existing `ARTEX` admin user. The returned JWT stays in memory. Alternatively set `SKOPOS_TOKEN` to an existing login JWT; a supplied token takes precedence. Expired/invalid tokens produce an error and are not silently replaced. Keep credentials in your environment or secret manager; do not commit them to client configuration.
+The password is used to log in as the backend's existing `SKOPOS` admin user. The returned JWT stays in memory. Alternatively set `SKOPOS_TOKEN` to an existing login JWT; a supplied token takes precedence. Expired/invalid tokens produce an error and are not silently replaced. Keep credentials in your environment or secret manager; do not commit them to client configuration.
 
 Reads are enabled by default. To enable task creation and pause/resume, explicitly set `SKOPOS_ALLOW_WRITES=true` before starting the adapter. Task creation schedules work immediately when the backend has an LLM configured. Retain the project's [locally isolated usage restrictions](../../README.md#license-and-disclaimer) and confirm the intended scope before creating a task.
 

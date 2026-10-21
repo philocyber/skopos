@@ -132,7 +132,7 @@ func (g *Guard) applyIntercept(ctx context.Context, ev hook.Event) hook.Result {
 	return hook.Result{}
 }
 
-// systemBlockMessage frames an intercept block as an ARTEX platform-governance
+// systemBlockMessage frames an intercept block as a Skopos platform-governance
 // decision so the agent does not mistake it for a target-side defense.
 //
 // The bare reasons ("tool execution prohibited" / "user denied") read exactly like a WAF/403 on
