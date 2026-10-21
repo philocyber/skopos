@@ -4,6 +4,7 @@ import * as React from "react";
 
 import {
   Loader2Icon,
+  PencilIcon,
   PlugZapIcon,
   PlusIcon,
   RefreshCwIcon,
@@ -1030,18 +1031,11 @@ export default function LLMPage() {
             {profiles.map((p) => {
               const h = healthOf(p, health.get(p.id));
               return (
-                // biome-ignore lint/a11y/useSemanticElements: cards contain action buttons; a native button would create invalid nesting
+                // Mouse users can click anywhere on the card; keyboard users get the Edit button below, so
+                // the card itself is not an interactive role and does not nest controls.
                 <Card
                   key={p.id}
-                  role="button"
-                  tabIndex={0}
                   onClick={() => openEditor(p)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      openEditor(p);
-                    }
-                  }}
                   className={cn(
                     "cursor-pointer gap-0 py-4 outline-none transition-colors hover:border-foreground/30",
                     p.is_default && "border-amber-400/50 bg-amber-400/5",
@@ -1112,6 +1106,17 @@ export default function LLMPage() {
                         }}
                       >
                         {p.is_default ? swt("interface.m1430") : swt("interface.m1431")}
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        aria-label={swt("english.e216")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditor(p);
+                        }}
+                      >
+                        <PencilIcon />
                       </Button>
                       <Button
                         size="icon"

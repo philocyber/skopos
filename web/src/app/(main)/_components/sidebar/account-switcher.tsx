@@ -49,10 +49,16 @@ export function AccountSwitcher({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar className="size-8 rounded-lg">
-            <AvatarImage src={activeUser.avatar || undefined} alt={activeUser.name} />
-            <AvatarFallback>{getInitials(activeUser.name)}</AvatarFallback>
-          </Avatar>
+          <button
+            type="button"
+            aria-label={swt("english.e214")}
+            className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Avatar className="size-8 rounded-lg">
+              <AvatarImage src={activeUser.avatar || undefined} alt={activeUser.name} />
+              <AvatarFallback>{getInitials(activeUser.name)}</AvatarFallback>
+            </Avatar>
+          </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-56 space-y-1 rounded-lg" side="bottom" align="end" sideOffset={4}>
           {users.map((user) => (

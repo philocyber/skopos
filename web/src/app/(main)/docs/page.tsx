@@ -178,7 +178,7 @@ export default function DocsPage() {
 
   return (
     <div className="mx-auto grid w-full max-w-6xl grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[14rem_minmax(0,1fr)]">
-      <aside className="min-w-0 lg:sticky lg:top-20 lg:self-start">
+      <aside className="min-w-0 lg:sticky lg:top-6 lg:self-start">
         <div className="relative mb-3">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input

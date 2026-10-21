@@ -1119,6 +1119,23 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
     };
   }
 
+  // Notifications demo: no channels configured, so the page shows its empty state instead of crashing.
+  if (path === "/notify/meta" && m === "GET") {
+    return {
+      kinds: [
+        { kind: "telegram", default_rate_per_min: 20, secret_keys: ["bot_token"] },
+        { kind: "webhook", default_rate_per_min: 60, secret_keys: [] },
+      ],
+      enabled: true,
+      public_base_url: "",
+      digest_interval_min: "5",
+      defaults: { digest_interval_min: 5 },
+      stats: { channels: 0, channels_on: 0, pending: 0, failed: 0, sent_today: 0, backlog_age_ms: 0 },
+    };
+  }
+  if (path === "/notify/channels" && m === "GET") return { channels: [] };
+  if (path === "/notify/deliveries" && m === "GET") return { deliveries: [], total: 0, page: 1, page_size: 50 };
+
   // Demo authentication allows entry directly into the app.
   if (path === "/auth/status") return { initialized: true };
   if (path === "/auth/login" || path === "/auth/init") return { token: "mock-demo" };

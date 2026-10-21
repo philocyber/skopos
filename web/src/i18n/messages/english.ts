@@ -130,4 +130,7 @@ export const en = {
   e211: "Message",
   e212: "Result",
   e213: "Add a profile",
+  e214: "Account menu",
+  e215: "Toggle details",
+  e216: "Edit profile",
 };

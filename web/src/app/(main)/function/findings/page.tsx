@@ -852,9 +852,15 @@ export default function FindingsPage() {
             </Button>
             <Tabs value={view} onValueChange={(v) => setView(v as FindingView)}>
               <TabsList>
-                <TabsTrigger value="flat">{swt("interface.m0386")}</TabsTrigger>
-                <TabsTrigger value="grouped">{swt("interface.m0387")}</TabsTrigger>
-                <TabsTrigger value="asset">{swt("interface.m0388")}</TabsTrigger>
+                <TabsTrigger value="flat" aria-controls={undefined}>
+                  {swt("interface.m0386")}
+                </TabsTrigger>
+                <TabsTrigger value="grouped" aria-controls={undefined}>
+                  {swt("interface.m0387")}
+                </TabsTrigger>
+                <TabsTrigger value="asset" aria-controls={undefined}>
+                  {swt("interface.m0388")}
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </>
