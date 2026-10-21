@@ -185,12 +185,12 @@ export const en = {
   m0165: "(including cache",
   m0166: ") · Out",
   m0167: "LLM token usage",
-  m0168: "Legacy",
-  m0169: "New",
+  m0168: "Historical",
+  m0169: "Exact",
   m0170:
-    "New: Exact per-call metering from llm_usage, including interrupted calls; only covers data since it was enabled",
+    "Exact: per-call metering from llm_usage, including interrupted calls; only covers data since it was enabled",
   m0171:
-    "Legacy: Activity statistics including historical tasks; excludes interrupted calls and cannot identify models precisely",
+    "Historical: activity statistics including historical tasks; excludes interrupted calls and cannot identify models precisely",
   m0172: "All",
   m0173: "Total (input + output)",
   m0174: "tasks",

@@ -33,6 +33,7 @@ import {
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { PageHeader } from "@/components/page-header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -821,19 +822,29 @@ export default function FindingsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m0188")}</h1>
-          <p className="text-muted-foreground text-sm">{swt("interface.m0385")}</p>
-        </div>
-        <Tabs value={view} onValueChange={(v) => setView(v as FindingView)}>
-          <TabsList>
-            <TabsTrigger value="flat">{swt("interface.m0386")}</TabsTrigger>
-            <TabsTrigger value="grouped">{swt("interface.m0387")}</TabsTrigger>
-            <TabsTrigger value="asset">{swt("interface.m0388")}</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      <PageHeader
+        title={swt("interface.m0188")}
+        description={swt("interface.m0385")}
+        actions={
+          <>
+            {selectedIds.size > 0 && (
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {swt("interface.m0398")} {selectedIds.size} {swt("interface.m0328")}
+              </span>
+            )}
+            <Button size="sm" variant="outline" onClick={openExport}>
+              <DownloadIcon /> {swt("interface.m0399")}
+            </Button>
+            <Tabs value={view} onValueChange={(v) => setView(v as FindingView)}>
+              <TabsList>
+                <TabsTrigger value="flat">{swt("interface.m0386")}</TabsTrigger>
+                <TabsTrigger value="grouped">{swt("interface.m0387")}</TabsTrigger>
+                <TabsTrigger value="asset">{swt("interface.m0388")}</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </>
+        }
+      />
       <div className="flex flex-1 flex-col gap-4 md:gap-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {statCards.map((stat) => {
@@ -853,7 +864,7 @@ export default function FindingsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <InputGroup className="w-full sm:w-72">
+          <InputGroup className="w-full sm:w-60">
             <InputGroupInput
               type="search"
               value={search}
@@ -904,7 +915,7 @@ export default function FindingsPage() {
           </Select>
 
           <Select value={vulnclass} onValueChange={setVulnclass}>
-            <SelectTrigger size="sm" className="w-40">
+            <SelectTrigger size="sm" className="w-36">
               <SelectValue placeholder={swt("interface.m0367")} />
             </SelectTrigger>
             <SelectContent>
@@ -918,7 +929,7 @@ export default function FindingsPage() {
           </Select>
 
           <Select value={task} onValueChange={setTask}>
-            <SelectTrigger size="sm" className="w-48">
+            <SelectTrigger size="sm" className="w-44">
               <SelectValue placeholder={swt("interface.m0190")} />
             </SelectTrigger>
             <SelectContent>
@@ -953,17 +964,6 @@ export default function FindingsPage() {
               <SelectItem value="time">{swt("interface.m0397")}</SelectItem>
             </SelectContent>
           </Select>
-
-          <div className="ml-auto flex items-center gap-3">
-            {selectedIds.size > 0 && (
-              <span className="text-xs text-muted-foreground tabular-nums">
-                {swt("interface.m0398")} {selectedIds.size} {swt("interface.m0328")}
-              </span>
-            )}
-            <Button size="sm" variant="outline" onClick={openExport}>
-              <DownloadIcon /> {swt("interface.m0399")}
-            </Button>
-          </div>
         </div>
 
         {view === "flat" && flatListCard}

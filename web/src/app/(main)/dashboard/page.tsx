@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Tooltip as RechartsTooltip, XAxis, YAxis } from "recharts";
 
+import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -509,11 +510,22 @@ export default function DashboardPage() {
 
   const dailyTokenData = tokenVersion === "new" ? dailyTokenDataNew : dailyTokenDataOld;
 
-  // activity kind label
+  // Human-readable activity kind; unknown kinds fall back to the raw value.
+  function kindName(kind: string, plural = false): string {
+    const names: Record<string, [string, string]> = {
+      tool_use: [swt("english.e209"), swt("english.e204")],
+      tool_result: [swt("english.e210"), swt("english.e205")],
+      text: [swt("english.e211"), swt("english.e206")],
+      thinking: [swt("english.e207"), swt("english.e207")],
+      result: [swt("english.e212"), swt("english.e208")],
+    };
+    return names[kind]?.[plural ? 1 : 0] ?? kind;
+  }
+
+  // Activity row title: the tool name for tool calls, otherwise the kind.
   function kindLabel(a: Activity): string {
-    if (a.kind === "tool_use") return a.tool ?? "tool_use";
-    if (a.kind === "tool_result") return "tool_result";
-    return a.kind;
+    if (a.kind === "tool_use" && a.tool) return a.tool;
+    return kindName(a.kind);
   }
 
   function workerColor(w: string): string {
@@ -533,12 +545,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 pb-6">
       {/* ── Header ── */}
-      <div>
-        <div>
-          <h1 className="text-lg font-semibold tracking-tight">{swt("interface.m0147")}</h1>
-          <p className="text-xs text-muted-foreground">{swt("interface.m0148")}</p>
-        </div>
-      </div>
+      <PageHeader title={swt("interface.m0147")} description={swt("interface.m0148")} />
 
       {/* ── Row 1: 5 stat cards ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -679,9 +686,6 @@ export default function DashboardPage() {
                 </button>
               ))}
             </div>
-            <span className="text-[10px] font-normal text-muted-foreground">
-              {tokenVersion === "new" ? "llm_usage" : "activity"}
-            </span>
           </div>
           {/* Profile tabs */}
           <div className="flex flex-wrap items-center gap-1">
@@ -853,10 +857,19 @@ export default function DashboardPage() {
 
             {dailyTokenData.length === 0 ? (
               <div
-                className="flex flex-1 items-center justify-center rounded-lg border bg-muted/10 text-xs text-muted-foreground"
+                className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-lg border bg-muted/10 text-center text-xs text-muted-foreground"
                 style={{ minHeight: 180 }}
               >
-                {swt("interface.m0183")}
+                <span>{swt("english.e202")}</span>
+                {tokenDays < 365 && (
+                  <button
+                    type="button"
+                    onClick={() => setTokenDays(365)}
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    {swt("english.e203")}
+                  </button>
+                )}
               </div>
             ) : (
               <ChartContainer config={dailyTrendConfig} className="h-[200px] w-full">
@@ -932,8 +945,8 @@ export default function DashboardPage() {
               const count = activity.filter((a) => a.kind === kind).length;
               if (count === 0) return null;
               return (
-                <span key={kind} className="rounded border bg-muted/20 px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                  {kind} <strong className="text-foreground/70">{count}</strong>
+                <span key={kind} className="rounded border bg-muted/20 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                  {kindName(kind, true)} <strong className="text-foreground/70">{count}</strong>
                 </span>
               );
             })}
@@ -958,9 +971,11 @@ export default function DashboardPage() {
                     <div className="mt-0.5 truncate text-[10px] text-muted-foreground">{a.summary}</div>
                   </div>
                   <div className="shrink-0 text-right">
-                    <Badge variant="outline" className="px-1.5 py-0 text-[9px] text-muted-foreground">
-                      {a.kind}
-                    </Badge>
+                    {kindLabel(a) !== kindName(a.kind) && (
+                      <Badge variant="outline" className="px-1.5 py-0 text-[10px] text-muted-foreground">
+                        {kindName(a.kind)}
+                      </Badge>
+                    )}
                     <div className="mt-0.5 text-[9px] tabular-nums text-muted-foreground">{fmtRel(a.ts)}</div>
                   </div>
                 </div>

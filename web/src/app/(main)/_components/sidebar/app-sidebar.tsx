@@ -57,10 +57,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarItems} />
-        {/* <NavDocuments items={data.documents} /> */}
-        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
+        <NavMain items={sidebarItems.filter((g) => !g.pinned)} />
       </SidebarContent>
+      <div className="border-t">
+        <NavMain items={sidebarItems.filter((g) => g.pinned).map((g) => ({ ...g, label: undefined }))} />
+      </div>
       <SidebarFooter>
         <NavUser user={currentUser} />
       </SidebarFooter>
