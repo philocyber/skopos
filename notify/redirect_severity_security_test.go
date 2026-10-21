@@ -89,7 +89,7 @@ func TestNotificationClientKeepsSecureSameHostRedirect(t *testing.T) {
 func TestSeverityCannotInjectNotificationMarkup(t *testing.T) {
 	const raw = "x]\n![probe](https://outside.invalid/mark) **high**"
 	const escaped = `x\] \!\[probe\]\(https://outside.invalid/mark\) \*\*high\*\*`
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		for _, batch := range []bool{false, true} {
 			m := Message{Language: lang, Batch: batch, Items: []Item{{Severity: raw, Name: "literal title"}}}
 			markdown, kept := markdownBody(m, 0)

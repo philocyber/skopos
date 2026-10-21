@@ -10,7 +10,7 @@ import (
 )
 
 func TestFindingsCSVTreatsUntrustedCellsAsText(t *testing.T) {
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		for _, payload := range []string{"=1+1", "+1", "-1", "@SUM(1,2)", "\t=1", "\r=1", "\n=1", "  =1", "\uFEFF=1", "＝1", "＋1", "－1", "＠SUM(1,2)", `=1+1";=1+1`} {
 			f := &db.DBFinding{ID: 42, Name: payload, VulnClass: payload, Severity: payload, Status: payload, TaskDescription: payload, Summary: payload}
 			original := *f

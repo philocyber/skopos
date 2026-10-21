@@ -111,7 +111,7 @@ func TestBlobBudgetArchiveImportAtomicAndRetry(t *testing.T) {
 	}
 	if _, err := target.ImportArchive(archive); !errors.Is(err, ErrBlobBudget) {
 		t.Fatalf("oversized import accepted or wrong failure: %v", err)
-	} else if !strings.Contains(locale.ErrorMessage(locale.Ko, err), "제한") {
+	} else if !strings.Contains(locale.ErrorMessage(locale.En, err), "limit") {
 		t.Fatal("storage budget error not localized")
 	}
 	if count, _ := target.Count(); count != 0 || target.BlobStorageStatus().UsedBytes != 0 {

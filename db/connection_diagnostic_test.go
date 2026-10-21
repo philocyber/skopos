@@ -21,7 +21,7 @@ func TestConnectionDiagnosticsOmitParserAndServerSecrets(t *testing.T) {
 		errors.New("SECRET_UNKNOWN"),
 	} {
 		got := connectionDiagnostic(err)
-		for _, text := range []string{fmt.Sprintf("%v", got), fmt.Sprintf("%+v", got), locale.ErrorMessage(locale.Ko, got)} {
+		for _, text := range []string{fmt.Sprintf("%v", got), fmt.Sprintf("%+v", got), locale.ErrorMessage(locale.En, got)} {
 			if strings.Contains(text, "SECRET") {
 				t.Errorf("driver details leaked: %q", text)
 			}
@@ -51,7 +51,7 @@ func TestOpenConnectionErrorsNeverEchoSecrets(t *testing.T) {
 		if err == nil {
 			t.Fatal("invalid connection configuration was accepted")
 		}
-		for _, text := range []string{err.Error(), locale.ErrorMessage(locale.Ko, err)} {
+		for _, text := range []string{err.Error(), locale.ErrorMessage(locale.En, err)} {
 			if strings.Contains(text, "SECRET") {
 				t.Errorf("real pgx diagnostic leaked credentials: %q", text)
 			}

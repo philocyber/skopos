@@ -26,11 +26,11 @@ var legacyPromptDefaults = map[string]string{
 	"d08326aa9fbd9a1367e716cf7ef46533e9096e9a56493f77d364efbf696f7fe0": RetesterDefaultPrompt,
 }
 
-// CanonicalBuiltinPrompt returns canonical English only for an exact stock
-// English/Korean/legacy template. All other text is returned byte-for-byte.
+// CanonicalBuiltinPrompt returns canonical English only for an exact stock or
+// legacy-hash template. All other text is returned byte-for-byte.
 func CanonicalBuiltinPrompt(text string) string {
 	for _, builtin := range []string{goalsDefaultTmpl, plannerDefaultTmpl, workerDefaultTmpl, mainAgentDefaultTmpl, autoDefaultTmpl, pentestDefaultTmpl, DefaultAssistantPrompt, ReporterDefaultPrompt, RetesterDefaultPrompt, settleWrapUpPrompt, plannerWrapUpDefault, mainAgentWrapUpDefault, genericWrapUpDefault, workerTaskTimeoutDefault, plannerTaskTimeoutDefault} {
-		if text == builtin || text == locale.Text(locale.Ko, builtin) {
+		if text == builtin {
 			return builtin
 		}
 	}

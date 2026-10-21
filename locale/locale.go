@@ -21,10 +21,11 @@ import (
 type Lang string
 
 const (
-	// En is English, the product default.
+	// En is English, the only supported interface language. The request-
+	// negotiation plumbing below (query/Accept-Language/cookie/env) is kept
+	// in shape so a second language could be reintroduced later without
+	// reworking callers.
 	En Lang = "en"
-	// Ko is Korean, the selectable alternative.
-	Ko Lang = "ko"
 )
 
 // Default is the fallback language when nothing else is negotiated.
@@ -38,11 +39,11 @@ const CookieName = "skopos_locale"
 const QueryParam = "lang"
 
 // Supported reports whether l is a language Skopos ships translations for.
-func Supported(l Lang) bool { return l == En || l == Ko }
+func Supported(l Lang) bool { return l == En }
 
-// Normalize parses a raw locale token (e.g. "en", "EN", "en-US", "ko_KR") into a
-// supported Lang. ok is false when the token does not map to a supported
-// language, so callers can fall through to the next negotiation source.
+// Normalize parses a raw locale token (e.g. "en", "EN", "en-US") into a
+// supported Lang. ok is false when the token does not name English, so
+// callers can fall through to the next negotiation source.
 func Normalize(s string) (Lang, bool) {
 	s = strings.TrimSpace(strings.ToLower(s))
 	if s == "" {
@@ -52,14 +53,10 @@ func Normalize(s string) (Lang, bool) {
 	if i := strings.IndexAny(s, "-_;"); i >= 0 {
 		s = s[:i]
 	}
-	switch Lang(s) {
-	case En:
+	if Lang(s) == En {
 		return En, true
-	case Ko:
-		return Ko, true
-	default:
-		return Default, false
 	}
+	return Default, false
 }
 
 // serverDefault holds the configured server-wide default language. It is set once

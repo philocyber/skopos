@@ -222,7 +222,7 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 		}
 		wireAgentAugment(m.pg, s.skillDir, s.hostTools) // Assemble visible skills/MCP and traffic/orchestration host tools into agent toolsets.
 		domainReg := buildDomainReg(m.Assets())
-		wireTools(m.pg, domainReg, s.knownToolLanguages()) // Built-in tools: filter by agent, override descriptions/schemas, and inject defaults.
+		wireTools(m.pg, domainReg) // Built-in tools: filter by agent, override descriptions/schemas, and inject defaults.
 		seedPrompts(m.pg)                                  // Seed built-in agent prompt bodies into agent_prompts only when empty.
 		s.seedOrchestrationTools()                         // Seed P2 cross-task orchestration tools for per-agent bindings.
 		if err := s.seedFindingRetester(); err != nil {
@@ -3412,7 +3412,7 @@ func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 	if req.Language != nil {
 		lang := locale.Lang(*req.Language)
 		if !locale.Supported(lang) {
-			writeErr(w, 400, "language must be en or ko")
+			writeErr(w, 400, "language must be en")
 			return
 		}
 		if err := s.m.pg.SetSetting(settingLanguage, string(lang)); err != nil {

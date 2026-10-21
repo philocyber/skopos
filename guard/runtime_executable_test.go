@@ -75,7 +75,7 @@ func TestRuntimeExecutableRequiresHumanDecisionBeforeDispatch(t *testing.T) {
 		`for fixture in one; do`,
 		`bash -c 'echo "'`,
 	} {
-		for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+		for _, lang := range []locale.Lang{locale.En} {
 			for _, tool := range []string{"Bash", "shell_open", "shell_send"} {
 				for _, response := range []string{"allow", "deny", "no-decision"} {
 					t.Run(fmt.Sprintf("%d/%s/%s/%s", scenario, lang, tool, response), func(t *testing.T) {

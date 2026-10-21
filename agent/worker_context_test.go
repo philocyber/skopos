@@ -41,7 +41,7 @@ func TestWorkerTargetDataNeverEntersSystemPrompt(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = d.Close() })
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		for _, streaming := range []bool{true, false} {
 			t.Run(fmt.Sprintf("%s/stream=%v", lang, streaming), func(t *testing.T) {
 				fixture, err := d.CreateTask("prompt-role fixture", "preserve worker context", nil, 0, 0)

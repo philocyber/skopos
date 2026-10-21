@@ -15,7 +15,7 @@ import (
 func TestWorkerPersistedTargetsRecheckedBeforeProvider(t *testing.T) {
 	d := testDB(t)
 	defer d.Close()
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		for _, resumed := range []bool{false, true} {
 			for _, mode := range []string{"allowed", "allowed-legacy", "blocked", "legacy-blocked", "legacy-single-blocked", "mixed", "missing", "malformed", "nil-store", "db-error", "unanchored"} {
 				t.Run(fmt.Sprintf("%s/resume=%v/%s", lang, resumed, mode), func(t *testing.T) {

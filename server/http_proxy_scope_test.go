@@ -66,7 +66,7 @@ func TestHTTPProxyDestinationIPRestrictions(t *testing.T) {
 	}))
 	defer proxy.Close()
 	s := &Server{m: &Manager{assets: d.Assets()}}
-	ctx := agent.WithRunInfo(locale.WithLang(t.Context(), locale.Ko), agent.RunInfo{TaskID: task.ID})
+	ctx := agent.WithRunInfo(locale.WithLang(t.Context(), locale.En), agent.RunInfo{TaskID: task.ID})
 	call := func(dest string, blocked bool) {
 		t.Helper()
 		before := requests.Load()
@@ -169,7 +169,7 @@ func TestHTTPProxyDestinationIPRestrictions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := store.CheckHTTPProxyDestination(locale.Ko, task.ID, dest); err == nil {
+	if err := store.CheckHTTPProxyDestination(locale.En, task.ID, dest); err == nil {
 		t.Fatal("unavailable proxy policy failed open")
 	}
 }

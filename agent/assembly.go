@@ -61,7 +61,6 @@ func AugmentTools(ctx context.Context, agentKey string, base []actool.CoreTool) 
 	if ToolResolve != nil {
 		out = ToolResolve(ctx, agentKey, out)
 	}
-	out = localizeBuiltinTools(out, locale.FromContext(ctx))
 	out, def.FindingGuidance = findingWorkflowTools(agentKey, out, locale.FromContext(ctx))
 	for i, t := range out {
 		out[i] = guardPanic(t)
