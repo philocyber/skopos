@@ -49,8 +49,11 @@ export function readCookieLocale(cookie: string): Locale | null {
   for (const part of cookie.split(";")) {
     const [name, ...rest] = part.trim().split("=");
     if (name === LOCALE_COOKIE) {
-      try { return normalizeLocale(decodeURIComponent(rest.join("="))); }
-      catch { return null; }
+      try {
+        return normalizeLocale(decodeURIComponent(rest.join("=")));
+      } catch {
+        return null;
+      }
     }
   }
   return null;

@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
@@ -60,6 +58,8 @@ import {
 } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { parseCompanyScopeText } from "@/lib/company-scope";
 import type { Asset, Company, CompanyScopeRule } from "@/lib/types";
@@ -103,13 +103,49 @@ function statusTone(code: number) {
 const PAGE_SIZES = [25, 50, 100, 200];
 
 const TABS: { key: string; label: string; icon: LucideIcon }[] = [
-  { key: "company", get label() { return swt("interface.m0217"); }, icon: BuildingIcon },
-  { key: "root_domain", get label() { return swt("interface.m0142"); }, icon: GlobeIcon },
+  {
+    key: "company",
+    get label() {
+      return swt("interface.m0217");
+    },
+    icon: BuildingIcon,
+  },
+  {
+    key: "root_domain",
+    get label() {
+      return swt("interface.m0142");
+    },
+    icon: GlobeIcon,
+  },
   { key: "ip", label: "IP", icon: NetworkIcon },
-  { key: "subdomain", get label() { return swt("interface.m0143"); }, icon: GlobeIcon },
-  { key: "app", get label() { return swt("interface.m0144"); }, icon: SmartphoneIcon },
-  { key: "service", get label() { return swt("interface.m0145"); }, icon: LayoutTemplateIcon },
-  { key: "endpoint", get label() { return swt("interface.m0218"); }, icon: LinkIcon },
+  {
+    key: "subdomain",
+    get label() {
+      return swt("interface.m0143");
+    },
+    icon: GlobeIcon,
+  },
+  {
+    key: "app",
+    get label() {
+      return swt("interface.m0144");
+    },
+    icon: SmartphoneIcon,
+  },
+  {
+    key: "service",
+    get label() {
+      return swt("interface.m0145");
+    },
+    icon: LayoutTemplateIcon,
+  },
+  {
+    key: "endpoint",
+    get label() {
+      return swt("interface.m0218");
+    },
+    icon: LinkIcon,
+  },
 ];
 
 export default function AssetsPage() {
@@ -328,14 +364,18 @@ export default function AssetsPage() {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">
-            {swt("interface.m0199")}<span className="tabular-nums">{totalAssets}</span> {swt("interface.m0223")}</span>
+            {swt("interface.m0199")}
+            <span className="tabular-nums">{totalAssets}</span> {swt("interface.m0223")}
+          </span>
           {selected.size > 0 && (
             <Button variant="destructive" size="sm" onClick={() => openDelete(Array.from(selected) as number[])}>
-              <Trash2Icon className="size-3.5" /> {swt("interface.m0224")}{selected.size})
+              <Trash2Icon className="size-3.5" /> {swt("interface.m0224")}
+              {selected.size})
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
-            <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} /> {swt("interface.m0225")}</Button>
+            <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} /> {swt("interface.m0225")}
+          </Button>
           <CompanyDialog onSaved={refresh} />
         </div>
       </div>
@@ -412,7 +452,8 @@ export default function AssetsPage() {
                   {companies.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={4} className="py-10 text-center text-sm text-muted-foreground">
-                        {swt("interface.m0231")}</TableCell>
+                        {swt("interface.m0231")}
+                      </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -513,7 +554,14 @@ export default function AssetsPage() {
         <TabsContent value="subdomain" className="mt-0 flex min-h-0 flex-1 flex-col gap-2">
           {searchBox}
           <AssetCard
-            cols={["", swt("interface.m0232"), swt("interface.m0142"), swt("interface.m0240"), swt("interface.m0241"), ""]}
+            cols={[
+              "",
+              swt("interface.m0232"),
+              swt("interface.m0142"),
+              swt("interface.m0240"),
+              swt("interface.m0241"),
+              "",
+            ]}
             loaded={loaded}
             total={total}
             page={page}
@@ -595,7 +643,18 @@ export default function AssetsPage() {
         <TabsContent value="service" className="mt-0 flex min-h-0 flex-1 flex-col gap-2">
           {searchBox}
           <AssetCard
-            cols={["", swt("interface.m0145"), swt("interface.m0232"), "IP", swt("interface.m0244"), swt("interface.m0245"), swt("interface.m0246"), swt("interface.m0247"), swt("interface.m0248"), ""]}
+            cols={[
+              "",
+              swt("interface.m0145"),
+              swt("interface.m0232"),
+              "IP",
+              swt("interface.m0244"),
+              swt("interface.m0245"),
+              swt("interface.m0246"),
+              swt("interface.m0247"),
+              swt("interface.m0248"),
+              "",
+            ]}
             loaded={loaded}
             total={total}
             page={page}
@@ -744,8 +803,9 @@ export default function AssetsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>{swt("interface.m0134")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {swt("interface.m0252")}<span className="font-semibold tabular-nums">{deleteIds.length}</span>{" "}
-              {swt("interface.m0253")}</AlertDialogDescription>
+              {swt("interface.m0252")}
+              <span className="font-semibold tabular-nums">{deleteIds.length}</span> {swt("interface.m0253")}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>{swt("interface.m0063")}</AlertDialogCancel>
@@ -774,7 +834,10 @@ export default function AssetsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m0255")}{companyDeleteTarget?.name}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {swt("interface.m0255")}
+              {companyDeleteTarget?.name}
+            </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
                 <p>{swt("interface.m0256")}</p>
@@ -788,7 +851,8 @@ export default function AssetsPage() {
                     onCheckedChange={(v) => setCompanyDeleteAssets(!!v)}
                   />
                   <span className="text-sm leading-snug">
-                    {swt("interface.m0257")}<span className="block text-xs text-muted-foreground">{swt("interface.m0258")}</span>
+                    {swt("interface.m0257")}
+                    <span className="block text-xs text-muted-foreground">{swt("interface.m0258")}</span>
                   </span>
                 </label>
               </div>
@@ -893,7 +957,8 @@ function AssetCard({
               <SelectGroup>
                 {PAGE_SIZES.map((n) => (
                   <SelectItem key={n} value={String(n)}>
-                    {n} {swt("interface.m0261")}</SelectItem>
+                    {n} {swt("interface.m0261")}
+                  </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
@@ -1030,7 +1095,8 @@ function CompanyDialog({ onSaved }: { onSaved: () => void }) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button size="sm">
-          <BuildingIcon data-icon="inline-start" /> {swt("interface.m0268")}</Button>
+          <BuildingIcon data-icon="inline-start" /> {swt("interface.m0268")}
+        </Button>
       </SheetTrigger>
       <SheetContent className="w-full! max-w-none! gap-0 p-0 sm:w-[520px]! sm:max-w-[520px]!">
         <SheetHeader className="border-b p-6">
@@ -1053,7 +1119,8 @@ function CompanyDialog({ onSaved }: { onSaved: () => void }) {
         </div>
         <SheetFooter className="flex-row justify-end gap-2 border-t p-4">
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            {swt("interface.m0063")}</Button>
+            {swt("interface.m0063")}
+          </Button>
           <Button onClick={submit} disabled={busy || !name.trim() || parsedScope.errors.length > 0}>
             {busy ? swt("interface.m0272") : swt("interface.m0273")}
           </Button>
@@ -1109,13 +1176,16 @@ function EditScopeDialog({ company, onSaved }: { company: Company; onSaved: () =
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="h-7">
-          {swt("interface.m0276")}</Button>
+          {swt("interface.m0276")}
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{swt("interface.m0277")}{company.name}</DialogTitle>
-          <DialogDescription>
-            {swt("interface.m0278")}</DialogDescription>
+          <DialogTitle>
+            {swt("interface.m0277")}
+            {company.name}
+          </DialogTitle>
+          <DialogDescription>{swt("interface.m0278")}</DialogDescription>
         </DialogHeader>
         <FieldGroup className="py-2">
           <ScopeTextEditor
@@ -1136,7 +1206,8 @@ function EditScopeDialog({ company, onSaved }: { company: Company; onSaved: () =
         </FieldGroup>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            {swt("interface.m0063")}</Button>
+            {swt("interface.m0063")}
+          </Button>
           <Button onClick={submit} disabled={busy || parsedScope.errors.length > 0}>
             {busy ? swt("interface.m0272") : swt("interface.m0281")}
           </Button>
@@ -1192,11 +1263,15 @@ function AppendScopeDialog({ company, onSaved }: { company: Company; onSaved: ()
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="h-7">
-          {swt("interface.m0284")}</Button>
+          {swt("interface.m0284")}
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{swt("interface.m0285")}{company.name}</DialogTitle>
+          <DialogTitle>
+            {swt("interface.m0285")}
+            {company.name}
+          </DialogTitle>
           <DialogDescription>{swt("interface.m0286")}</DialogDescription>
         </DialogHeader>
         <FieldGroup className="py-2">
@@ -1218,7 +1293,8 @@ function AppendScopeDialog({ company, onSaved }: { company: Company; onSaved: ()
         </FieldGroup>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            {swt("interface.m0063")}</Button>
+            {swt("interface.m0063")}
+          </Button>
           <Button onClick={submit} disabled={busy || parsedScope.rules.length === 0 || parsedScope.errors.length > 0}>
             {busy ? swt("interface.m0272") : swt("interface.m0284")}
           </Button>

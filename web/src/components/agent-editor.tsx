@@ -1,22 +1,22 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
-import { toast } from "sonner";
-import { EyeIcon, GitCompareIcon, InfoIcon, PencilIcon, RotateCcwIcon, SaveIcon, Trash2Icon, XIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import {
+  EyeIcon,
+  GitCompareIcon,
+  InfoIcon,
+  PencilIcon,
+  RotateCcwIcon,
+  SaveIcon,
+  Trash2Icon,
+  XIcon,
+} from "lucide-react";
+import { toast } from "sonner";
+
+import { Markdown } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -25,11 +25,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Markdown } from "@/components/markdown";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
+import type {
+  Agent,
+  AgentDetail,
+  AgentTrigger,
+  MCPServer,
+  PromptVar,
+  PromptVersion,
+  Settings,
+  SkillItem,
+  Tool,
+} from "@/lib/types";
 import { cn } from "@/lib/utils";
-import type { Agent, AgentDetail, AgentTrigger, MCPServer, PromptVar, PromptVersion, Settings, SkillItem, Tool } from "@/lib/types";
 
 // Traffic tools are host tools gated by global traffic capture: bindable, but
 // only usable when capture is on. Keep this list in sync with traffic.SeedToolMetas.
@@ -76,10 +94,22 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
   const [settings, setSettings] = React.useState<Settings | null>(null);
 
   React.useEffect(() => {
-    api.mcpServers().then(setMcp).catch(() => {});
-    api.skills().then(setSkills).catch(() => {});
-    api.tools().then(setTools).catch(() => {});
-    api.settings().then(setSettings).catch(() => {});
+    api
+      .mcpServers()
+      .then(setMcp)
+      .catch(() => {});
+    api
+      .skills()
+      .then(setSkills)
+      .catch(() => {});
+    api
+      .tools()
+      .then(setTools)
+      .catch(() => {});
+    api
+      .settings()
+      .then(setSettings)
+      .catch(() => {});
   }, []);
   // Global gates: traffic tools need capture; web search needs its master switch.
   const captureOn = !!settings?.traffic_capture;
@@ -253,12 +283,20 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
     } catch (e) {
       toast.error(swt("interface.m1913") + (e as Error).message);
       reload();
-      api.tools().then(setTools).catch(() => {});
+      api
+        .tools()
+        .then(setTools)
+        .catch(() => {});
     }
   }
 
   if (loaded && !detail) {
-    return <div className="text-muted-foreground p-6 text-center text-sm">{swt("interface.m1914")}{agentKey}</div>;
+    return (
+      <div className="text-muted-foreground p-6 text-center text-sm">
+        {swt("interface.m1914")}
+        {agentKey}
+      </div>
+    );
   }
   // config is meaningless for the conversational main agent and the fixed-budget
   // goals decomposer; every other agent (workers, custom assistants) honors it.
@@ -291,9 +329,14 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
             <div className="grid gap-3 rounded-md border p-3">
               {showLLM && (
                 <div className="grid gap-1.5">
-                  <Label htmlFor="llm-profile" className="text-xs">{swt("interface.m1917")}</Label>
+                  <Label htmlFor="llm-profile" className="text-xs">
+                    {swt("interface.m1917")}
+                  </Label>
                   <div className="flex flex-wrap items-center gap-3">
-                    <Select value={llmProfileId || "__follow__"} onValueChange={(v) => setLlmProfileId(v === "__follow__" ? "" : v)}>
+                    <Select
+                      value={llmProfileId || "__follow__"}
+                      onValueChange={(v) => setLlmProfileId(v === "__follow__" ? "" : v)}
+                    >
                       <SelectTrigger id="llm-profile" className="h-8 w-72">
                         <SelectValue />
                       </SelectTrigger>
@@ -306,8 +349,7 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
                         ))}
                       </SelectContent>
                     </Select>
-                    <span className="text-muted-foreground max-w-md text-xs">
-                      {swt("interface.m1920")}</span>
+                    <span className="text-muted-foreground max-w-md text-xs">{swt("interface.m1920")}</span>
                   </div>
                 </div>
               )}
@@ -315,19 +357,36 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
                 {showConfig && (
                   <>
                     <div className="grid gap-1.5">
-                      <Label htmlFor="max-turns" className="text-xs">{swt("interface.m1921")}</Label>
-                      <Input id="max-turns" type="number" min={0} className="h-8 w-32"
-                        value={maxTurns} onChange={(e) => setMaxTurns(e.target.value)} />
+                      <Label htmlFor="max-turns" className="text-xs">
+                        {swt("interface.m1921")}
+                      </Label>
+                      <Input
+                        id="max-turns"
+                        type="number"
+                        min={0}
+                        className="h-8 w-32"
+                        value={maxTurns}
+                        onChange={(e) => setMaxTurns(e.target.value)}
+                      />
                     </div>
                     <div className="grid gap-1.5">
-                      <Label htmlFor="run-seconds" className="text-xs">{swt("interface.m1922")}</Label>
-                      <Input id="run-seconds" type="number" min={0} className="h-8 w-32"
-                        value={runSecs} onChange={(e) => setRunSecs(e.target.value)} />
+                      <Label htmlFor="run-seconds" className="text-xs">
+                        {swt("interface.m1922")}
+                      </Label>
+                      <Input
+                        id="run-seconds"
+                        type="number"
+                        min={0}
+                        className="h-8 w-32"
+                        value={runSecs}
+                        onChange={(e) => setRunSecs(e.target.value)}
+                      />
                     </div>
                   </>
                 )}
                 <Button size="sm" variant="outline" onClick={saveConfig}>
-                  <SaveIcon /> {swt("interface.m1228")}</Button>
+                  <SaveIcon /> {swt("interface.m1228")}
+                </Button>
               </div>
               {showWebSearch && (
                 <div className="flex items-center gap-3 border-t pt-3">
@@ -338,26 +397,23 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
                     onCheckedChange={setWebSearch}
                   />
                   <div className="grid gap-0.5">
-                    <Label htmlFor="web-search" className="text-sm">{swt("interface.m1187")}</Label>
+                    <Label htmlFor="web-search" className="text-sm">
+                      {swt("interface.m1187")}
+                    </Label>
                     <span className="text-muted-foreground text-xs">
-                      {webSearchGlobalOn
-                        ? swt("interface.m1923")
-                        : swt("interface.m1924")}
+                      {webSearchGlobalOn ? swt("interface.m1923") : swt("interface.m1924")}
                     </span>
                   </div>
                 </div>
               )}
               {showInteractiveShell && (
                 <div className="flex items-center gap-3 border-t pt-3">
-                  <Switch
-                    id="interactive-shell"
-                    checked={interactiveShell}
-                    onCheckedChange={setInteractiveShell}
-                  />
+                  <Switch id="interactive-shell" checked={interactiveShell} onCheckedChange={setInteractiveShell} />
                   <div className="grid gap-0.5">
-                    <Label htmlFor="interactive-shell" className="text-sm">{swt("interface.m1925")}</Label>
-                    <span className="text-muted-foreground text-xs">
-                      {swt("interface.m1926")}</span>
+                    <Label htmlFor="interactive-shell" className="text-sm">
+                      {swt("interface.m1925")}
+                    </Label>
+                    <span className="text-muted-foreground text-xs">{swt("interface.m1926")}</span>
                   </div>
                 </div>
               )}
@@ -370,35 +426,53 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
               {variables.map((v) => (
                 <Tooltip key={v.name}>
                   <TooltipTrigger asChild>
-                    <button type="button" onClick={() => setPrompt((p) => `${p}{{.${v.name}}}`)}
-                      className="hover:bg-muted inline-flex items-center gap-1 rounded-md border bg-muted/40 px-2 py-1 font-mono text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setPrompt((p) => `${p}{{.${v.name}}}`)}
+                      className="hover:bg-muted inline-flex items-center gap-1 rounded-md border bg-muted/40 px-2 py-1 font-mono text-xs"
+                    >
                       {`{{.${v.name}}}`}
-                      <Badge variant="secondary" className="px-1 py-0 text-[10px]">{v.source}</Badge>
+                      <Badge variant="secondary" className="px-1 py-0 text-[10px]">
+                        {v.source}
+                      </Badge>
                     </button>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
                     <p className="font-medium">{v.description}</p>
-                    <p className="text-muted-foreground mt-1">{swt("interface.m1928")}{v.example}</p>
+                    <p className="text-muted-foreground mt-1">
+                      {swt("interface.m1928")}
+                      {v.example}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               ))}
-              {variables.length === 0 && <span className="text-muted-foreground text-xs">{swt("interface.m1929")}</span>}
+              {variables.length === 0 && (
+                <span className="text-muted-foreground text-xs">{swt("interface.m1929")}</span>
+              )}
             </div>
           </div>
 
-          <Textarea className="font-mono text-xs" rows={16} value={prompt}
-            placeholder={swt("interface.m1930")} onChange={(e) => setPrompt(e.target.value)} />
+          <Textarea
+            className="font-mono text-xs"
+            rows={16}
+            value={prompt}
+            placeholder={swt("interface.m1930")}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
 
           <div className="flex flex-wrap gap-2">
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" onClick={doPreview}>
-                  <EyeIcon /> {swt("interface.m1931")}</Button>
+                  <EyeIcon /> {swt("interface.m1931")}
+                </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>{swt("interface.m1932")}</DialogTitle>
-                  <DialogDescription>{swt("interface.m1933")}{" "}{`{{.Var}}`} {swt("interface.m1934")}</DialogDescription>
+                  <DialogDescription>
+                    {swt("interface.m1933")} {`{{.Var}}`} {swt("interface.m1934")}
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="max-h-[60vh] overflow-auto rounded-md border bg-muted/30 p-3">
                   <Markdown text={preview} />
@@ -406,24 +480,37 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
               </DialogContent>
             </Dialog>
             <Button size="sm" onClick={savePrompt}>
-              <SaveIcon /> {swt("interface.m1935")}</Button>
+              <SaveIcon /> {swt("interface.m1935")}
+            </Button>
             <Button variant="outline" size="sm" onClick={resetPrompt}>
-              <RotateCcwIcon /> {swt("interface.m1847")}</Button>
+              <RotateCcwIcon /> {swt("interface.m1847")}
+            </Button>
           </div>
-
 
           <Separator />
           <div className="grid gap-2">
             <Label className="text-muted-foreground text-xs">{swt("interface.m1936")}</Label>
             <ul className="grid gap-1">
               {versions.map((ver, i) => (
-                <li key={ver.version} className="flex items-center gap-2 rounded-md px-1 py-0.5 text-xs hover:bg-muted/50">
+                <li
+                  key={ver.version}
+                  className="flex items-center gap-2 rounded-md px-1 py-0.5 text-xs hover:bg-muted/50"
+                >
                   <span className="font-mono shrink-0">v{ver.version}</span>
-                  {i === 0 && <Badge variant="secondary" className="px-1.5 py-0 shrink-0">{swt("interface.m1937")}</Badge>}
+                  {i === 0 && (
+                    <Badge variant="secondary" className="px-1.5 py-0 shrink-0">
+                      {swt("interface.m1937")}
+                    </Badge>
+                  )}
                   <span className="text-muted-foreground truncate flex-1">{ver.note}</span>
                   {ver.ts && (
                     <span className="text-muted-foreground/60 shrink-0 tabular-nums">
-                      {new Date(ver.ts).toLocaleDateString(getIntlLocale(), { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                      {new Date(ver.ts).toLocaleDateString(getIntlLocale(), {
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                   )}
                   <Button variant="ghost" size="icon-sm" className="size-6 shrink-0" onClick={() => setViewVer(ver)}>
@@ -436,20 +523,25 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
                   )}
                 </li>
               ))}
-              {versions.length === 0 && (
-                <li className="text-muted-foreground text-xs">{swt("interface.m1938")}</li>
-              )}
+              {versions.length === 0 && <li className="text-muted-foreground text-xs">{swt("interface.m1938")}</li>}
             </ul>
           </div>
 
           {/* View-version dialog. */}
-          <Dialog open={!!viewVer} onOpenChange={(o) => { if (!o) setViewVer(null); }}>
+          <Dialog
+            open={!!viewVer}
+            onOpenChange={(o) => {
+              if (!o) setViewVer(null);
+            }}
+          >
             <DialogContent className="sm:max-w-2xl">
               <DialogHeader>
                 <DialogTitle>
                   v{viewVer?.version}
                   {viewVer?.version === versions[0]?.version && (
-                    <Badge variant="secondary" className="ml-2 px-1.5 py-0 align-middle">{swt("interface.m1937")}</Badge>
+                    <Badge variant="secondary" className="ml-2 px-1.5 py-0 align-middle">
+                      {swt("interface.m1937")}
+                    </Badge>
                   )}
                 </DialogTitle>
                 <DialogDescription>
@@ -466,28 +558,55 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
               </pre>
               <div className="flex gap-2 justify-end">
                 {viewVer && viewVer.version !== versions[0]?.version && (
-                  <Button variant="outline" size="sm" onClick={() => {
-                    if (viewVer) { setDiffVer(viewVer); setViewVer(null); }
-                  }}>
-                    <GitCompareIcon className="mr-1 size-3.5" /> {swt("interface.m1940")}</Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (viewVer) {
+                        setDiffVer(viewVer);
+                        setViewVer(null);
+                      }
+                    }}
+                  >
+                    <GitCompareIcon className="mr-1 size-3.5" /> {swt("interface.m1940")}
+                  </Button>
                 )}
-                <Button size="sm" onClick={() => {
-                  if (viewVer) { setPrompt(viewVer.template_text); setViewVer(null); toast.success(swt("interface.m1941", { p0: viewVer.version })); }
-                }}>
-                  {swt("interface.m1942")}</Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    if (viewVer) {
+                      setPrompt(viewVer.template_text);
+                      setViewVer(null);
+                      toast.success(swt("interface.m1941", { p0: viewVer.version }));
+                    }
+                  }}
+                >
+                  {swt("interface.m1942")}
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
 
           {/* Version comparison dialog. */}
-          <Dialog open={!!diffVer} onOpenChange={(o) => { if (!o) setDiffVer(null); }}>
+          <Dialog
+            open={!!diffVer}
+            onOpenChange={(o) => {
+              if (!o) setDiffVer(null);
+            }}
+          >
             <DialogContent className="sm:max-w-3xl">
               <DialogHeader>
-                <DialogTitle>{swt("interface.m1943")}{" "}{diffVer?.version} → v{versions[0]?.version}{" "}{swt("interface.m1944")}</DialogTitle>
+                <DialogTitle>
+                  {swt("interface.m1943")} {diffVer?.version} → v{versions[0]?.version} {swt("interface.m1944")}
+                </DialogTitle>
                 <DialogDescription>
                   <span className="inline-flex items-center gap-3 text-xs">
-                    <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-red-600 dark:text-red-400">{swt("interface.m1945")}</span>
-                    <span className="rounded bg-green-500/15 px-1.5 py-0.5 text-green-600 dark:text-green-400">{swt("interface.m1946")}</span>
+                    <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-red-600 dark:text-red-400">
+                      {swt("interface.m1945")}
+                    </span>
+                    <span className="rounded bg-green-500/15 px-1.5 py-0.5 text-green-600 dark:text-green-400">
+                      {swt("interface.m1946")}
+                    </span>
                   </span>
                 </DialogDescription>
               </DialogHeader>
@@ -501,13 +620,22 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
       <TabsContent value="wrapup" className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
         <div className="grid gap-3">
           <p className="text-muted-foreground text-xs leading-relaxed">
-            {swt("interface.m1947")}<b>{swt("interface.m1948")}</b>{swt("interface.m1949")}<b>{swt("interface.m1950")}</b>{swt("interface.m1951")}</p>
+            {swt("interface.m1947")}
+            <b>{swt("interface.m1948")}</b>
+            {swt("interface.m1949")}
+            <b>{swt("interface.m1950")}</b>
+            {swt("interface.m1951")}
+          </p>
           <div className="flex items-center gap-2">
             <Label className="text-xs">{swt("interface.m1952")}</Label>
             {wrapup.trim() ? (
-              <Badge variant="secondary" className="px-1.5 py-0">{swt("interface.m0081")}</Badge>
+              <Badge variant="secondary" className="px-1.5 py-0">
+                {swt("interface.m0081")}
+              </Badge>
             ) : (
-              <Badge variant="outline" className="px-1.5 py-0">{swt("interface.m1953")}</Badge>
+              <Badge variant="outline" className="px-1.5 py-0">
+                {swt("interface.m1953")}
+              </Badge>
             )}
           </div>
           <Textarea
@@ -519,13 +647,24 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
           />
           <div className="grid gap-1.5">
             <Label htmlFor="wrapup-turns" className="text-xs">
-              {swt("interface.m1955")}{" "}{wrapupTurnsDefault} {swt("interface.m1956")}</Label>
-            <Input id="wrapup-turns" type="number" min={0} className="h-8 w-32"
-              value={wrapupTurns} onChange={(e) => setWrapupTurns(e.target.value)} />
+              {swt("interface.m1955")} {wrapupTurnsDefault} {swt("interface.m1956")}
+            </Label>
+            <Input
+              id="wrapup-turns"
+              type="number"
+              min={0}
+              className="h-8 w-32"
+              value={wrapupTurns}
+              onChange={(e) => setWrapupTurns(e.target.value)}
+            />
           </div>
           <div className="flex gap-2">
-            <Button size="sm" onClick={saveWrapup}>{swt("interface.m0273")}</Button>
-            <Button size="sm" variant="outline" onClick={resetWrapup}>{swt("interface.m1847")}</Button>
+            <Button size="sm" onClick={saveWrapup}>
+              {swt("interface.m0273")}
+            </Button>
+            <Button size="sm" variant="outline" onClick={resetWrapup}>
+              {swt("interface.m1847")}
+            </Button>
           </div>
           {wrapupDefault && (
             <>
@@ -543,13 +682,23 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
             <>
               <Separator className="my-2" />
               <p className="text-muted-foreground text-xs leading-relaxed">
-                <b>{swt("interface.m1958")}</b>{swt("interface.m1959")}<b>{swt("interface.m1960")}</b>{swt("interface.m1961")}<b>{swt("interface.m1962")}</b>{swt("interface.m1963")}</p>
+                <b>{swt("interface.m1958")}</b>
+                {swt("interface.m1959")}
+                <b>{swt("interface.m1960")}</b>
+                {swt("interface.m1961")}
+                <b>{swt("interface.m1962")}</b>
+                {swt("interface.m1963")}
+              </p>
               <div className="flex items-center gap-2">
                 <Label className="text-xs">{swt("interface.m1964")}</Label>
                 {ttWrapup.trim() ? (
-                  <Badge variant="secondary" className="px-1.5 py-0">{swt("interface.m0081")}</Badge>
+                  <Badge variant="secondary" className="px-1.5 py-0">
+                    {swt("interface.m0081")}
+                  </Badge>
                 ) : (
-                  <Badge variant="outline" className="px-1.5 py-0">{swt("interface.m1953")}</Badge>
+                  <Badge variant="outline" className="px-1.5 py-0">
+                    {swt("interface.m1953")}
+                  </Badge>
                 )}
               </div>
               <Textarea
@@ -561,13 +710,24 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
               />
               <div className="grid gap-1.5">
                 <Label htmlFor="tt-turns" className="text-xs">
-                  {swt("interface.m1966")}{" "}{ttTurnsDefault} {swt("interface.m1956")}</Label>
-                <Input id="tt-turns" type="number" min={0} className="h-8 w-32"
-                  value={ttTurns} onChange={(e) => setTtTurns(e.target.value)} />
+                  {swt("interface.m1966")} {ttTurnsDefault} {swt("interface.m1956")}
+                </Label>
+                <Input
+                  id="tt-turns"
+                  type="number"
+                  min={0}
+                  className="h-8 w-32"
+                  value={ttTurns}
+                  onChange={(e) => setTtTurns(e.target.value)}
+                />
               </div>
               <div className="flex gap-2">
-                <Button size="sm" onClick={saveTaskTimeoutWrapup}>{swt("interface.m0273")}</Button>
-                <Button size="sm" variant="outline" onClick={resetTaskTimeoutWrapup}>{swt("interface.m1847")}</Button>
+                <Button size="sm" onClick={saveTaskTimeoutWrapup}>
+                  {swt("interface.m0273")}
+                </Button>
+                <Button size="sm" variant="outline" onClick={resetTaskTimeoutWrapup}>
+                  {swt("interface.m1847")}
+                </Button>
               </div>
               {ttWrapupDefault && (
                 <div className="grid gap-1.5">
@@ -622,10 +782,7 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
             return (
               <label
                 key={t.key}
-                className={cn(
-                  "flex items-center gap-2 rounded-md border p-2 text-sm",
-                  gated && "opacity-60",
-                )}
+                className={cn("flex items-center gap-2 rounded-md border p-2 text-sm", gated && "opacity-60")}
               >
                 <Checkbox
                   checked={t.agents.includes(agentKey)}
@@ -634,10 +791,14 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
                 />
                 <span className="font-mono text-xs">{t.key}</span>
                 {isTraffic && (
-                  <Badge variant="secondary" className="px-1 py-0 text-[9px]">{swt("interface.m1067")}</Badge>
+                  <Badge variant="secondary" className="px-1 py-0 text-[9px]">
+                    {swt("interface.m1067")}
+                  </Badge>
                 )}
                 {!t.enabled && (
-                  <Badge variant="outline" className="text-destructive px-1 py-0 text-[9px]">{swt("interface.m1069")}</Badge>
+                  <Badge variant="outline" className="text-destructive px-1 py-0 text-[9px]">
+                    {swt("interface.m1069")}
+                  </Badge>
                 )}
                 {gated ? (
                   <span className="text-muted-foreground ml-auto text-xs">{swt("interface.m1972")}</span>
@@ -771,13 +932,19 @@ function AgentTriggersTab({ agentKey, agent }: { agentKey: string; agent?: Agent
   const [editingId, setEditingId] = React.useState<number | null>(null);
 
   const reload = React.useCallback(() => {
-    api.agentTriggers(agentKey).then(setTriggers).catch(() => setTriggers([]));
+    api
+      .agentTriggers(agentKey)
+      .then(setTriggers)
+      .catch(() => setTriggers([]));
   }, [agentKey]);
   React.useEffect(() => {
     reload();
   }, [reload]);
   React.useEffect(() => {
-    api.tools().then(setTools).catch(() => setTools([]));
+    api
+      .tools()
+      .then(setTools)
+      .catch(() => setTools([]));
   }, []);
 
   function toggleTool(key: string) {
@@ -913,7 +1080,10 @@ function AgentTriggersTab({ agentKey, agent }: { agentKey: string; agent?: Agent
   return (
     <div className="grid gap-4">
       <p className="text-muted-foreground text-xs">
-        {swt("interface.m1987")}<b>{swt("interface.m1988")}</b>{swt("interface.m1989")}</p>
+        {swt("interface.m1987")}
+        <b>{swt("interface.m1988")}</b>
+        {swt("interface.m1989")}
+      </p>
 
       {/* Post-trigger policy. */}
       <div className="grid gap-3 rounded-md border p-3">
@@ -963,7 +1133,9 @@ function AgentTriggersTab({ agentKey, agent }: { agentKey: string; agent?: Agent
 
           {runMode === "parallel" && (
             <div className="grid gap-1">
-              <Label htmlFor="tr-maxpar" className="text-xs">{swt("interface.m1998")}</Label>
+              <Label htmlFor="tr-maxpar" className="text-xs">
+                {swt("interface.m1998")}
+              </Label>
               <Input
                 id="tr-maxpar"
                 type="number"
@@ -994,25 +1166,37 @@ function AgentTriggersTab({ agentKey, agent }: { agentKey: string; agent?: Agent
       {/* Add/edit trigger. */}
       <div className="grid gap-3 rounded-md border p-3">
         <Label className="text-muted-foreground text-xs">
-          {editingId != null
-            ? swt("interface.m2003", { p0: editingId })
-            : swt("interface.m2004")}
+          {editingId != null ? swt("interface.m2003", { p0: editingId }) : swt("interface.m2004")}
         </Label>
 
         {/* Scheduled trigger. */}
         <div className="grid gap-1.5">
           <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={onInterval} onCheckedChange={(v) => setOnInterval(!!v)} /> {swt("interface.m2005")}</label>
+            <Checkbox checked={onInterval} onCheckedChange={(v) => setOnInterval(!!v)} /> {swt("interface.m2005")}
+          </label>
           {onInterval && (
             <div className="grid gap-1.5">
               <div className="flex items-center gap-2">
-                <Label htmlFor="tr-interval" className="text-xs">{swt("interface.m2006")}</Label>
-                <Input id="tr-interval" type="number" min={1} className="h-8 w-24"
-                  value={intervalSec} onChange={(e) => setIntervalSec(e.target.value)} />
+                <Label htmlFor="tr-interval" className="text-xs">
+                  {swt("interface.m2006")}
+                </Label>
+                <Input
+                  id="tr-interval"
+                  type="number"
+                  min={1}
+                  className="h-8 w-24"
+                  value={intervalSec}
+                  onChange={(e) => setIntervalSec(e.target.value)}
+                />
                 <span className="text-muted-foreground text-xs">{swt("interface.m2007")}</span>
               </div>
-              <Textarea className="text-xs" rows={2} value={intervalMsg}
-                placeholder={swt("interface.m2008")} onChange={(e) => setIntervalMsg(e.target.value)} />
+              <Textarea
+                className="text-xs"
+                rows={2}
+                value={intervalMsg}
+                placeholder={swt("interface.m2008")}
+                onChange={(e) => setIntervalMsg(e.target.value)}
+              />
             </div>
           )}
         </div>
@@ -1020,58 +1204,91 @@ function AgentTriggersTab({ agentKey, agent }: { agentKey: string; agent?: Agent
         {/* finding */}
         <div className="grid gap-1.5">
           <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={onFinding} onCheckedChange={(v) => setOnFinding(!!v)} /> {swt("interface.m2009")}</label>
+            <Checkbox checked={onFinding} onCheckedChange={(v) => setOnFinding(!!v)} /> {swt("interface.m2009")}
+          </label>
           {onFinding && (
-            <Textarea className="text-xs" rows={2} value={findingMsg}
-              placeholder={swt("interface.m2010")} onChange={(e) => setFindingMsg(e.target.value)} />
+            <Textarea
+              className="text-xs"
+              rows={2}
+              value={findingMsg}
+              placeholder={swt("interface.m2010")}
+              onChange={(e) => setFindingMsg(e.target.value)}
+            />
           )}
         </div>
 
         {/* Objective met. */}
         <div className="grid gap-1.5">
           <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={onGoalMet} onCheckedChange={(v) => setOnGoalMet(!!v)} /> {swt("interface.m2011")}</label>
+            <Checkbox checked={onGoalMet} onCheckedChange={(v) => setOnGoalMet(!!v)} /> {swt("interface.m2011")}
+          </label>
           {onGoalMet && (
-            <Textarea className="text-xs" rows={2} value={goalMsg}
-              placeholder={swt("interface.m2012")} onChange={(e) => setGoalMsg(e.target.value)} />
+            <Textarea
+              className="text-xs"
+              rows={2}
+              value={goalMsg}
+              placeholder={swt("interface.m2012")}
+              onChange={(e) => setGoalMsg(e.target.value)}
+            />
           )}
         </div>
 
         {/* Task timeout. */}
         <div className="grid gap-1.5">
           <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={onTaskTimeout} onCheckedChange={(v) => setOnTaskTimeout(!!v)} /> {swt("interface.m2013")}</label>
+            <Checkbox checked={onTaskTimeout} onCheckedChange={(v) => setOnTaskTimeout(!!v)} /> {swt("interface.m2013")}
+          </label>
           {onTaskTimeout && (
-            <Textarea className="text-xs" rows={2} value={taskTimeoutMsg}
-              placeholder={swt("interface.m2014")} onChange={(e) => setTaskTimeoutMsg(e.target.value)} />
+            <Textarea
+              className="text-xs"
+              rows={2}
+              value={taskTimeoutMsg}
+              placeholder={swt("interface.m2014")}
+              onChange={(e) => setTaskTimeoutMsg(e.target.value)}
+            />
           )}
         </div>
 
         {/* Tool call. */}
         <div className="grid gap-1.5">
           <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={onToolCall} onCheckedChange={(v) => setOnToolCall(!!v)} /> {swt("interface.m2015")}</label>
+            <Checkbox checked={onToolCall} onCheckedChange={(v) => setOnToolCall(!!v)} /> {swt("interface.m2015")}
+          </label>
           {onToolCall && (
             <div className="grid gap-1.5">
               <div className="text-muted-foreground text-xs">
-                {swt("interface.m2016")}<b>{swt("interface.m2017")}</b>{swt("interface.m2018")}{toolNames.length} {swt("interface.m2019")}</div>
+                {swt("interface.m2016")}
+                <b>{swt("interface.m2017")}</b>
+                {swt("interface.m2018")}
+                {toolNames.length} {swt("interface.m2019")}
+              </div>
               <div className="max-h-40 overflow-y-auto rounded-md border p-2">
                 {tools.length === 0 && <span className="text-muted-foreground text-xs">{swt("interface.m2020")}</span>}
                 <div className="grid gap-1">
                   {tools.map((tool) => (
                     <label key={tool.key} className="flex items-start gap-2 text-xs">
-                      <Checkbox className="mt-0.5" checked={toolNames.includes(tool.key)}
-                        onCheckedChange={() => toggleTool(tool.key)} />
+                      <Checkbox
+                        className="mt-0.5"
+                        checked={toolNames.includes(tool.key)}
+                        onCheckedChange={() => toggleTool(tool.key)}
+                      />
                       <span className="min-w-0">
                         <span className="font-medium">{tool.key}</span>
-                        {tool.description && <span className="text-muted-foreground line-clamp-1"> {tool.description}</span>}
+                        {tool.description && (
+                          <span className="text-muted-foreground line-clamp-1"> {tool.description}</span>
+                        )}
                       </span>
                     </label>
                   ))}
                 </div>
               </div>
-              <Textarea className="text-xs" rows={2} value={toolCallMsg}
-                placeholder={swt("interface.m2021")} onChange={(e) => setToolCallMsg(e.target.value)} />
+              <Textarea
+                className="text-xs"
+                rows={2}
+                value={toolCallMsg}
+                placeholder={swt("interface.m2021")}
+                onChange={(e) => setToolCallMsg(e.target.value)}
+              />
             </div>
           )}
         </div>
@@ -1079,10 +1296,16 @@ function AgentTriggersTab({ agentKey, agent }: { agentKey: string; agent?: Agent
         {/* Task creation. */}
         <div className="grid gap-1.5">
           <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={onTaskCreate} onCheckedChange={(v) => setOnTaskCreate(!!v)} /> {swt("interface.m2022")}</label>
+            <Checkbox checked={onTaskCreate} onCheckedChange={(v) => setOnTaskCreate(!!v)} /> {swt("interface.m2022")}
+          </label>
           {onTaskCreate && (
-            <Textarea className="text-xs" rows={2} value={taskCreateMsg}
-              placeholder={swt("interface.m2023")} onChange={(e) => setTaskCreateMsg(e.target.value)} />
+            <Textarea
+              className="text-xs"
+              rows={2}
+              value={taskCreateMsg}
+              placeholder={swt("interface.m2023")}
+              onChange={(e) => setTaskCreateMsg(e.target.value)}
+            />
           )}
         </div>
 
@@ -1092,7 +1315,8 @@ function AgentTriggersTab({ agentKey, agent }: { agentKey: string; agent?: Agent
           </Button>
           {editingId != null && (
             <Button size="sm" variant="ghost" onClick={resetForm} disabled={saving}>
-              <XIcon /> {swt("interface.m2025")}</Button>
+              <XIcon /> {swt("interface.m2025")}
+            </Button>
           )}
         </div>
       </div>
@@ -1114,29 +1338,74 @@ function AgentTriggersTab({ agentKey, agent }: { agentKey: string; agent?: Agent
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="font-medium">{condLabel(t)}</span>
                 {!t.enabled && (
-                  <Badge variant="outline" className="text-destructive px-1 py-0 text-[9px]">{swt("interface.m1069")}</Badge>
+                  <Badge variant="outline" className="text-destructive px-1 py-0 text-[9px]">
+                    {swt("interface.m1069")}
+                  </Badge>
                 )}
               </div>
               <div className="text-muted-foreground grid gap-0.5 text-xs">
-                {t.interval_sec > 0 && t.interval_message && <div className="line-clamp-1">{swt("interface.m2028")}{t.interval_message}</div>}
-                {t.on_finding && t.finding_message && <div className="line-clamp-1">{swt("english.e146")}{t.finding_message}</div>}
-                {t.on_goal_met && t.goal_message && <div className="line-clamp-1">{swt("interface.m2029")}{t.goal_message}</div>}
-                {t.on_task_timeout && t.task_timeout_message && <div className="line-clamp-1">{swt("interface.m2030")}{t.task_timeout_message}</div>}
-                {t.on_task_create && t.task_create_message && <div className="line-clamp-1">{swt("interface.m2031")}{t.task_create_message}</div>}
+                {t.interval_sec > 0 && t.interval_message && (
+                  <div className="line-clamp-1">
+                    {swt("interface.m2028")}
+                    {t.interval_message}
+                  </div>
+                )}
+                {t.on_finding && t.finding_message && (
+                  <div className="line-clamp-1">
+                    {swt("english.e146")}
+                    {t.finding_message}
+                  </div>
+                )}
+                {t.on_goal_met && t.goal_message && (
+                  <div className="line-clamp-1">
+                    {swt("interface.m2029")}
+                    {t.goal_message}
+                  </div>
+                )}
+                {t.on_task_timeout && t.task_timeout_message && (
+                  <div className="line-clamp-1">
+                    {swt("interface.m2030")}
+                    {t.task_timeout_message}
+                  </div>
+                )}
+                {t.on_task_create && t.task_create_message && (
+                  <div className="line-clamp-1">
+                    {swt("interface.m2031")}
+                    {t.task_create_message}
+                  </div>
+                )}
                 {t.on_tool_call && (
                   <>
-                    <div className="line-clamp-1">{swt("interface.m2032")}{t.tool_names.join("、") || swt("interface.m2033")}</div>
-                    {t.tool_call_message && <div className="line-clamp-1">{swt("interface.m2034")}{t.tool_call_message}</div>}
+                    <div className="line-clamp-1">
+                      {swt("interface.m2032")}
+                      {t.tool_names.join("、") || swt("interface.m2033")}
+                    </div>
+                    {t.tool_call_message && (
+                      <div className="line-clamp-1">
+                        {swt("interface.m2034")}
+                        {t.tool_call_message}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
             </div>
-            <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground"
-              onClick={() => startEdit(t)} title={swt("interface.m0276")}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => startEdit(t)}
+              title={swt("interface.m0276")}
+            >
               <PencilIcon className="size-3.5" />
             </Button>
-            <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive"
-              onClick={() => del(t.id)} title={swt("interface.m0101")}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-muted-foreground hover:text-destructive"
+              onClick={() => del(t.id)}
+              title={swt("interface.m0101")}
+            >
               <Trash2Icon className="size-3.5" />
             </Button>
           </div>

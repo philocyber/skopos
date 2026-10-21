@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import { type ReactNode, useEffect, useState } from "react";
 
 import { usePathname } from "next/navigation";
@@ -10,6 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
@@ -80,7 +80,10 @@ export function MainContent({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-2">
             <SearchDialog />
             {version && (
-              <span className="hidden font-mono text-[11px] text-muted-foreground tabular-nums lg:inline">{swt("interface.m0052")}{version}</span>
+              <span className="hidden font-mono text-[11px] text-muted-foreground tabular-nums lg:inline">
+                {swt("interface.m0052")}
+                {version}
+              </span>
             )}
             <UpdateBadge />
             <LayoutControls />
@@ -89,7 +92,10 @@ export function MainContent({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <div data-console="workspace" className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0">
+      <div
+        data-console="workspace"
+        className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0"
+      >
         {children}
       </div>
     </>

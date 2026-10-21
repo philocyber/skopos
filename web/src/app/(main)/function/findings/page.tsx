@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import Link from "next/link";
@@ -40,6 +38,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 import { statusMeta } from "@/lib/status";
@@ -956,10 +956,13 @@ export default function FindingsPage() {
 
           <div className="ml-auto flex items-center gap-3">
             {selectedIds.size > 0 && (
-              <span className="text-xs text-muted-foreground tabular-nums">{swt("interface.m0398")}{" "}{selectedIds.size} {swt("interface.m0328")}</span>
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {swt("interface.m0398")} {selectedIds.size} {swt("interface.m0328")}
+              </span>
             )}
             <Button size="sm" variant="outline" onClick={openExport}>
-              <DownloadIcon /> {swt("interface.m0399")}</Button>
+              <DownloadIcon /> {swt("interface.m0399")}
+            </Button>
           </div>
         </div>
 
@@ -994,7 +997,8 @@ export default function FindingsPage() {
                   className={cn("hover:text-foreground", assetScope === null && "font-medium text-foreground")}
                   onClick={() => setAssetScope(null)}
                 >
-                  {swt("interface.m0312")}</button>
+                  {swt("interface.m0312")}
+                </button>
                 {assetPath.map((node) => (
                   <React.Fragment key={node.key}>
                     <ChevronRightIcon className="size-3.5 shrink-0" aria-hidden="true" />
@@ -1011,7 +1015,9 @@ export default function FindingsPage() {
                     </button>
                   </React.Fragment>
                 ))}
-                <span className="ml-auto shrink-0 text-xs tabular-nums">{swt("interface.m0199")}{" "}{flat.total} {swt("interface.m0328")}</span>
+                <span className="ml-auto shrink-0 text-xs tabular-nums">
+                  {swt("interface.m0199")} {flat.total} {swt("interface.m0328")}
+                </span>
               </div>
               {flatListCard}
             </div>
@@ -1113,7 +1119,9 @@ export default function FindingsPage() {
             })}
             {groups.length === 0 && (
               <Card>
-                <CardContent className="py-12 text-center text-sm text-muted-foreground">{swt("interface.m0348")}</CardContent>
+                <CardContent className="py-12 text-center text-sm text-muted-foreground">
+                  {swt("interface.m0348")}
+                </CardContent>
               </Card>
             )}
             <TablePagination
@@ -1164,7 +1172,9 @@ export default function FindingsPage() {
           <DialogHeader>
             <DialogTitle>{swt("interface.m0405")}</DialogTitle>
             <DialogDescription className="break-words">
-              {swt("interface.m0406")}{deepenFinding?.task_id} {swt("interface.m0407")}{deepenFinding?.name || deepenFinding?.vulnclass || deepenFinding?.summary}
+              {swt("interface.m0406")}
+              {deepenFinding?.task_id} {swt("interface.m0407")}
+              {deepenFinding?.name || deepenFinding?.vulnclass || deepenFinding?.summary}
             </DialogDescription>
           </DialogHeader>
           <FieldGroup>
@@ -1193,10 +1203,12 @@ export default function FindingsPage() {
               }}
               disabled={deepening}
             >
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
             <Button onClick={submitDeepen} disabled={deepening || !deepenDescription.trim()}>
               {deepening && <Spinner data-icon="inline-start" />}
-              {swt("interface.m0411")}</Button>
+              {swt("interface.m0411")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1213,16 +1225,19 @@ export default function FindingsPage() {
               <span className="text-xs text-muted-foreground">{swt("interface.m0414")}</span>
               <RadioGroup value={exportScope} onValueChange={(v) => setExportScope(v as typeof exportScope)}>
                 <label htmlFor="export-scope-filtered" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-scope-filtered" value="filtered" /> {swt("interface.m0415")}{" "}{filteredTotal}{" "}
-                  {swt("interface.m0416")}</label>
+                  <RadioGroupItem id="export-scope-filtered" value="filtered" /> {swt("interface.m0415")}{" "}
+                  {filteredTotal} {swt("interface.m0416")}
+                </label>
                 <label htmlFor="export-scope-all" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-scope-all" value="all" /> {swt("interface.m0417")}</label>
+                  <RadioGroupItem id="export-scope-all" value="all" /> {swt("interface.m0417")}
+                </label>
                 <label
                   htmlFor="export-scope-selected"
                   className={cn("flex items-center gap-2 text-sm", selectedIds.size === 0 && "text-muted-foreground")}
                 >
                   <RadioGroupItem id="export-scope-selected" value="selected" disabled={selectedIds.size === 0} />
-                  {swt("interface.m0418")}{" "}{selectedIds.size} {swt("interface.m0328")}</label>
+                  {swt("interface.m0418")} {selectedIds.size} {swt("interface.m0328")}
+                </label>
               </RadioGroup>
             </div>
 
@@ -1230,11 +1245,14 @@ export default function FindingsPage() {
               <span className="text-xs text-muted-foreground">{swt("interface.m0419")}</span>
               <RadioGroup value={exportFormat} onValueChange={(v) => setExportFormat(v as typeof exportFormat)}>
                 <label htmlFor="export-format-md-single" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-format-md-single" value="md-single" /> {swt("interface.m0420")}</label>
+                  <RadioGroupItem id="export-format-md-single" value="md-single" /> {swt("interface.m0420")}
+                </label>
                 <label htmlFor="export-format-md-zip" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-format-md-zip" value="md-zip" /> {swt("interface.m0421")}</label>
+                  <RadioGroupItem id="export-format-md-zip" value="md-zip" /> {swt("interface.m0421")}
+                </label>
                 <label htmlFor="export-format-csv" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-format-csv" value="csv" /> {swt("interface.m0422")}</label>
+                  <RadioGroupItem id="export-format-csv" value="csv" /> {swt("interface.m0422")}
+                </label>
                 <label htmlFor="export-format-json" className="flex items-center gap-2 text-sm">
                   <RadioGroupItem id="export-format-json" value="json" /> JSON（.json）
                 </label>
@@ -1244,7 +1262,8 @@ export default function FindingsPage() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setExportOpen(false)} disabled={exporting}>
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
             <Button onClick={doExport} disabled={exporting || (exportScope === "selected" && selectedIds.size === 0)}>
               <DownloadIcon /> {exporting ? swt("interface.m0423") : swt("interface.m0399")}
             </Button>

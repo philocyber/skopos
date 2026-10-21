@@ -1,11 +1,11 @@
 "use client";
 
-import { useI18n } from "@/i18n";
-import { translate as swt } from "@/i18n/runtime";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { toast } from "sonner";
 
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { sseUrl } from "@/lib/api";
 import { isBtwCommand, type SideExchange, type SideHistory, sideAPI } from "@/lib/side-questions";
 

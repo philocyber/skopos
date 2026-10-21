@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { AlertCircleIcon, CheckCircle2Icon, DownloadIcon, PlugZapIcon, RefreshCwIcon, SearchIcon } from "lucide-react";
@@ -15,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { SSProject, SSTask } from "@/lib/types";
 
@@ -30,9 +30,24 @@ type SSStatus = {
 type Dimension = "project" | "task";
 
 const ASSET_TYPES: { key: string; label: string }[] = [
-  { key: "subdomain", get label() { return swt("interface.m0143"); } },
-  { key: "service", get label() { return swt("interface.m0145"); } },
-  { key: "app", get label() { return swt("english.e066"); } },
+  {
+    key: "subdomain",
+    get label() {
+      return swt("interface.m0143");
+    },
+  },
+  {
+    key: "service",
+    get label() {
+      return swt("interface.m0145");
+    },
+  },
+  {
+    key: "app",
+    get label() {
+      return swt("english.e066");
+    },
+  },
 ];
 
 export default function AssetSyncPage() {
@@ -86,8 +101,7 @@ function ScopeSentryPanel() {
         <SyncWorkbench />
       ) : (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground text-sm">
-            {swt("interface.m0448")}</CardContent>
+          <CardContent className="py-8 text-center text-muted-foreground text-sm">{swt("interface.m0448")}</CardContent>
         </Card>
       )}
     </div>
@@ -148,24 +162,25 @@ function DataSourceCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2 text-base">
-          <PlugZapIcon className="size-4" /> {swt("interface.m0454")}<StatusBadge status={status} loading={loading} />
+          <PlugZapIcon className="size-4" /> {swt("interface.m0454")}
+          <StatusBadge status={status} loading={loading} />
         </CardTitle>
         <Button variant="ghost" size="sm" onClick={onChanged} disabled={loading}>
-          <RefreshCwIcon className={loading ? "size-4 animate-spin" : "size-4"} /> {swt("interface.m0225")}</Button>
+          <RefreshCwIcon className={loading ? "size-4 animate-spin" : "size-4"} /> {swt("interface.m0225")}
+        </Button>
       </CardHeader>
       <CardContent className="space-y-3">
         {!status?.exists ? (
           <div className="flex items-center justify-between gap-4">
-            <p className="text-muted-foreground text-sm">
-              {swt("interface.m0455")}</p>
+            <p className="text-muted-foreground text-sm">{swt("interface.m0455")}</p>
             <Button onClick={create} disabled={busy}>
-              {swt("interface.m0456")}</Button>
+              {swt("interface.m0456")}
+            </Button>
           </div>
         ) : (
           <>
             {!status.configured && (
-              <p className="text-amber-600 text-sm dark:text-amber-500">
-                {swt("interface.m0457")}</p>
+              <p className="text-amber-600 text-sm dark:text-amber-500">{swt("interface.m0457")}</p>
             )}
             {status.configured && !status.enabled && (
               <p className="text-amber-600 text-sm dark:text-amber-500">{swt("interface.m0458")}</p>
@@ -187,9 +202,12 @@ function DataSourceCard({
             </div>
             <div className="flex items-center gap-2">
               <Button onClick={save} disabled={busy}>
-                {swt("interface.m0462")}</Button>
+                {swt("interface.m0462")}
+              </Button>
               {status.enabled && status.tools.length > 0 && (
-                <span className="text-muted-foreground text-xs">{swt("interface.m0463")}{" "}{status.tools.length} {swt("interface.m0464")}</span>
+                <span className="text-muted-foreground text-xs">
+                  {swt("interface.m0463")} {status.tools.length} {swt("interface.m0464")}
+                </span>
               )}
             </div>
           </>
@@ -210,11 +228,13 @@ function StatusBadge({ status, loading }: { status: SSStatus | null; loading: bo
   if (status.reachable)
     return (
       <Badge className="bg-emerald-600 hover:bg-emerald-600">
-        <CheckCircle2Icon className="mr-1 size-3" /> {swt("interface.m0468")}</Badge>
+        <CheckCircle2Icon className="mr-1 size-3" /> {swt("interface.m0468")}
+      </Badge>
     );
   return (
     <Badge variant="destructive">
-      <AlertCircleIcon className="mr-1 size-3" /> {swt("interface.m0469")}</Badge>
+      <AlertCircleIcon className="mr-1 size-3" /> {swt("interface.m0469")}
+    </Badge>
   );
 }
 
@@ -274,7 +294,10 @@ function SyncWorkbench() {
   const chosenTypes = ASSET_TYPES.filter((t) => assetTypes[t.key]).map((t) => t.key);
 
   const runSync = async () => {
-    if (selected.size === 0) return toast.error(swt("interface.m0471", { p0: dimension === "project" ? swt("interface.m0472") : swt("interface.m0190") }));
+    if (selected.size === 0)
+      return toast.error(
+        swt("interface.m0471", { p0: dimension === "project" ? swt("interface.m0472") : swt("interface.m0190") }),
+      );
     if (chosenTypes.length === 0) return toast.error(swt("interface.m0473"));
     setSyncing(true);
     setResult(null);
@@ -300,7 +323,8 @@ function SyncWorkbench() {
       return (
         <TableRow>
           <TableCell colSpan={4} className="py-8 text-center text-muted-foreground text-sm">
-            {swt("interface.m0260")}</TableCell>
+            {swt("interface.m0260")}
+          </TableCell>
         </TableRow>
       );
     }
@@ -308,7 +332,8 @@ function SyncWorkbench() {
       return (
         <TableRow>
           <TableCell colSpan={4} className="py-8 text-center text-muted-foreground text-sm">
-            {swt("interface.m0476")}</TableCell>
+            {swt("interface.m0476")}
+          </TableCell>
         </TableRow>
       );
     }
@@ -376,7 +401,8 @@ function SyncWorkbench() {
           {dimension === "project" && (
             <label htmlFor="create-company" className="flex items-center gap-1.5 text-sm">
               <Checkbox id="create-company" checked={createCompany} onCheckedChange={(c) => setCreateCompany(!!c)} />
-              {swt("interface.m0481")}</label>
+              {swt("interface.m0481")}
+            </label>
           )}
         </div>
 
@@ -401,9 +427,12 @@ function SyncWorkbench() {
             <RefreshCwIcon className={loading ? "size-4 animate-spin" : "size-4"} />
           </Button>
           <div className="flex-1" />
-          <span className="text-muted-foreground text-xs">{swt("interface.m0398")}{" "}{selected.size}</span>
+          <span className="text-muted-foreground text-xs">
+            {swt("interface.m0398")} {selected.size}
+          </span>
           <Button onClick={runSync} disabled={syncing || selected.size === 0}>
-            <DownloadIcon className={syncing ? "size-4 animate-pulse" : "size-4"} /> {swt("interface.m0484")}</Button>
+            <DownloadIcon className={syncing ? "size-4 animate-pulse" : "size-4"} /> {swt("interface.m0484")}
+          </Button>
         </div>
 
         {/* List. */}
@@ -435,15 +464,19 @@ function SyncWorkbench() {
         {/* Pagination. */}
         <div className="flex items-center justify-end gap-2">
           <Button variant="outline" size="sm" disabled={page <= 1 || loading} onClick={() => setPage((p) => p - 1)}>
-            {swt("interface.m0488")}</Button>
-          <span className="text-muted-foreground text-xs">{swt("interface.m0489")}{" "}{page} {swt("interface.m0490")}</span>
+            {swt("interface.m0488")}
+          </Button>
+          <span className="text-muted-foreground text-xs">
+            {swt("interface.m0489")} {page} {swt("interface.m0490")}
+          </span>
           <Button
             variant="outline"
             size="sm"
             disabled={rows.length < 50 || loading}
             onClick={() => setPage((p) => p + 1)}
           >
-            {swt("interface.m0491")}</Button>
+            {swt("interface.m0491")}
+          </Button>
         </div>
 
         {/* Results. */}
@@ -458,7 +491,12 @@ function SyncResult({ result }: { result: Awaited<ReturnType<typeof api.ssSync>>
   const { t: swt, locale: swLocale } = useI18n();
 
   const synced = result.synced ?? {};
-  const labels: Record<string, string> = { subdomain: swt("interface.m0143"), service: swt("interface.m0145"), app: "App", ip: "IP" };
+  const labels: Record<string, string> = {
+    subdomain: swt("interface.m0143"),
+    service: swt("interface.m0145"),
+    app: "App",
+    ip: "IP",
+  };
   return (
     <div className="space-y-2 rounded-md border bg-muted/40 p-3 text-sm">
       <div className="flex flex-wrap gap-3">
@@ -469,7 +507,10 @@ function SyncResult({ result }: { result: Awaited<ReturnType<typeof api.ssSync>>
         ))}
       </div>
       {result.companies && result.companies.length > 0 && (
-        <p className="text-muted-foreground">{swt("interface.m0492")}{result.companies.join("、")}</p>
+        <p className="text-muted-foreground">
+          {swt("interface.m0492")}
+          {result.companies.join("、")}
+        </p>
       )}
       {result.warnings && result.warnings.length > 0 && (
         <ul className="list-inside list-disc text-amber-600 dark:text-amber-500">
@@ -483,7 +524,11 @@ function SyncResult({ result }: { result: Awaited<ReturnType<typeof api.ssSync>>
           {result.errors.slice(0, 20).map((em) => (
             <li key={em}>{em}</li>
           ))}
-          {result.errors.length > 20 && <li>{swt("interface.m0493")}{" "}{result.errors.length} {swt("interface.m0494")}</li>}
+          {result.errors.length > 20 && (
+            <li>
+              {swt("interface.m0493")} {result.errors.length} {swt("interface.m0494")}
+            </li>
+          )}
         </ul>
       )}
     </div>

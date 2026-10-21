@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { CpuIcon, FlaskConicalIcon, KeyboardIcon, RadioTowerIcon, SearchIcon, ShieldAlertIcon } from "lucide-react";
@@ -13,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { CHAT_SEND_MODE_OPTIONS, type ChatSendMode, setChatSendMode, useChatSendMode } from "@/lib/chat-send-mode";
 import type { Settings } from "@/lib/types";
@@ -274,10 +274,17 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <RadioTowerIcon className="size-4" />
-              {swt("interface.m0209")}</CardTitle>
+              {swt("interface.m0209")}
+            </CardTitle>
             <CardDescription>
-              {swt("interface.m1646")}<br />
-              {rich("settings.captureDisabled", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</CardDescription>
+              {swt("interface.m1646")}
+              <br />
+              {rich(
+                "settings.captureDisabled",
+                {},
+                { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
+              )}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
             <Label htmlFor="traffic-capture" className="text-sm font-normal text-muted-foreground">
@@ -296,11 +303,13 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <RadioTowerIcon className="size-4" />
-              {swt("interface.m1654")}</CardTitle>
+              {swt("interface.m1654")}
+            </CardTitle>
             <CardDescription id="agent-traffic-binding-description">
               {rich("settings.binding", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
               <br />
-              {swt("interface.m1657")}</CardDescription>
+              {swt("interface.m1657")}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
             <Label htmlFor="agent-traffic-binding" className="text-sm font-normal text-muted-foreground">
@@ -320,15 +329,20 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <RadioTowerIcon className="size-4" />
-              {swt("interface.m1660")}</CardTitle>
+              {swt("interface.m1660")}
+            </CardTitle>
             <CardDescription>
-              {rich("settings.proxy", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}<br />
-              {rich("settings.proxyCapture", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}<br />
-              {rich("settings.proxySocks", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</CardDescription>
+              {rich("settings.proxy", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <br />
+              {rich("settings.proxyCapture", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <br />
+              {rich("settings.proxySocks", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             <Label htmlFor="global-proxy" className="text-sm font-normal text-muted-foreground">
-              {swt("interface.m1673")}</Label>
+              {swt("interface.m1673")}
+            </Label>
             <div className="flex items-center gap-2">
               <Input
                 id="global-proxy"
@@ -339,7 +353,8 @@ export default function SystemSettingsPage() {
                 onChange={(e) => setGlobalProxyInput(e.target.value)}
               />
               <Button type="button" onClick={saveGlobalProxy} disabled={!loaded || savingGlobalProxy}>
-                {swt("interface.m0273")}</Button>
+                {swt("interface.m0273")}
+              </Button>
             </div>
             <p className="text-muted-foreground text-xs">
               {globalProxyInput.trim() ? swt("interface.m1675") : swt("interface.m1676")}
@@ -351,15 +366,22 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <ShieldAlertIcon className="size-4" />
-              {swt("interface.m1677")}</CardTitle>
+              {swt("interface.m1677")}
+            </CardTitle>
             <CardDescription>
-              {rich("settings.constraints", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}<br />
-              {rich("settings.constraintTargets", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</CardDescription>
+              {rich("settings.constraints", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <br />
+              {rich(
+                "settings.constraintTargets",
+                {},
+                { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
+              )}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <div className="flex items-center justify-between gap-4">
               <Label htmlFor="inject-planner" className="text-sm font-normal text-muted-foreground">
-                {swt("interface.m1685")}{" "}{injectPlanner ? swt("interface.m1686") : swt("interface.m1687")}
+                {swt("interface.m1685")} {injectPlanner ? swt("interface.m1686") : swt("interface.m1687")}
               </Label>
               <Switch
                 id="inject-planner"
@@ -370,7 +392,7 @@ export default function SystemSettingsPage() {
             </div>
             <div className="flex items-center justify-between gap-4">
               <Label htmlFor="inject-worker" className="text-sm font-normal text-muted-foreground">
-                {swt("interface.m1688")}{" "}{injectWorker ? swt("interface.m1686") : swt("interface.m1687")}
+                {swt("interface.m1688")} {injectWorker ? swt("interface.m1686") : swt("interface.m1687")}
               </Label>
               <Switch
                 id="inject-worker"
@@ -386,14 +408,17 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <FlaskConicalIcon className="size-4" />
-              {swt("interface.m1689")}</CardTitle>
+              {swt("interface.m1689")}
+            </CardTitle>
             <CardDescription>
-              {swt("interface.m1690")}<br />
-              {rich("settings.compression", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</CardDescription>
+              {swt("interface.m1690")}
+              <br />
+              {rich("settings.compression", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
             <Label htmlFor="noa-compaction" className="text-sm font-normal text-muted-foreground">
-              {swt("interface.m1691")}{" "}{noaCompaction ? swt("interface.m1686") : swt("interface.m1687")}
+              {swt("interface.m1691")} {noaCompaction ? swt("interface.m1686") : swt("interface.m1687")}
             </Label>
             <Switch
               id="noa-compaction"
@@ -408,10 +433,13 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <SearchIcon className="size-4" />
-              {swt("interface.m1187")}</CardTitle>
+              {swt("interface.m1187")}
+            </CardTitle>
             <CardDescription>
-              {rich("settings.webSearch", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}<br />
-              {rich("settings.searchSources", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</CardDescription>
+              {rich("settings.webSearch", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+              <br />
+              {rich("settings.searchSources", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <div className="flex items-center justify-between gap-4">
@@ -457,18 +485,28 @@ export default function SystemSettingsPage() {
               <div className="border-border/60 bg-muted/30 flex flex-col gap-2 rounded-md border p-3">
                 <p className="text-sm font-medium">{swt("interface.m1717")}</p>
                 <p className="text-muted-foreground text-xs leading-relaxed">
-                  {rich("settings.deepseekRequirements", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</p>
+                  {rich(
+                    "settings.deepseekRequirements",
+                    {},
+                    { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
+                  )}
+                </p>
                 <p className="text-muted-foreground text-xs leading-relaxed">
-                  {rich("settings.deepseekBehavior", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</p>
-                <p className="text-muted-foreground text-xs leading-relaxed">
-                  {swt("interface.m1734")}</p>
+                  {rich(
+                    "settings.deepseekBehavior",
+                    {},
+                    { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> },
+                  )}
+                </p>
+                <p className="text-muted-foreground text-xs leading-relaxed">{swt("interface.m1734")}</p>
               </div>
             )}
 
             {webSearch && backend === "brave-free" && (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="brave-key" className="text-sm font-normal text-muted-foreground">
-                  {swt("english.e130")}{" "}{braveKeySet && <span className="ml-2 text-xs text-emerald-500">{swt("interface.m0207")}</span>}
+                  {swt("english.e130")}{" "}
+                  {braveKeySet && <span className="ml-2 text-xs text-emerald-500">{swt("interface.m0207")}</span>}
                 </Label>
                 <div className="flex items-center gap-2">
                   <Input
@@ -485,21 +523,19 @@ export default function SystemSettingsPage() {
                     onClick={saveBraveKey}
                     disabled={!loaded || savingKey || braveKeyInput.trim() === ""}
                   >
-                    {swt("interface.m0273")}</Button>
+                    {swt("interface.m0273")}
+                  </Button>
                 </div>
-                {braveNeedsKey && (
-                  <p className="text-xs text-amber-500">
-                    {swt("interface.m1737")}</p>
-                )}
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1738")}</p>
+                {braveNeedsKey && <p className="text-xs text-amber-500">{swt("interface.m1737")}</p>}
+                <p className="text-muted-foreground text-xs">{swt("interface.m1738")}</p>
               </div>
             )}
 
             {webSearch && backend === "tavily" && (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="tavily-key" className="text-sm font-normal text-muted-foreground">
-                  {swt("english.e131")}{" "}{tavilyKeySet && <span className="ml-2 text-xs text-emerald-500">{swt("interface.m0207")}</span>}
+                  {swt("english.e131")}{" "}
+                  {tavilyKeySet && <span className="ml-2 text-xs text-emerald-500">{swt("interface.m0207")}</span>}
                 </Label>
                 <div className="flex items-center gap-2">
                   <Input
@@ -516,11 +552,11 @@ export default function SystemSettingsPage() {
                     onClick={saveTavilyKey}
                     disabled={!loaded || savingTavilyKey || tavilyKeyInput.trim() === ""}
                   >
-                    {swt("interface.m0273")}</Button>
+                    {swt("interface.m0273")}
+                  </Button>
                 </div>
                 {webSearch && backend === "tavily" && !tavilyKeySet && (
-                  <p className="text-xs text-amber-500">
-                    {swt("interface.m1740")}</p>
+                  <p className="text-xs text-amber-500">{swt("interface.m1740")}</p>
                 )}
                 <p className="text-muted-foreground text-xs">{swt("interface.m1741")}</p>
               </div>
@@ -529,7 +565,8 @@ export default function SystemSettingsPage() {
             {webSearch && (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="ws-proxy" className="text-sm font-normal text-muted-foreground">
-                  {swt("interface.m1742")}</Label>
+                  {swt("interface.m1742")}
+                </Label>
                 <div className="flex items-center gap-2">
                   <Input
                     id="ws-proxy"
@@ -540,17 +577,16 @@ export default function SystemSettingsPage() {
                     onChange={(e) => setProxyInput(e.target.value)}
                   />
                   <Button type="button" onClick={saveProxy} disabled={!loaded || savingProxy}>
-                    {swt("interface.m0273")}</Button>
+                    {swt("interface.m0273")}
+                  </Button>
                 </div>
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1744")}</p>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1744")}</p>
               </div>
             )}
 
             {webSearch && (
               <div className="flex items-center justify-between gap-4 border-t pt-4">
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1745")}</p>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1745")}</p>
                 <Button
                   type="button"
                   variant="outline"
@@ -569,9 +605,11 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <RadioTowerIcon className="size-4" />
-              {swt("interface.m1747")}</CardTitle>
+              {swt("interface.m1747")}
+            </CardTitle>
             <CardDescription>
-              {rich("settings.python", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</CardDescription>
+              {rich("settings.python", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
@@ -583,9 +621,11 @@ export default function SystemSettingsPage() {
                 onChange={(e) => setPyInterp(e.target.value)}
               />
               <Button variant="outline" onClick={detectPython} disabled={!loaded || saving}>
-                {swt("interface.m1750")}</Button>
+                {swt("interface.m1750")}
+              </Button>
               <Button onClick={savePython} disabled={!loaded || saving}>
-                {swt("interface.m0273")}</Button>
+                {swt("interface.m0273")}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -594,9 +634,11 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <CpuIcon className="size-4" />
-              {swt("interface.m1751")}</CardTitle>
+              {swt("interface.m1751")}
+            </CardTitle>
             <CardDescription>
-              {rich("settings.workers", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</CardDescription>
+              {rich("settings.workers", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
@@ -610,7 +652,8 @@ export default function SystemSettingsPage() {
                 onChange={(e) => setWorkers(e.target.value)}
               />
               <Button onClick={saveWorkers} disabled={!loaded || savingWorkers}>
-                {swt("interface.m0273")}</Button>
+                {swt("interface.m0273")}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -619,14 +662,18 @@ export default function SystemSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <KeyboardIcon className="size-4" />
-              {swt("interface.m1755")}</CardTitle>
+              {swt("interface.m1755")}
+            </CardTitle>
             <CardDescription>
-              {swt("interface.m1756")}<br />
-              {rich("settings.sendPreference", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}</CardDescription>
+              {swt("interface.m1756")}
+              <br />
+              {rich("settings.sendPreference", {}, { b: (text) => <b>{text}</b>, code: (text) => <code>{text}</code> })}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
             <Label htmlFor="chat-send-mode" className="text-sm font-normal text-muted-foreground">
-              {swt("interface.m1760")}</Label>
+              {swt("interface.m1760")}
+            </Label>
             <Select value={sendMode} onValueChange={(v) => setChatSendMode(v as ChatSendMode)}>
               <SelectTrigger id="chat-send-mode" className="w-72">
                 <SelectValue />

@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
@@ -20,6 +18,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import type { FindingAssetKind, FindingAssetNode } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -36,14 +36,28 @@ const KIND_ICON: Record<FindingAssetKind, LucideIcon> = {
 };
 
 const KIND_LABEL: Record<FindingAssetKind, string> = {
-  get company() { return swt("interface.m0217"); },
-  get root_domain() { return swt("interface.m0142"); },
-  get subdomain() { return swt("interface.m0143"); },
+  get company() {
+    return swt("interface.m0217");
+  },
+  get root_domain() {
+    return swt("interface.m0142");
+  },
+  get subdomain() {
+    return swt("interface.m0143");
+  },
   ip: "IP",
-  get app() { return swt("interface.m0144"); },
-  get service() { return swt("interface.m0145"); },
-  get endpoint() { return swt("interface.m0218"); },
-  get none() { return swt("interface.m0307"); },
+  get app() {
+    return swt("interface.m0144");
+  },
+  get service() {
+    return swt("interface.m0145");
+  },
+  get endpoint() {
+    return swt("interface.m0218");
+  },
+  get none() {
+    return swt("interface.m0307");
+  },
 };
 
 // Build TreeNode from the ordered node array. The backend sorts siblings by finding count,
@@ -312,8 +326,10 @@ export function AssetTree({
 
       {truncated && (
         <p className="px-1 text-xs text-muted-foreground">
-          {swt("interface.m0313")}{(droppedKinds ?? []).map((k) => KIND_LABEL[k as FindingAssetKind] ?? k).join(" / ")}
-          {swt("interface.m0314")}</p>
+          {swt("interface.m0313")}
+          {(droppedKinds ?? []).map((k) => KIND_LABEL[k as FindingAssetKind] ?? k).join(" / ")}
+          {swt("interface.m0314")}
+        </p>
       )}
     </div>
   );

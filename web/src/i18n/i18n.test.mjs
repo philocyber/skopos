@@ -1,32 +1,52 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-import path from "node:path";
+import { mentionKinds, mentionSearch, mentionToken, selectedMentions } from "../lib/chat-mentions.ts";
 import { catalogs } from "./catalog.ts";
-import { normalizeLocale, readCookieLocale, withLocaleQuery, withLocaleHeaders } from "./config.ts";
-import { placeholders, tags, interpolate, createFormatters } from "./format.ts";
-import { __resetLocaleForTests, getLocale, initializeLocale, translate, translateIn, localeHeaders } from "./runtime.ts";
+import { normalizeLocale, readCookieLocale, withLocaleHeaders, withLocaleQuery } from "./config.ts";
 import { cloneDemoFixture } from "./demo-fixture.ts";
+import { createFormatters, interpolate, placeholders, tags } from "./format.ts";
+import { SRC_ROOT, scanFile, sourceFiles } from "./han-scan.mjs";
 import { localizedFetch } from "./request.ts";
-import { mentionKinds, mentionToken, selectedMentions, mentionSearch } from "../lib/chat-mentions.ts";
-import { sourceFiles, scanFile, SRC_ROOT } from "./han-scan.mjs";
+import {
+  __resetLocaleForTests,
+  getLocale,
+  initializeLocale,
+  localeHeaders,
+  translate,
+  translateIn,
+} from "./runtime.ts";
+import assert from "node:assert/strict";
+import path from "node:path";
+import test from "node:test";
 
 function browser(stored = null, cookie = "") {
   const values = new Map(stored ? [["skopos.locale", stored]] : []);
-  globalThis.window = { localStorage: { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) } };
+  globalThis.window = {
+    localStorage: { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) },
+  };
   globalThis.document = { cookie, documentElement: { lang: "en" } };
   return values;
 }
-function reset() { delete globalThis.window; delete globalThis.document; __resetLocaleForTests(); }
+function reset() {
+  delete globalThis.window;
+  delete globalThis.document;
+  __resetLocaleForTests();
+}
 
 test("English is the only locale; every other preference falls back to it", () => {
-  reset(); assert.equal(getLocale(), "en");
+  reset();
+  assert.equal(getLocale(), "en");
   assert.equal(normalizeLocale("en-US"), "en");
   assert.equal(normalizeLocale("ko-KR"), null);
   assert.equal(normalizeLocale("zh-CN"), null);
   assert.equal(readCookieLocale("skopos_locale=en"), "en");
   assert.equal(readCookieLocale("skopos_locale=%E0%A4%A"), null);
-  browser("unsupported", "skopos_locale=ko"); initializeLocale(); assert.equal(getLocale(), "en");
-  reset(); browser("unsupported", "skopos_locale=%bad"); initializeLocale(); assert.equal(getLocale(), "en"); reset();
+  browser("unsupported", "skopos_locale=ko");
+  initializeLocale();
+  assert.equal(getLocale(), "en");
+  reset();
+  browser("unsupported", "skopos_locale=%bad");
+  initializeLocale();
+  assert.equal(getLocale(), "en");
+  reset();
 });
 
 test("the English catalog is complete and free of untranslated or Han literals", () => {
@@ -35,7 +55,10 @@ test("the English catalog is complete and free of untranslated or Han literals",
     assert.ok(catalogs.en[key].length, key);
     assert.doesNotMatch(catalogs.en[key], /Untranslated|\p{Script=Han}/u, key);
   }
-  assert.equal(interpolate("Task {id}: {name}", { id: 7, name: "original {unchanged}" }), "Task 7: original {unchanged}");
+  assert.equal(
+    interpolate("Task {id}: {name}", { id: 7, name: "original {unchanged}" }),
+    "Task 7: original {unchanged}",
+  );
   assert.equal(interpolate("{missing}", {}), "{missing}");
   assert.deepEqual(placeholders("Hi {b} {a}"), ["a", "b"]);
   assert.deepEqual(tags("<b>x</b> {y}"), ["/b", "b"]);
@@ -44,22 +67,33 @@ test("the English catalog is complete and free of untranslated or Han literals",
 test("locale transport preserves caller headers, queries, and fragments", async () => {
   assert.equal(withLocaleQuery("/api/report?task=3#section", "en"), "/api/report?task=3&lang=en#section");
   assert.equal(withLocaleQuery("/api/report?lang=en", "en"), "/api/report?lang=en");
-  assert.deepEqual(
-    withLocaleHeaders("en", { Authorization: "Bearer demo", "Content-Type": "application/json" }),
-    { "Accept-Language": "en", Authorization: "Bearer demo", "Content-Type": "application/json" },
-  );
-  reset(); browser(); const original = globalThis.fetch; let observed;
-  globalThis.fetch = async (input, init) => { observed = { input, init }; return new Response("ok"); };
+  assert.deepEqual(withLocaleHeaders("en", { Authorization: "Bearer demo", "Content-Type": "application/json" }), {
+    "Accept-Language": "en",
+    Authorization: "Bearer demo",
+    "Content-Type": "application/json",
+  });
+  reset();
+  browser();
+  const original = globalThis.fetch;
+  let observed;
+  globalThis.fetch = async (input, init) => {
+    observed = { input, init };
+    return new Response("ok");
+  };
   try {
     await localizedFetch("/api/report?task=1", { headers: { Authorization: "Bearer example" } });
     assert.equal(observed.input, "/api/report?task=1&lang=en");
     assert.equal(new Headers(observed.init.headers).get("accept-language"), "en");
     assert.equal(new Headers(observed.init.headers).get("authorization"), "Bearer example");
-  } finally { globalThis.fetch = original; reset(); }
+  } finally {
+    globalThis.fetch = original;
+    reset();
+  }
 });
 
 test("authored demo data resolves through the catalog; edited user values stay literal", () => {
-  reset(); browser();
+  reset();
+  browser();
   const authored = translate("english.e004");
   const fixture = cloneDemoFixture({ title: authored, nested: [{ name: authored }] }, true);
   assert.equal(fixture.title, authored);
@@ -72,7 +106,8 @@ test("authored demo data resolves through the catalog; edited user values stay l
 });
 
 test("mention wire tokens remain stable for backend compatibility", () => {
-  reset(); browser();
+  reset();
+  browser();
   const finding = mentionKinds.find((item) => item.kind === "finding");
   assert.equal(finding.wire, "finding");
   assert.ok(finding.label.length);
@@ -99,7 +134,8 @@ test("authored UI contains no untranslated Han literals; legacy wire parsers are
     if (rel.endsWith(".test.mjs")) continue; // Tests intentionally preserve multilingual user input.
     for (const hit of scanFile(file)) {
       if (rel === "components/approval-records.tsx" && hit.text === "/^\\[(?:模型|Model)\\]\\s*/") continue;
-      if (rel === "components/transcript.tsx" && hit.text === "/(?:工具|Tool)\\s+(\\S+)\\s+(?:请求|requests?)/i") continue;
+      if (rel === "components/transcript.tsx" && hit.text === "/(?:工具|Tool)\\s+(\\S+)\\s+(?:请求|requests?)/i")
+        continue;
       if (rel === "lib/company-scope.ts" && hit.text === "/icp|备案/i") continue;
       failures.push(`${rel}:${hit.line} ${hit.text}`);
     }
@@ -110,5 +146,8 @@ test("authored UI contains no untranslated Han literals; legacy wire parsers are
 test("authored source and build configuration comments are English", async () => {
   const { hasHanComment } = await import("./han-scan.mjs");
   const files = [...sourceFiles(), path.resolve("next.config.mjs")];
-  assert.deepEqual(files.filter((file) => hasHanComment(file)).map((file) => path.relative(SRC_ROOT, file)), []);
+  assert.deepEqual(
+    files.filter((file) => hasHanComment(file)).map((file) => path.relative(SRC_ROOT, file)),
+    [],
+  );
 });

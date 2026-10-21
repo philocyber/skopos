@@ -1,9 +1,10 @@
 "use client";
-import { useI18n } from "@/i18n";
-
 import * as React from "react";
+
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+import { useI18n } from "@/i18n";
 
 // Tailwind-styled element overrides (no typography plugin in this project, so we
 // style each element). `node` is stripped — it's not a valid DOM attribute.
@@ -43,9 +44,7 @@ const components: Components = {
       <table className="w-full border-collapse text-xs" {...p} />
     </div>
   ),
-  th: ({ node, ...p }) => (
-    <th className="border border-border bg-muted/60 px-2 py-1 text-left font-medium" {...p} />
-  ),
+  th: ({ node, ...p }) => <th className="border border-border bg-muted/60 px-2 py-1 text-left font-medium" {...p} />,
   td: ({ node, ...p }) => <td className="border border-border px-2 py-1 align-top" {...p} />,
 };
 

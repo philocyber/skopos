@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { AtSignIcon, ChevronRightIcon, Loader2Icon, XIcon } from "lucide-react";
@@ -10,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { InputGroupTextarea } from "@/components/ui/input-group";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import {
   activeMention,
@@ -241,7 +241,9 @@ export function MentionTextarea({ value, onValueChange, onKeyDown, className, in
             <span>
               {categories.length
                 ? swt("interface.m2271")
-                : swt("interface.m2272", { p0: mentionKinds.find((kind) => kind.kind === search.kind)?.label ?? swt("interface.m2160") })}
+                : swt("interface.m2272", {
+                    p0: mentionKinds.find((kind) => kind.kind === search.kind)?.label ?? swt("interface.m2160"),
+                  })}
             </span>
             <span>{swt("interface.m2273")}</span>
           </div>
@@ -277,15 +279,20 @@ export function MentionTextarea({ value, onValueChange, onKeyDown, className, in
             {!categories.length && loading && (
               <div role="status" className="flex items-center gap-2 p-3 text-muted-foreground text-sm">
                 <Loader2Icon className="size-4 animate-spin" />
-                {swt("interface.m2195")}</div>
+                {swt("interface.m2195")}
+              </div>
             )}
             {!categories.length && !loading && error && (
               <div role="alert" className="p-3 text-destructive text-sm">
-                {swt("interface.m2275")}{error}{swt("interface.m2276")}</div>
+                {swt("interface.m2275")}
+                {error}
+                {swt("interface.m2276")}
+              </div>
             )}
             {!categories.length && !loading && !error && !items.length && (
               <div role="status" className="p-3 text-muted-foreground text-sm">
-                {swt("interface.m2277")}</div>
+                {swt("interface.m2277")}
+              </div>
             )}
             {items.map((item, index) => (
               <button
@@ -318,11 +325,13 @@ export function MentionTextarea({ value, onValueChange, onKeyDown, className, in
                   {pageError ? swt("interface.m2279") : swt("interface.m2280", { p0: items.length })}
                 </button>
               )}
-              {!loadingMore && !nextCursor && !loading && !error && items.length > 0 && swt("interface.m2281", { p0: items.length })}
               {!loadingMore &&
                 !nextCursor &&
-                (loading || !!error || items.length === 0) &&
-                swt("interface.m2282")}
+                !loading &&
+                !error &&
+                items.length > 0 &&
+                swt("interface.m2281", { p0: items.length })}
+              {!loadingMore && !nextCursor && (loading || !!error || items.length === 0) && swt("interface.m2282")}
             </p>
           )}
         </PopoverContent>

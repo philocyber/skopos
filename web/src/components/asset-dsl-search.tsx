@@ -1,12 +1,12 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { SearchIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { cn } from "@/lib/utils";
 
 // ── DSL autocomplete ──────────────────────────────────────────────────────────
@@ -16,167 +16,507 @@ import { cn } from "@/lib/utils";
 const DSL_FIELDS: { name: string; desc: string; ops: { op: string; desc: string }[] }[] = [
   {
     name: "domain",
-    get desc() { return swt("interface.m2166"); },
+    get desc() {
+      return swt("interface.m2166");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "ip",
-    get desc() { return swt("interface.m2169"); },
+    get desc() {
+      return swt("interface.m2169");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "url",
-    get desc() { return swt("interface.m2170"); },
+    get desc() {
+      return swt("interface.m2170");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "root_domain",
-    get desc() { return swt("interface.m0142"); },
+    get desc() {
+      return swt("interface.m0142");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "page_title",
-    get desc() { return swt("interface.m2171"); },
+    get desc() {
+      return swt("interface.m2171");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "icp",
-    get desc() { return swt("interface.m2172"); },
+    get desc() {
+      return swt("interface.m2172");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "service_name",
-    get desc() { return swt("interface.m2173"); },
+    get desc() {
+      return swt("interface.m2173");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "app_name",
-    get desc() { return swt("interface.m2174"); },
+    get desc() {
+      return swt("interface.m2174");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "bundle_id",
-    get desc() { return swt("interface.m2175"); },
+    get desc() {
+      return swt("interface.m2175");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "category",
-    get desc() { return swt("interface.m2176"); },
+    get desc() {
+      return swt("interface.m2176");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "app_icp",
-    get desc() { return swt("interface.m2177"); },
+    get desc() {
+      return swt("interface.m2177");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "method",
-    get desc() { return swt("interface.m2178"); },
+    get desc() {
+      return swt("interface.m2178");
+    },
     ops: [
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "service_type",
-    get desc() { return swt("interface.m2179"); },
+    get desc() {
+      return swt("interface.m2179");
+    },
     ops: [
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "record_type",
-    get desc() { return swt("interface.m2180"); },
+    get desc() {
+      return swt("interface.m2180");
+    },
     ops: [
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "technology",
-    get desc() { return swt("interface.m2181"); },
+    get desc() {
+      return swt("interface.m2181");
+    },
     ops: [
-      { op: "=", get desc() { return swt("interface.m1156"); } },
-      { op: "==", get desc() { return swt("interface.m2167"); } },
-      { op: "!=", get desc() { return swt("interface.m2168"); } },
+      {
+        op: "=",
+        get desc() {
+          return swt("interface.m1156");
+        },
+      },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2167");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2168");
+        },
+      },
     ],
   },
   {
     name: "port",
-    get desc() { return swt("interface.m2182"); },
+    get desc() {
+      return swt("interface.m2182");
+    },
     ops: [
-      { op: "==", get desc() { return swt("interface.m2183"); } },
-      { op: "!=", get desc() { return swt("interface.m2184"); } },
-      { op: ">", get desc() { return swt("interface.m2185"); } },
-      { op: ">=", get desc() { return swt("interface.m2186"); } },
-      { op: "<", get desc() { return swt("interface.m2187"); } },
-      { op: "<=", get desc() { return swt("interface.m2188"); } },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2183");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2184");
+        },
+      },
+      {
+        op: ">",
+        get desc() {
+          return swt("interface.m2185");
+        },
+      },
+      {
+        op: ">=",
+        get desc() {
+          return swt("interface.m2186");
+        },
+      },
+      {
+        op: "<",
+        get desc() {
+          return swt("interface.m2187");
+        },
+      },
+      {
+        op: "<=",
+        get desc() {
+          return swt("interface.m2188");
+        },
+      },
     ],
   },
   {
     name: "status_code",
-    get desc() { return swt("interface.m2189"); },
+    get desc() {
+      return swt("interface.m2189");
+    },
     ops: [
-      { op: "==", get desc() { return swt("interface.m2183"); } },
-      { op: "!=", get desc() { return swt("interface.m2184"); } },
-      { op: ">", get desc() { return swt("interface.m2185"); } },
-      { op: ">=", get desc() { return swt("interface.m2186"); } },
-      { op: "<", get desc() { return swt("interface.m2187"); } },
-      { op: "<=", get desc() { return swt("interface.m2188"); } },
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2183");
+        },
+      },
+      {
+        op: "!=",
+        get desc() {
+          return swt("interface.m2184");
+        },
+      },
+      {
+        op: ">",
+        get desc() {
+          return swt("interface.m2185");
+        },
+      },
+      {
+        op: ">=",
+        get desc() {
+          return swt("interface.m2186");
+        },
+      },
+      {
+        op: "<",
+        get desc() {
+          return swt("interface.m2187");
+        },
+      },
+      {
+        op: "<=",
+        get desc() {
+          return swt("interface.m2188");
+        },
+      },
     ],
   },
-  { name: "company_id", get desc() { return swt("interface.m2190"); }, ops: [{ op: "==", get desc() { return swt("interface.m2183"); } }] },
-  { name: "task_id", get desc() { return swt("interface.m2191"); }, ops: [{ op: "==", get desc() { return swt("interface.m2183"); } }] },
+  {
+    name: "company_id",
+    get desc() {
+      return swt("interface.m2190");
+    },
+    ops: [
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2183");
+        },
+      },
+    ],
+  },
+  {
+    name: "task_id",
+    get desc() {
+      return swt("interface.m2191");
+    },
+    ops: [
+      {
+        op: "==",
+        get desc() {
+          return swt("interface.m2183");
+        },
+      },
+    ],
+  },
 ];
 
 const LOGIC_OPS = [
-  { label: "AND", get desc() { return swt("interface.m2192"); } },
-  { label: "OR", get desc() { return swt("interface.m2193"); } },
+  {
+    label: "AND",
+    get desc() {
+      return swt("interface.m2192");
+    },
+  },
+  {
+    label: "OR",
+    get desc() {
+      return swt("interface.m2193");
+    },
+  },
 ];
 
 interface DslSuggestion {
@@ -380,7 +720,13 @@ export function AssetDslSearch({
       </div>
       {query.trim() && !open && (
         <p className="pl-1 text-[11px] text-muted-foreground">
-          {loading ? swt("interface.m2195") : error ? <span className="text-destructive">{error}</span> : swt("interface.m2196", { p0: count ?? 0 })}
+          {loading ? (
+            swt("interface.m2195")
+          ) : error ? (
+            <span className="text-destructive">{error}</span>
+          ) : (
+            swt("interface.m2196", { p0: count ?? 0 })
+          )}
         </p>
       )}
     </div>

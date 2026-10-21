@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import Link from "next/link";
@@ -12,13 +8,15 @@ import { toast } from "sonner";
 
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { useStoredSortPreference } from "@/lib/sort-preference";
 import { statusMeta } from "@/lib/status";
-import type { Finding, FindingsPage, FindingStatus } from "@/lib/types";
+import type { Finding, FindingStatus, FindingsPage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type FindingSortField = "time";

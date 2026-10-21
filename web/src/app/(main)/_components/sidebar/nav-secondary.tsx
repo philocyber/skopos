@@ -1,6 +1,4 @@
 "use client";
-import { useI18n } from "@/i18n";
-
 import type * as React from "react";
 
 import type { LucideIcon } from "lucide-react";
@@ -12,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useI18n } from "@/i18n";
 
 export function NavSecondary({
   items,

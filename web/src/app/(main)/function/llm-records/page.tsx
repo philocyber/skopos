@@ -1,19 +1,16 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
+
 import {
-  RadioIcon,
-  SearchIcon,
+  CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  Loader2Icon,
-  XIcon,
-  Trash2Icon,
   CopyIcon,
-  CheckIcon,
+  Loader2Icon,
+  RadioIcon,
+  SearchIcon,
+  Trash2Icon,
+  XIcon,
 } from "lucide-react";
 
 import {
@@ -26,30 +23,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
-import type { LLMRecordItem, LLMRecordDetail, LLMTask } from "@/lib/types";
+import type { LLMRecordDetail, LLMRecordItem, LLMTask } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 function fmtTime(ts: string) {
   return new Date(ts).toLocaleString(getIntlLocale(), {
@@ -86,7 +71,12 @@ function CopyButton({ text }: { text: string }) {
 
   const [copied, setCopied] = React.useState(false);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  React.useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  React.useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
 
   const disabled = !text;
   const copy = async () => {
@@ -101,7 +91,11 @@ function CopyButton({ text }: { text: string }) {
       ta.style.opacity = "0";
       document.body.appendChild(ta);
       ta.select();
-      try { document.execCommand("copy"); } catch { /* Ignore unsupported copy fallback. */ }
+      try {
+        document.execCommand("copy");
+      } catch {
+        /* Ignore unsupported copy fallback. */
+      }
       document.body.removeChild(ta);
     }
     setCopied(true);
@@ -160,9 +154,7 @@ export default function LLMRecordsPage() {
   const reqText = showRaw
     ? detail?.raw_request && tryFormatJSON(detail.raw_request)
     : detail?.request_body && tryFormatJSON(detail.request_body);
-  const respText = showRaw
-    ? detail?.raw_response
-    : detail?.response_body && tryFormatJSON(detail.response_body);
+  const respText = showRaw ? detail?.raw_response : detail?.response_body && tryFormatJSON(detail.response_body);
 
   // Per-task delete (task picker + confirm dialog)
   const [tasks, setTasks] = React.useState<LLMTask[]>([]);
@@ -176,9 +168,13 @@ export default function LLMRecordsPage() {
     let alive = true;
     api
       .settings()
-      .then((s) => { if (alive) setRecEnabled(!!s.llm_record); })
+      .then((s) => {
+        if (alive) setRecEnabled(!!s.llm_record);
+      })
       .catch(() => {});
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const toggleRecording = async (on: boolean) => {
@@ -210,7 +206,13 @@ export default function LLMRecordsPage() {
     let alive = true;
     setLoading(true);
     api
-      .llmRecords({ model: model || undefined, session: sessionQ || undefined, task: pickedTask || undefined, page, size })
+      .llmRecords({
+        model: model || undefined,
+        session: sessionQ || undefined,
+        task: pickedTask || undefined,
+        page,
+        size,
+      })
       .then((r) => {
         if (!alive) return;
         setRecords(r.records ?? []);
@@ -220,9 +222,13 @@ export default function LLMRecordsPage() {
       .finally(() => alive && setLoading(false));
     api
       .llmTasks()
-      .then((r) => { if (alive) setTasks(r.tasks ?? []); })
+      .then((r) => {
+        if (alive) setTasks(r.tasks ?? []);
+      })
       .catch(() => {});
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [page, size, sessionQ, model, pickedTask, reloadTick]);
 
   // Delete every LLM record for the picked task, then refetch.
@@ -253,10 +259,16 @@ export default function LLMRecordsPage() {
     setDetail(null);
     api
       .llmRecordDetail(selected.id)
-      .then((d) => { if (alive) setDetail(d); })
+      .then((d) => {
+        if (alive) setDetail(d);
+      })
       .catch(() => {})
-      .finally(() => { if (alive) setDetailLoading(false); });
-    return () => { alive = false; };
+      .finally(() => {
+        if (alive) setDetailLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, [selected]);
 
   const totalPages = Math.max(1, Math.ceil(total / size));
@@ -298,7 +310,8 @@ export default function LLMRecordsPage() {
           <SelectContent>
             {tasks.length === 0 ? (
               <SelectItem value="__none__" disabled>
-                {swt("interface.m0429")}</SelectItem>
+                {swt("interface.m0429")}
+              </SelectItem>
             ) : (
               tasks.map((t) => (
                 <SelectItem key={t.task_id} value={t.task_id}>
@@ -318,7 +331,8 @@ export default function LLMRecordsPage() {
           onClick={() => setDeleteOpen(true)}
         >
           <Trash2Icon className="size-3.5" />
-          {swt("interface.m0431")}</Button>
+          {swt("interface.m0431")}
+        </Button>
         <Select value={String(size)} onValueChange={(v) => setSize(Number(v))}>
           <SelectTrigger size="sm" className="w-28">
             <SelectValue />
@@ -326,7 +340,8 @@ export default function LLMRecordsPage() {
           <SelectContent>
             {PAGE_SIZES.map((n) => (
               <SelectItem key={n} value={String(n)}>
-                {n} {swt("interface.m0261")}</SelectItem>
+                {n} {swt("interface.m0261")}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -406,21 +421,17 @@ export default function LLMRecordsPage() {
                 ) : records.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="py-12 text-center text-sm text-muted-foreground">
-                      {swt("interface.m0434")}</TableCell>
+                      {swt("interface.m0434")}
+                    </TableCell>
                   </TableRow>
                 ) : (
                   records.map((rec) => (
                     <TableRow
                       key={rec.id}
-                      className={cn(
-                        "cursor-pointer",
-                        selected?.id === rec.id && "bg-accent hover:bg-accent",
-                      )}
+                      className={cn("cursor-pointer", selected?.id === rec.id && "bg-accent hover:bg-accent")}
                       onClick={() => setSelected(rec)}
                     >
-                      <TableCell className="text-xs text-muted-foreground tabular-nums">
-                        {fmtTime(rec.ts)}
-                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground tabular-nums">{fmtTime(rec.ts)}</TableCell>
                       <TableCell className="text-xs font-mono text-muted-foreground">
                         {rec.task_id ? `#${rec.task_id}` : "-"}
                       </TableCell>
@@ -447,9 +458,13 @@ export default function LLMRecordsPage() {
                       </TableCell>
                       <TableCell>
                         {rec.status === "ok" ? (
-                          <Badge variant="secondary" className="text-xs text-emerald-600">{swt("english.e062")}</Badge>
+                          <Badge variant="secondary" className="text-xs text-emerald-600">
+                            {swt("english.e062")}
+                          </Badge>
                         ) : (
-                          <Badge variant="destructive" className="text-xs">{swt("english.e063")}</Badge>
+                          <Badge variant="destructive" className="text-xs">
+                            {swt("english.e063")}
+                          </Badge>
                         )}
                       </TableCell>
                     </TableRow>
@@ -476,19 +491,22 @@ export default function LLMRecordsPage() {
               </Badge>
               {selected.task_id && (
                 <Badge variant="outline" className="text-xs font-mono">
-                  {swt("interface.m0435")}{selected.task_id}
+                  {swt("interface.m0435")}
+                  {selected.task_id}
                 </Badge>
               )}
-              <span className="text-xs text-muted-foreground">
-                {fmtTime(selected.ts)}
-              </span>
+              <span className="text-xs text-muted-foreground">{fmtTime(selected.ts)}</span>
               <span className={cn("text-xs", selected.latency_ms > 30000 && "text-amber-500")}>
                 {fmtLatency(selected.latency_ms)}
               </span>
               {selected.status === "ok" ? (
-                <Badge variant="secondary" className="text-xs text-emerald-600">{swt("english.e062")}</Badge>
+                <Badge variant="secondary" className="text-xs text-emerald-600">
+                  {swt("english.e062")}
+                </Badge>
               ) : (
-                <Badge variant="destructive" className="text-xs">{swt("english.e063")}</Badge>
+                <Badge variant="destructive" className="text-xs">
+                  {swt("english.e063")}
+                </Badge>
               )}
               {/* Disable raw view for older records without raw data rather than silently falling back and implying raw/parsed content is identical. */}
               <Button
@@ -499,13 +517,9 @@ export default function LLMRecordsPage() {
                 title={hasRaw ? swt("interface.m0436") : swt("interface.m0437")}
                 onClick={() => setRawView((v) => !v)}
               >
-                {swt("interface.m0438")}</Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-7 shrink-0"
-                onClick={() => setSelected(null)}
-              >
+                {swt("interface.m0438")}
+              </Button>
+              <Button variant="ghost" size="icon" className="size-7 shrink-0" onClick={() => setSelected(null)}>
                 <XIcon />
               </Button>
             </div>
@@ -513,14 +527,17 @@ export default function LLMRecordsPage() {
             <div className="grid min-h-0 flex-1 grid-cols-2 divide-x">
               <div className="flex min-h-0 min-w-0 flex-col">
                 <div className="flex items-center gap-2 border-b py-0.5 pr-1.5 pl-3 text-[11px] font-medium text-muted-foreground">
-                  <span>{swt("english.e064")}{" "}{showRaw && swt("interface.m0439")}</span>
+                  <span>
+                    {swt("english.e064")} {showRaw && swt("interface.m0439")}
+                  </span>
                   <CopyButton text={reqText || ""} />
                 </div>
                 <div className="min-h-0 flex-1 overflow-auto">
                   {detailLoading ? (
                     <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
                       <Loader2Icon className="size-3.5 animate-spin" />
-                      {swt("interface.m0440")}</div>
+                      {swt("interface.m0440")}
+                    </div>
                   ) : (
                     <pre className="p-3 font-mono text-xs break-all whitespace-pre-wrap">
                       {reqText || swt("interface.m0306")}
@@ -530,19 +547,24 @@ export default function LLMRecordsPage() {
               </div>
               <div className="flex min-h-0 min-w-0 flex-col">
                 <div className="flex items-center gap-2 border-b py-0.5 pr-1.5 pl-3 text-[11px] font-medium text-muted-foreground">
-                  <span>{swt("english.e065")}{" "}{showRaw && swt("interface.m0441")}</span>
+                  <span>
+                    {swt("english.e065")} {showRaw && swt("interface.m0441")}
+                  </span>
                   <CopyButton text={respText || ""} />
                 </div>
                 <div className="min-h-0 flex-1 overflow-auto">
                   {detailLoading ? (
                     <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
                       <Loader2Icon className="size-3.5 animate-spin" />
-                      {swt("interface.m0440")}</div>
+                      {swt("interface.m0440")}
+                    </div>
                   ) : (
-                    <pre className={cn(
-                      "p-3 font-mono text-xs break-all whitespace-pre-wrap",
-                      selected.status !== "ok" && "text-red-600 dark:text-red-400",
-                    )}>
+                    <pre
+                      className={cn(
+                        "p-3 font-mono text-xs break-all whitespace-pre-wrap",
+                        selected.status !== "ok" && "text-red-600 dark:text-red-400",
+                      )}
+                    >
                       {respText || swt("interface.m0306")}
                     </pre>
                   )}
@@ -556,9 +578,12 @@ export default function LLMRecordsPage() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m0442")}{pickedTask}{swt("interface.m0443")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {swt("interface.m0444")}</AlertDialogDescription>
+            <AlertDialogTitle>
+              {swt("interface.m0442")}
+              {pickedTask}
+              {swt("interface.m0443")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>{swt("interface.m0444")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>{swt("interface.m0063")}</AlertDialogCancel>

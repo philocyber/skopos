@@ -1,6 +1,6 @@
+import { latestSpawnedTask, nodeSummary, TASK_WORKSPACES, taskWorkspaceHref, validTaskTab } from "./task-workspace.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
-import { latestSpawnedTask, nodeSummary, taskWorkspaceHref, validTaskTab, TASK_WORKSPACES } from "./task-workspace.ts";
 
 test("task navigation preserves all original workspaces and encodes untrusted IDs", () => {
   for (const tab of [

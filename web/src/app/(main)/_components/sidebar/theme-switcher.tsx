@@ -1,9 +1,8 @@
 "use client";
-import { useI18n } from "@/i18n";
-
 import { Monitor, Moon, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
 import { persistPreference } from "@/lib/preferences/preferences-storage";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
@@ -25,7 +24,14 @@ export function ThemeSwitcher() {
   };
 
   return (
-    <Button variant="ghost" size="icon" onClick={cycleTheme} aria-label={t("app.cycleTheme", { theme: t(themeMode === "light" ? "english.e012" : themeMode === "dark" ? "english.e014" : "english.e016") })}>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={cycleTheme}
+      aria-label={t("app.cycleTheme", {
+        theme: t(themeMode === "light" ? "english.e012" : themeMode === "dark" ? "english.e014" : "english.e016"),
+      })}
+    >
       {/* SYSTEM */}
       <Monitor className="hidden [html[data-theme-mode=system]_&]:block" />
 

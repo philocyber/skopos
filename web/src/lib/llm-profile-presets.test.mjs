@@ -1,6 +1,6 @@
+import { applyLLMProfilePreset, getLLMProfilePreset } from "./llm-profile-presets.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
-import { applyLLMProfilePreset, getLLMProfilePreset } from "./llm-profile-presets.ts";
 
 test("GLM templates distinguish billing endpoints and use documented model settings", () => {
   const general = getLLMProfilePreset("zai-general");
@@ -19,9 +19,20 @@ test("GLM templates distinguish billing endpoints and use documented model setti
 });
 
 test("applying a template preserves entered secrets and unrelated draft preferences", () => {
-  const draft = Object.freeze({ name: "My profile", api_key: "user-entered-key", proxy: "http://user:pass@proxy:8080", username: "operator", session_header_key: "x-session", streaming: false, rate_per_minute: 7, model: "custom-model", base_url: "https://previous.example" });
+  const draft = Object.freeze({
+    name: "My profile",
+    api_key: "user-entered-key",
+    proxy: "http://user:pass@proxy:8080",
+    username: "operator",
+    session_header_key: "x-session",
+    streaming: false,
+    rate_per_minute: 7,
+    model: "custom-model",
+    base_url: "https://previous.example",
+  });
   const next = applyLLMProfilePreset(draft, "zai-general");
-  for (const key of ["name", "api_key", "proxy", "username", "session_header_key", "streaming", "rate_per_minute"]) assert.equal(next[key], draft[key]);
+  for (const key of ["name", "api_key", "proxy", "username", "session_header_key", "streaming", "rate_per_minute"])
+    assert.equal(next[key], draft[key]);
   assert.equal(draft.model, "custom-model");
   assert.notEqual(next, draft);
   next.model = "user-selected-model";

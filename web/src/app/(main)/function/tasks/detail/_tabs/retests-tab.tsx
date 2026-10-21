@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import Link from "next/link";
@@ -16,6 +14,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { Finding, FindingsPage } from "@/lib/types";
 
@@ -78,16 +78,20 @@ export function RetestsTab({ taskId }: { taskId: string }) {
       {error ? (
         <Alert variant="destructive">
           <AlertDescription>
-            {swt("interface.m0681")}{error}
+            {swt("interface.m0681")}
+            {error}
             <Button variant="outline" size="sm" onClick={refresh}>
-              {swt("interface.m0682")}</Button>
+              {swt("interface.m0682")}
+            </Button>
           </AlertDescription>
         </Alert>
       ) : null}
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]">
         <Card className="min-w-0">
           <CardHeader>
-            <CardTitle>{swt("interface.m0683")}{" "}{data ? ` · ${data.total}` : ""}</CardTitle>
+            <CardTitle>
+              {swt("interface.m0683")} {data ? ` · ${data.total}` : ""}
+            </CardTitle>
             <CardDescription>{swt("interface.m0684")}</CardDescription>
           </CardHeader>
           <CardContent className="flex max-h-[32rem] flex-col overflow-y-auto">
@@ -131,7 +135,8 @@ export function RetestsTab({ taskId }: { taskId: string }) {
                 <ChevronLeftIcon />
               </Button>
               <span className="text-muted-foreground text-xs">
-                {swt("interface.m0489")}{" "}{page} / {Math.ceil(data.total / PAGE_SIZE)} {swt("interface.m0490")}</span>
+                {swt("interface.m0489")} {page} / {Math.ceil(data.total / PAGE_SIZE)} {swt("interface.m0490")}
+              </span>
               <Button
                 variant="outline"
                 size="icon-sm"
@@ -151,7 +156,8 @@ export function RetestsTab({ taskId }: { taskId: string }) {
                 <h2 className="min-w-0 flex-1 break-words font-medium">{findingLabel(selected)}</h2>
                 <Button asChild variant="ghost" size="sm">
                   <Link href={`/function/findings/detail?id=${selected.finding_id || selected.id}`}>
-                    {swt("interface.m0690")}<ArrowUpRightIcon data-icon="inline-end" />
+                    {swt("interface.m0690")}
+                    <ArrowUpRightIcon data-icon="inline-end" />
                   </Link>
                 </Button>
               </div>

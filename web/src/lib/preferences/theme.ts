@@ -1,8 +1,23 @@
 import { translate as swt } from "@/i18n/runtime";
 export const THEME_MODE_OPTIONS = [
-  { get label() { return swt("english.e012"); }, value: "light" },
-  { get label() { return swt("english.e014"); }, value: "dark" },
-  { get label() { return swt("english.e016"); }, value: "system" },
+  {
+    get label() {
+      return swt("english.e012");
+    },
+    value: "light",
+  },
+  {
+    get label() {
+      return swt("english.e014");
+    },
+    value: "dark",
+  },
+  {
+    get label() {
+      return swt("english.e016");
+    },
+    value: "system",
+  },
 ] as const;
 
 export const THEME_MODE_VALUES = THEME_MODE_OPTIONS.map((o) => o.value);
@@ -13,7 +28,9 @@ export type ResolvedThemeMode = "light" | "dark";
 
 export const THEME_PRESET_OPTIONS = [
   {
-    get label() { return swt("english.e188"); },
+    get label() {
+      return swt("english.e188");
+    },
     value: "default",
     primary: {
       light: "oklch(0.205 0 0)",
@@ -21,7 +38,9 @@ export const THEME_PRESET_OPTIONS = [
     },
   },
   {
-    get label() { return swt("english.e189"); },
+    get label() {
+      return swt("english.e189");
+    },
     value: "brutalist",
     primary: {
       light: "oklch(0.6489 0.237 26.9728)",
@@ -29,7 +48,9 @@ export const THEME_PRESET_OPTIONS = [
     },
   },
   {
-    get label() { return swt("english.e190"); },
+    get label() {
+      return swt("english.e190");
+    },
     value: "soft-pop",
     primary: {
       light: "oklch(0.5106 0.2301 276.9656)",
@@ -37,7 +58,9 @@ export const THEME_PRESET_OPTIONS = [
     },
   },
   {
-    get label() { return swt("english.e191"); },
+    get label() {
+      return swt("english.e191");
+    },
     value: "tangerine",
     primary: {
       light: "oklch(0.64 0.17 36.44)",

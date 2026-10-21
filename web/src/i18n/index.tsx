@@ -9,7 +9,7 @@ import { createContext, Fragment, type ReactNode, useContext, useEffect, useMemo
 import type { MessageKey } from "./catalog.ts";
 import { DEFAULT_LOCALE, type Locale } from "./config.ts";
 import { createFormatters, type Formatters, type MessageParams } from "./format.ts";
-import { initializeLocale, getLocale, setLocale, subscribeLocale, translateIn } from "./runtime.ts";
+import { getLocale, initializeLocale, setLocale, subscribeLocale, translateIn } from "./runtime.ts";
 
 export type { MessageKey } from "./catalog.ts";
 export type { Locale } from "./config.ts";
@@ -50,9 +50,7 @@ export function renderRich(message: string, params: RichParams = {}, tagFns: Ric
       out.push(<Fragment key={`t${index++}`}>{fn ? fn(inner) : inner}</Fragment>);
     } else {
       const name = match[3];
-      out.push(
-        <Fragment key={`p${index++}`}>{Object.hasOwn(params, name) ? params[name] : match[0]}</Fragment>,
-      );
+      out.push(<Fragment key={`p${index++}`}>{Object.hasOwn(params, name) ? params[name] : match[0]}</Fragment>);
     }
   }
   pushText(message.slice(last));
@@ -84,7 +82,9 @@ const I18nContext = createContext<I18n>(i18nFor(DEFAULT_LOCALE));
 const serverSnapshot = () => DEFAULT_LOCALE;
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  useEffect(() => { initializeLocale(); }, []);
+  useEffect(() => {
+    initializeLocale();
+  }, []);
   const locale = useSyncExternalStore(subscribeLocale, getLocale, serverSnapshot);
   const value = useMemo(() => i18nFor(locale), [locale]);
   useEffect(() => {

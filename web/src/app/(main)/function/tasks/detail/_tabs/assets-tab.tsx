@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
@@ -40,6 +38,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { parseCompanyScopeText } from "@/lib/company-scope";
 import { taskAssetSourceLabel } from "@/lib/task-assets";
@@ -59,12 +59,42 @@ const METHOD_COLOR: Record<string, string> = {
 };
 
 const TABS: { key: NewAssetType; label: string; icon: LucideIcon }[] = [
-  { key: "root_domain", get label() { return swt("interface.m0142"); }, icon: GlobeIcon },
+  {
+    key: "root_domain",
+    get label() {
+      return swt("interface.m0142");
+    },
+    icon: GlobeIcon,
+  },
   { key: "ip", label: "IP", icon: NetworkIcon },
-  { key: "subdomain", get label() { return swt("interface.m0143"); }, icon: GlobeIcon },
-  { key: "app", get label() { return swt("interface.m0144"); }, icon: SmartphoneIcon },
-  { key: "service", get label() { return swt("interface.m0145"); }, icon: LayoutTemplateIcon },
-  { key: "endpoint", get label() { return swt("interface.m0218"); }, icon: LinkIcon },
+  {
+    key: "subdomain",
+    get label() {
+      return swt("interface.m0143");
+    },
+    icon: GlobeIcon,
+  },
+  {
+    key: "app",
+    get label() {
+      return swt("interface.m0144");
+    },
+    icon: SmartphoneIcon,
+  },
+  {
+    key: "service",
+    get label() {
+      return swt("interface.m0145");
+    },
+    icon: LayoutTemplateIcon,
+  },
+  {
+    key: "endpoint",
+    get label() {
+      return swt("interface.m0218");
+    },
+    icon: LinkIcon,
+  },
 ];
 
 function firstText(values: Array<string | undefined>, fallback: string): string {
@@ -157,7 +187,10 @@ function SourceCell({ asset }: { asset: Asset }) {
           <span className="font-medium">{taskAssetSourceLabel(source)}</span>
           <span className="[overflow-wrap:anywhere]">{summary}</span>
           {asset.task_source_node_id ? (
-            <span className="font-mono opacity-80">{swt("interface.m0496")}{asset.task_source_node_id}</span>
+            <span className="font-mono opacity-80">
+              {swt("interface.m0496")}
+              {asset.task_source_node_id}
+            </span>
           ) : null}
         </div>
       </TooltipContent>
@@ -206,7 +239,8 @@ function AssetCard({
     tableRows = (
       <TableRow>
         <TableCell colSpan={cols.length} className="py-10 text-center text-muted-foreground text-sm">
-          {swt("interface.m0497")}</TableCell>
+          {swt("interface.m0497")}
+        </TableCell>
       </TableRow>
     );
   }
@@ -240,7 +274,8 @@ function AssetCard({
               <SelectGroup>
                 {PAGE_SIZES.map((value) => (
                   <SelectItem key={value} value={String(value)}>
-                    {value} {swt("interface.m0261")}</SelectItem>
+                    {value} {swt("interface.m0261")}
+                  </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
@@ -323,8 +358,7 @@ function AddTaskAssetsSheet({
       <SheetContent className="w-full sm:max-w-xl">
         <SheetHeader>
           <SheetTitle>{swt("interface.m0500")}</SheetTitle>
-          <SheetDescription>
-            {swt("interface.m0501")}</SheetDescription>
+          <SheetDescription>{swt("interface.m0501")}</SheetDescription>
         </SheetHeader>
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4">
           <ScopeTextEditor
@@ -338,13 +372,16 @@ function AddTaskAssetsSheet({
         </div>
         <SheetFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            {swt("interface.m0063")}</Button>
+            {swt("interface.m0063")}
+          </Button>
           <Button
             onClick={() => void attach()}
             disabled={saving || parsedScope.rules.length === 0 || parsedScope.errors.length > 0}
           >
             {saving ? <Spinner data-icon="inline-start" /> : <PlusIcon data-icon="inline-start" />}
-            {swt("interface.m0504")}{" "}{parsedScope.rules.length > 0 ? parsedScope.rules.length : ""} {swt("interface.m0328")}</Button>
+            {swt("interface.m0504")} {parsedScope.rules.length > 0 ? parsedScope.rules.length : ""}{" "}
+            {swt("interface.m0328")}
+          </Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>
@@ -493,11 +530,15 @@ export function AssetsTab({ taskId }: { taskId: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-medium text-sm">{swt("interface.m0510")}</h2>
-          <p className="text-muted-foreground text-xs">{swt("interface.m0511")}{totalAll} {swt("interface.m0223")}</p>
+          <p className="text-muted-foreground text-xs">
+            {swt("interface.m0511")}
+            {totalAll} {swt("interface.m0223")}
+          </p>
         </div>
         <Button size="sm" onClick={() => setAddOpen(true)}>
           <PlusIcon data-icon="inline-start" />
-          {swt("interface.m0500")}</Button>
+          {swt("interface.m0500")}
+        </Button>
       </div>
 
       <Tabs
@@ -520,7 +561,10 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         {searchBox}
 
         <TabsContent value="root_domain" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={[swt("interface.m0232"), swt("interface.m0233"), swt("interface.m0512"), swt("interface.m0228")]} {...commonCardProps}>
+          <AssetCard
+            cols={[swt("interface.m0232"), swt("interface.m0233"), swt("interface.m0512"), swt("interface.m0228")]}
+            {...commonCardProps}
+          >
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="font-medium font-mono text-xs">{asset.domain}</TableCell>
@@ -535,7 +579,17 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         </TabsContent>
 
         <TabsContent value="ip" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={["IP", swt("interface.m0237"), swt("interface.m0238"), swt("interface.m0239"), swt("interface.m0512"), swt("interface.m0228")]} {...commonCardProps}>
+          <AssetCard
+            cols={[
+              "IP",
+              swt("interface.m0237"),
+              swt("interface.m0238"),
+              swt("interface.m0239"),
+              swt("interface.m0512"),
+              swt("interface.m0228"),
+            ]}
+            {...commonCardProps}
+          >
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="font-medium font-mono text-xs">{asset.ip}</TableCell>
@@ -561,7 +615,17 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         </TabsContent>
 
         <TabsContent value="subdomain" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={[swt("interface.m0232"), swt("interface.m0142"), swt("interface.m0240"), swt("interface.m0241"), swt("interface.m0512"), swt("interface.m0228")]} {...commonCardProps}>
+          <AssetCard
+            cols={[
+              swt("interface.m0232"),
+              swt("interface.m0142"),
+              swt("interface.m0240"),
+              swt("interface.m0241"),
+              swt("interface.m0512"),
+              swt("interface.m0228"),
+            ]}
+            {...commonCardProps}
+          >
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="font-medium font-mono text-xs">{asset.domain}</TableCell>
@@ -580,7 +644,18 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         </TabsContent>
 
         <TabsContent value="app" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={[swt("interface.m0144"), swt("interface.m0513"), swt("interface.m0243"), swt("interface.m0246"), swt("interface.m0247"), swt("interface.m0512"), swt("interface.m0228")]} {...commonCardProps}>
+          <AssetCard
+            cols={[
+              swt("interface.m0144"),
+              swt("interface.m0513"),
+              swt("interface.m0243"),
+              swt("interface.m0246"),
+              swt("interface.m0247"),
+              swt("interface.m0512"),
+              swt("interface.m0228"),
+            ]}
+            {...commonCardProps}
+          >
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="max-w-48 truncate font-medium text-xs">{asset.app_name || "—"}</TableCell>
@@ -603,7 +678,16 @@ export function AssetsTab({ taskId }: { taskId: string }) {
 
         <TabsContent value="service" className="mt-0 flex min-h-0 flex-1 flex-col">
           <AssetCard
-            cols={[swt("interface.m0514"), swt("interface.m0245"), swt("interface.m0246"), swt("interface.m0515"), swt("interface.m0247"), swt("interface.m0248"), swt("interface.m0512"), swt("interface.m0228")]}
+            cols={[
+              swt("interface.m0514"),
+              swt("interface.m0245"),
+              swt("interface.m0246"),
+              swt("interface.m0515"),
+              swt("interface.m0247"),
+              swt("interface.m0248"),
+              swt("interface.m0512"),
+              swt("interface.m0228"),
+            ]}
             {...commonCardProps}
           >
             {rows.map((asset) => {
@@ -661,7 +745,16 @@ export function AssetsTab({ taskId }: { taskId: string }) {
         </TabsContent>
 
         <TabsContent value="endpoint" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <AssetCard cols={[swt("interface.m0249"), swt("interface.m0250"), swt("interface.m0251"), swt("interface.m0512"), swt("interface.m0228")]} {...commonCardProps}>
+          <AssetCard
+            cols={[
+              swt("interface.m0249"),
+              swt("interface.m0250"),
+              swt("interface.m0251"),
+              swt("interface.m0512"),
+              swt("interface.m0228"),
+            ]}
+            {...commonCardProps}
+          >
             {rows.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="w-16">
@@ -697,7 +790,8 @@ export function AssetsTab({ taskId }: { taskId: string }) {
             <AlertDialogTitle>{swt("interface.m0516")}</AlertDialogTitle>
             <AlertDialogDescription className="[overflow-wrap:anywhere]">
               {removeTarget ? swt("interface.m0517", { p0: assetLabel(removeTarget) }) : ""}
-              {swt("interface.m0518")}</AlertDialogDescription>
+              {swt("interface.m0518")}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={removing}>{swt("interface.m0063")}</AlertDialogCancel>

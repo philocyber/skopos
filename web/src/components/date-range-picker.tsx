@@ -1,6 +1,4 @@
 "use client";
-import { useI18n } from "@/i18n";
-
 import * as React from "react";
 
 import { format, subDays } from "date-fns";
@@ -9,6 +7,7 @@ import type { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useI18n } from "@/i18n";
 
 interface DateRangePickerProps {
   value?: DateRange;
