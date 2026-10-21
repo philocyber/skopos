@@ -3,6 +3,7 @@ import {
   Activity,
   Ban,
   BellRing,
+  BookOpen,
   Bot,
   Brain,
   Bug,
@@ -94,6 +95,13 @@ export const sidebarItems: NavGroup[] = [
       { id: "approvals", get title() { return swt("interface.m2145"); }, url: "/system/intercept/approvals", icon: ClipboardList },
       { id: "logs", get title() { return swt("interface.m2873"); }, url: "/system/logs", icon: ScrollText },
       { id: "settings", get title() { return swt("interface.m1644"); }, url: "/system/settings", icon: Settings2 },
+    ],
+  },
+  {
+    id: 3,
+    get label() { return swt("english.e192"); },
+    items: [
+      { id: "docs", get title() { return swt("english.e193"); }, url: "/docs", icon: BookOpen },
     ],
   },
 ];

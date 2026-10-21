@@ -107,5 +107,7 @@ export const en = {
   "e188": "Default",
   "e189": "Brutalist",
   "e190": "Soft Pop",
-  "e191": "Tangerine"
+  "e191": "Tangerine",
+  "e192": "Documentation",
+  "e193": "Docs"
 };
