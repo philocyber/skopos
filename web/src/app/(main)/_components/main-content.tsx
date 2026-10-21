@@ -4,6 +4,8 @@ import { type ReactNode, useEffect, useState } from "react";
 
 import { usePathname } from "next/navigation";
 
+import { ChevronRightIcon } from "lucide-react";
+
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
@@ -12,7 +14,7 @@ import { useI18n } from "@/i18n";
 import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
+import { findNavEntry } from "@/navigation/sidebar/sidebar-items";
 
 import { AccountSwitcher } from "./sidebar/account-switcher";
 import { LayoutControls } from "./sidebar/layout-controls";
@@ -41,11 +43,7 @@ export function MainContent({ children }: { children: ReactNode }) {
 
   const currentUser = useCurrentUser();
   const pathname = usePathname();
-  const route = pathname.replace(/\/+$/, "");
-  const routeTitle = sidebarItems
-    .flatMap((group) => group.items.flatMap((item) => item.subItems ?? [item]))
-    .filter((item) => item.url && (route === item.url || route.startsWith(`${item.url}/`)))
-    .sort((a, b) => (b.url?.length ?? 0) - (a.url?.length ?? 0))[0]?.title;
+  const entry = findNavEntry(pathname);
   const [version, setVersion] = useState("");
 
   useEffect(() => {
@@ -75,7 +73,15 @@ export function MainContent({ children }: { children: ReactNode }) {
               orientation="vertical"
               className="mx-2 data-[orientation=vertical]:h-4 data-[orientation=vertical]:self-center"
             />
-            <span className="truncate text-sm font-medium">{routeTitle ?? APP_CONFIG.name}</span>
+            <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-sm">
+              {entry && !entry.group.pinned && (
+                <>
+                  <span className="text-muted-foreground">{entry.group.label}</span>
+                  <ChevronRightIcon className="size-3.5 shrink-0 text-muted-foreground/60" />
+                </>
+              )}
+              <span className="truncate font-medium">{entry?.item.title ?? APP_CONFIG.name}</span>
+            </nav>
           </div>
           <div className="flex items-center gap-2">
             <SearchDialog />

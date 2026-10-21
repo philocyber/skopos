@@ -159,11 +159,11 @@ export function FindingsTable({
           <TableHead className="w-8" />
           <TableHead className="w-20">{swt("interface.m0321")}</TableHead>
           <TableHead>{swt("interface.m0322")}</TableHead>
-          <TableHead className="w-44">{swt("interface.m0222")}</TableHead>
-          <TableHead className="w-28">{swt("interface.m0191")}</TableHead>
+          <TableHead className="w-32">{swt("interface.m0222")}</TableHead>
+          <TableHead className="w-36">{swt("interface.m0191")}</TableHead>
           <TableHead className="w-32">{swt("interface.m0323")}</TableHead>
-          <TableHead className="w-24">{swt("interface.m0291")}</TableHead>
-          <TableHead className="w-48">{swt("interface.m0228")}</TableHead>
+          <TableHead className="w-28">{swt("interface.m0291")}</TableHead>
+          <TableHead className="w-44 2xl:w-72">{swt("interface.m0228")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -293,9 +293,15 @@ export function FindingsTable({
                       </Button>
                     ) : null}
                     {f.finding_id && f.task_id && (
-                      <Button size="sm" variant="ghost" onClick={() => onDeepen(f)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onDeepen(f)}
+                        title={swt("interface.m0333")}
+                        aria-label={swt("interface.m0333")}
+                      >
                         <FlaskConicalIcon data-icon="inline-start" />
-                        {swt("interface.m0333")}
+                        <span className="hidden 2xl:inline">{swt("interface.m0333")}</span>
                       </Button>
                     )}
                     {f.finding_id && (
