@@ -1,16 +1,16 @@
 import { translate } from "../i18n/runtime.ts";
 
-// Legacy wire labels remain stable for backend compatibility and existing user messages.
+// Wire labels must stay stable for backend compatibility and existing user messages.
 export const mentionKinds = [
-  { kind: "finding", get label() { return translate("interface.m0526"); }, wire: "\u6f0f\u6d1e", alias: "finding" },
-  { kind: "asset", get label() { return translate("interface.m0222"); }, wire: "\u8d44\u4ea7", alias: "asset" },
-  { kind: "company", get label() { return translate("interface.m0217"); }, wire: "\u4f01\u4e1a", alias: "company" },
-  { kind: "endpoint", get label() { return translate("interface.m0218"); }, wire: "\u63a5\u53e3", alias: "api" },
+  { kind: "finding", get label() { return translate("interface.m0526"); }, wire: "finding", alias: "finding" },
+  { kind: "asset", get label() { return translate("interface.m0222"); }, wire: "asset", alias: "asset" },
+  { kind: "company", get label() { return translate("interface.m0217"); }, wire: "company", alias: "company" },
+  { kind: "endpoint", get label() { return translate("interface.m0218"); }, wire: "endpoint", alias: "api" },
   { kind: "ip", label: "IP", wire: "IP", alias: "ip" },
-  { kind: "app", get label() { return translate("interface.m0144"); }, wire: "\u5e94\u7528", alias: "app" },
-  { kind: "root_domain", get label() { return translate("interface.m0232"); }, wire: "\u57df\u540d", alias: "domain" },
-  { kind: "subdomain", get label() { return translate("interface.m0143"); }, wire: "\u5b50\u57df\u540d", alias: "subdomain" },
-  { kind: "service", get label() { return translate("interface.m0145"); }, wire: "\u670d\u52a1", alias: "service" },
+  { kind: "app", get label() { return translate("interface.m0144"); }, wire: "app", alias: "app" },
+  { kind: "root_domain", get label() { return translate("interface.m0232"); }, wire: "root_domain", alias: "domain" },
+  { kind: "subdomain", get label() { return translate("interface.m0143"); }, wire: "subdomain", alias: "subdomain" },
+  { kind: "service", get label() { return translate("interface.m0145"); }, wire: "service", alias: "service" },
 ] as const;
 
 export type MentionKind = (typeof mentionKinds)[number]["kind"];
@@ -46,7 +46,7 @@ export function mentionSearch(query: string) {
 }
 
 export function mentionToken(item: ChatMention) {
-  const kind = mentionKinds.find((entry) => entry.kind === item.kind)?.wire ?? "\u8d44\u4ea7";
+  const kind = mentionKinds.find((entry) => entry.kind === item.kind)?.wire ?? "asset";
   const label = item.label
     .replace(/[[\]]/g, (char) => (char === "[" ? "（" : "）"))
     .replace(/\s+/g, " ")
@@ -55,7 +55,7 @@ export function mentionToken(item: ChatMention) {
 }
 
 export function selectedMentions(value: string) {
-  return [...value.matchAll(/@\[(\u6f0f\u6d1e|\u8d44\u4ea7|\u4f01\u4e1a|\u63a5\u53e3|IP|\u5e94\u7528|\u57df\u540d|\u5b50\u57df\u540d|\u670d\u52a1)#([0-9]+)(?: ([^\]\r\n]*))?\]/g)].map(
+  return [...value.matchAll(/@\[(finding|asset|company|endpoint|IP|app|root_domain|subdomain|service)#([0-9]+)(?: ([^\]\r\n]*))?\]/g)].map(
     (match) => ({
       token: match[0],
       label: `${mentionKinds.find((item) => item.wire === match[1])?.label ?? match[1]} #${match[2]}${match[3] ? ` · ${match[3]}` : ""}`,

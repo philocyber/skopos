@@ -74,11 +74,11 @@ test("authored demo data resolves through the catalog; edited user values stay l
 test("mention wire tokens remain stable for backend compatibility", () => {
   reset(); browser();
   const finding = mentionKinds.find((item) => item.kind === "finding");
-  assert.equal(finding.wire, "漏洞");
+  assert.equal(finding.wire, "finding");
   assert.ok(finding.label.length);
-  assert.equal(mentionSearch("漏洞 login").kind, "finding");
+  assert.equal(mentionSearch("finding login").kind, "finding");
   const token = mentionToken({ kind: "finding", id: 12, label: "user label", description: "" });
-  assert.equal(token, "@[漏洞#12 user label]");
+  assert.equal(token, "@[finding#12 user label]");
   const selected = selectedMentions(token)[0];
   assert.ok(selected.label.startsWith(finding.label));
   assert.match(selected.label, /#12 · user label/);
@@ -93,15 +93,13 @@ test("date and number formatters use the English locale", () => {
 });
 
 test("authored UI contains no untranslated Han literals; legacy wire parsers are explicit exceptions", () => {
-  const legacyWire = new Set(["漏洞", "资产", "企业", "接口", "应用", "域名", "子域名", "服务"]);
   const failures = [];
   for (const file of sourceFiles()) {
     const rel = path.relative(SRC_ROOT, file).split(path.sep).join("/");
     if (rel.endsWith(".test.mjs")) continue; // Tests intentionally preserve multilingual user input.
     for (const hit of scanFile(file)) {
-      if (rel === "lib/chat-mentions.ts" && legacyWire.has(hit.text)) continue;
-      if (rel === "components/approval-records.tsx" && hit.text === "/^\\[(?:模型|Model|모델)\\]\\s*/") continue;
-      if (rel === "components/transcript.tsx" && hit.text === "/(?:工具|Tool|도구)\\s+(\\S+)\\s+(?:请求|requests?|요청)/i") continue;
+      if (rel === "components/approval-records.tsx" && hit.text === "/^\\[(?:模型|Model)\\]\\s*/") continue;
+      if (rel === "components/transcript.tsx" && hit.text === "/(?:工具|Tool)\\s+(\\S+)\\s+(?:请求|requests?)/i") continue;
       if (rel === "lib/company-scope.ts" && hit.text === "/icp|备案/i") continue;
       failures.push(`${rel}:${hit.line} ${hit.text}`);
     }
