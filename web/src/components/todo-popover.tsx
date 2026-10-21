@@ -60,7 +60,7 @@ export function TodoPopover({
           type="button"
           disabled={disabled}
           title={disabled ? swt("interface.m2368") : swt("interface.m2369")}
-          className="text-muted-foreground/70 hover:text-primary flex items-center gap-0.5 text-xs disabled:pointer-events-none disabled:opacity-40"
+          className="text-muted-foreground hover:text-primary flex items-center gap-0.5 text-xs disabled:pointer-events-none disabled:opacity-40"
         >
           <ListTodo className="size-3" />
           {swt("english.e150")}

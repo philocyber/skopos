@@ -180,10 +180,10 @@ function DataSourceCard({
         ) : (
           <>
             {!status.configured && (
-              <p className="text-amber-600 text-sm dark:text-amber-500">{swt("interface.m0457")}</p>
+              <p className="text-amber-700 text-sm dark:text-amber-500">{swt("interface.m0457")}</p>
             )}
             {status.configured && !status.enabled && (
-              <p className="text-amber-600 text-sm dark:text-amber-500">{swt("interface.m0458")}</p>
+              <p className="text-amber-700 text-sm dark:text-amber-500">{swt("interface.m0458")}</p>
             )}
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-1.5">
@@ -513,7 +513,7 @@ function SyncResult({ result }: { result: Awaited<ReturnType<typeof api.ssSync>>
         </p>
       )}
       {result.warnings && result.warnings.length > 0 && (
-        <ul className="list-inside list-disc text-amber-600 dark:text-amber-500">
+        <ul className="list-inside list-disc text-amber-700 dark:text-amber-500">
           {result.warnings.map((wm) => (
             <li key={wm}>{wm}</li>
           ))}

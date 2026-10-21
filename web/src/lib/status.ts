@@ -7,8 +7,8 @@ export type Tone = "neutral" | "blue" | "green" | "amber" | "red" | "rose" | "vi
 export const toneClasses: Record<Tone, string> = {
   neutral: "bg-muted text-muted-foreground border-transparent",
   blue: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/20",
-  green: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
-  amber: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  green: "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border-emerald-500/20",
+  amber: "bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-500/20",
   red: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/20",
   // Rose indicates Critical with solid emphasis, visually stronger than High's soft red outline.
   rose: "bg-rose-600 text-white border-rose-600 dark:bg-rose-600 dark:text-white",

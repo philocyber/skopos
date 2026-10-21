@@ -68,10 +68,10 @@ function fmtBytes(n: number) {
 }
 
 function statusTone(status: number) {
-  if (status >= 500) return "text-red-500";
-  if (status >= 400) return "text-amber-500";
-  if (status >= 300) return "text-blue-500";
-  if (status >= 200) return "text-emerald-500";
+  if (status >= 500) return "text-red-600 dark:text-red-400";
+  if (status >= 400) return "text-amber-700 dark:text-amber-400";
+  if (status >= 300) return "text-blue-600 dark:text-blue-400";
+  if (status >= 200) return "text-emerald-700 dark:text-emerald-400";
   return "text-muted-foreground";
 }
 
@@ -356,7 +356,7 @@ export default function TrafficPage() {
             className={cn(
               "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium",
               traffic?.enabled
-                ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400"
                 : "border-transparent bg-muted text-muted-foreground",
             )}
           >

@@ -106,7 +106,7 @@ function ActionBadge({ action }: { action: InterceptAction }) {
   if (action === "allow") return <Badge variant="secondary">{swt("interface.m0617")}</Badge>;
   if (action === "deny") return <Badge variant="destructive">{swt("interface.m0616")}</Badge>;
   return (
-    <Badge variant="outline" className="border-amber-400 text-amber-600">
+    <Badge variant="outline" className="border-amber-400 text-amber-700 dark:text-amber-400">
       {swt("interface.m1200")}
     </Badge>
   );
@@ -751,7 +751,7 @@ export default function InterceptPage() {
               />
               {regexErr && <p className="text-xs text-destructive mt-1">{regexErr}</p>}
               {regexWarn && (
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
                   {swt("interface.m1259")}
                   <code className="font-mono">(?i)</code>
                   {swt("interface.m1260")}

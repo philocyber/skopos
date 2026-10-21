@@ -114,7 +114,7 @@ function Block({ block }: { block: DocBlock }) {
       const Icon = block.tone === "warn" ? AlertTriangleIcon : InfoIcon;
       return (
         <Alert className={cn(block.tone === "warn" && "border-amber-500/40 bg-amber-500/5")}>
-          <Icon className={cn(block.tone === "warn" && "text-amber-600 dark:text-amber-400")} />
+          <Icon className={cn(block.tone === "warn" && "text-amber-700 dark:text-amber-400")} />
           <AlertTitle>{block.title}</AlertTitle>
           <AlertDescription>{block.text}</AlertDescription>
         </Alert>

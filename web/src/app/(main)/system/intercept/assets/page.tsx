@@ -113,10 +113,10 @@ function KindBadge({ kind }: { kind: AssetInterceptKind }) {
       variant="outline"
       className={
         cidr
-          ? "border-sky-400 text-sky-600"
+          ? "border-sky-400 text-sky-700 dark:text-sky-400"
           : fuzzy
-            ? "border-amber-400 text-amber-600"
-            : "border-emerald-400 text-emerald-600"
+            ? "border-amber-400 text-amber-700 dark:text-amber-400"
+            : "border-emerald-400 text-emerald-700 dark:text-emerald-400"
       }
     >
       {KIND_LABEL[kind]}

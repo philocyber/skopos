@@ -262,7 +262,7 @@ export default function CommandsPage() {
                             {swt("interface.m0294")}
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-xs text-emerald-600">
+                          <Badge variant="secondary" className="text-xs text-emerald-700 dark:text-emerald-400">
                             {swt("interface.m0295")}
                           </Badge>
                         )}
@@ -360,7 +360,7 @@ export default function CommandsPage() {
                       {swt("interface.m0294")}
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="text-xs text-emerald-600">
+                    <Badge variant="secondary" className="text-xs text-emerald-700 dark:text-emerald-400">
                       {swt("interface.m0295")}
                     </Badge>
                   )}

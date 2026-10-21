@@ -521,7 +521,11 @@ export default function SystemSettingsPage() {
               <div className="flex flex-col gap-2">
                 <Label htmlFor="brave-key" className="text-sm font-normal text-muted-foreground">
                   {swt("english.e130")}{" "}
-                  {braveKeySet && <span className="ml-2 text-xs text-emerald-500">{swt("interface.m0207")}</span>}
+                  {braveKeySet && (
+                    <span className="ml-2 text-xs text-emerald-700 dark:text-emerald-400">
+                      {swt("interface.m0207")}
+                    </span>
+                  )}
                 </Label>
                 <div className="flex items-center gap-2">
                   <Input
@@ -541,7 +545,9 @@ export default function SystemSettingsPage() {
                     {swt("interface.m0273")}
                   </Button>
                 </div>
-                {braveNeedsKey && <p className="text-xs text-amber-500">{swt("interface.m1737")}</p>}
+                {braveNeedsKey && (
+                  <p className="text-xs text-amber-700 dark:text-amber-400">{swt("interface.m1737")}</p>
+                )}
                 <p className="text-muted-foreground text-xs">{swt("interface.m1738")}</p>
               </div>
             )}
@@ -550,7 +556,11 @@ export default function SystemSettingsPage() {
               <div className="flex flex-col gap-2">
                 <Label htmlFor="tavily-key" className="text-sm font-normal text-muted-foreground">
                   {swt("english.e131")}{" "}
-                  {tavilyKeySet && <span className="ml-2 text-xs text-emerald-500">{swt("interface.m0207")}</span>}
+                  {tavilyKeySet && (
+                    <span className="ml-2 text-xs text-emerald-700 dark:text-emerald-400">
+                      {swt("interface.m0207")}
+                    </span>
+                  )}
                 </Label>
                 <div className="flex items-center gap-2">
                   <Input
@@ -571,7 +581,7 @@ export default function SystemSettingsPage() {
                   </Button>
                 </div>
                 {webSearch && backend === "tavily" && !tavilyKeySet && (
-                  <p className="text-xs text-amber-500">{swt("interface.m1740")}</p>
+                  <p className="text-xs text-amber-700 dark:text-amber-400">{swt("interface.m1740")}</p>
                 )}
                 <p className="text-muted-foreground text-xs">{swt("interface.m1741")}</p>
               </div>

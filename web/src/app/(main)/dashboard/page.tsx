@@ -116,10 +116,10 @@ const ASSET_COLORS: Record<string, string> = {
 };
 
 function statusColor(code: number): string {
-  if (code < 300) return "text-emerald-500";
-  if (code < 400) return "text-blue-400";
-  if (code < 500) return "text-amber-400";
-  return "text-red-400";
+  if (code < 300) return "text-emerald-700 dark:text-emerald-400";
+  if (code < 400) return "text-blue-600 dark:text-blue-400";
+  if (code < 500) return "text-amber-700 dark:text-amber-400";
+  return "text-red-600 dark:text-red-400";
 }
 
 function statusBg(code: number): string {
@@ -529,15 +529,15 @@ export default function DashboardPage() {
   }
 
   function workerColor(w: string): string {
-    if (w === "planner") return "text-violet-400";
-    if (w === "mainagent") return "text-cyan-400";
-    return "text-blue-400";
+    if (w === "planner") return "text-violet-600 dark:text-violet-400";
+    if (w === "mainagent") return "text-cyan-700 dark:text-cyan-400";
+    return "text-blue-600 dark:text-blue-400";
   }
 
   function workerBg(w: string): string {
-    if (w === "planner") return "bg-violet-500/10 text-violet-400 border-violet-500/20";
-    if (w === "mainagent") return "bg-cyan-500/10 text-cyan-400 border-cyan-500/20";
-    return "bg-blue-500/10 text-blue-400 border-blue-500/20";
+    if (w === "planner") return "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20";
+    if (w === "mainagent") return "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20";
+    return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
   }
 
   // ── render ────────────────────────────────────────────────────────────────
@@ -562,17 +562,17 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="flex flex-wrap gap-x-2.5 gap-y-0.5 text-[10px]">
             {(tasksByStatus.running ?? 0) > 0 && (
-              <span className="text-blue-400">
+              <span className="text-blue-600 dark:text-blue-400">
                 {swt("app.metricValue", { label: swt("interface.m2851"), value: tasksByStatus.running })}
               </span>
             )}
             {(tasksByStatus.paused ?? 0) > 0 && (
-              <span className="text-amber-400">
+              <span className="text-amber-700 dark:text-amber-400">
                 {swt("app.metricValue", { label: swt("interface.m0564"), value: tasksByStatus.paused })}
               </span>
             )}
             {(tasksByStatus.done ?? 0) > 0 && (
-              <span className="text-emerald-400">
+              <span className="text-emerald-700 dark:text-emerald-400">
                 {swt("app.metricValue", { label: swt("interface.m0809"), value: tasksByStatus.done })}
               </span>
             )}
@@ -589,16 +589,16 @@ export default function DashboardPage() {
             <div className="text-2xl font-semibold tabular-nums">{findings.length}</div>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2.5 text-[10px]">
-            <span className="text-rose-500">
+            <span className="text-rose-600 dark:text-rose-400">
               {swt("app.metricValue", { label: swt("interface.m0154"), value: findingsBySev.critical })}
             </span>
-            <span className="text-red-400">
+            <span className="text-red-600 dark:text-red-400">
               {swt("app.metricValue", { label: swt("interface.m0155"), value: findingsBySev.high })}
             </span>
-            <span className="text-amber-400">
+            <span className="text-amber-700 dark:text-amber-400">
               {swt("app.metricValue", { label: swt("interface.m0156"), value: findingsBySev.medium })}
             </span>
-            <span className="text-slate-400">
+            <span className="text-slate-600 dark:text-slate-400">
               {swt("app.metricValue", { label: swt("interface.m0157"), value: findingsBySev.low })}
             </span>
           </CardContent>
@@ -725,7 +725,7 @@ export default function DashboardPage() {
                         "rounded px-1 py-0 text-[8px]",
                         tokenTab === resolvedKey
                           ? "bg-background/20 text-background"
-                          : "bg-emerald-500/20 text-emerald-400",
+                          : "bg-emerald-500/20 text-emerald-800 dark:text-emerald-400",
                       )}
                     >
                       {swt("interface.m0077")}
@@ -762,19 +762,19 @@ export default function DashboardPage() {
                     label: swt("interface.m0175"),
                     value: displayedTokens.input - displayedTokens.cacheRead,
                     barColor: dailyTrendConfig.input.color!,
-                    text: "text-blue-400",
+                    text: "text-blue-600 dark:text-blue-400",
                   },
                   {
                     label: swt("interface.m0176"),
                     value: displayedTokens.cacheRead,
                     barColor: dailyTrendConfig.cacheRead.color!,
-                    text: "text-emerald-400",
+                    text: "text-emerald-700 dark:text-emerald-400",
                   },
                   {
                     label: swt("interface.m0136"),
                     value: displayedTokens.output,
                     barColor: dailyTrendConfig.output.color!,
-                    text: "text-violet-400",
+                    text: "text-violet-600 dark:text-violet-400",
                   },
                 ].map(({ label, value, barColor, text }) => {
                   const pct = total > 0 ? (value / total) * 100 : 0;
@@ -805,7 +805,10 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between rounded-lg border bg-muted/20 px-3 py-2 text-[10px]">
                   <span className="text-muted-foreground">{swt("interface.m0177")}</span>
                   <span
-                    className={cn("font-semibold tabular-nums", hitPct > 50 ? "text-emerald-400" : "text-amber-400")}
+                    className={cn(
+                      "font-semibold tabular-nums",
+                      hitPct > 50 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400",
+                    )}
                   >
                     {hitPct}%
                   </span>
@@ -1195,8 +1198,8 @@ export default function DashboardPage() {
                         className={cn(
                           "shrink-0 rounded border px-1 py-0 font-mono text-[9px]",
                           e.method === "GET"
-                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                            : "border-blue-500/30 bg-blue-500/10 text-blue-400",
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-400"
+                            : "border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400",
                         )}
                       >
                         {e.method}
@@ -1226,8 +1229,8 @@ export default function DashboardPage() {
                 className={cn(
                   "text-[10px]",
                   stats?.llm_configured
-                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                    : "border-red-500/30 bg-red-500/10 text-red-400",
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-400"
+                    : "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400",
                 )}
               >
                 {stats?.llm_configured ? swt("interface.m0207") : swt("interface.m0208")}
@@ -1241,7 +1244,7 @@ export default function DashboardPage() {
                 className={cn(
                   "text-[10px]",
                   settings?.traffic_capture
-                    ? "border-violet-500/30 bg-violet-500/10 text-violet-400"
+                    ? "border-violet-500/30 bg-violet-500/10 text-violet-600 dark:text-violet-400"
                     : "text-muted-foreground",
                 )}
               >
@@ -1260,7 +1263,7 @@ export default function DashboardPage() {
           {/* pending approvals */}
           {pendingCount > 0 && (
             <div className="mt-3">
-              <div className="mb-1.5 text-[10px] font-medium text-amber-400">
+              <div className="mb-1.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
                 {swt("interface.m0213")}
                 {pendingCount})
               </div>
@@ -1275,7 +1278,7 @@ export default function DashboardPage() {
                       <div className="text-[10px] font-medium">{p.tool_name}</div>
                       <div className="text-[9px] text-muted-foreground">{p.agent_name}</div>
                     </div>
-                    <ArrowUpRightIcon className="size-3 shrink-0 text-amber-400" />
+                    <ArrowUpRightIcon className="size-3 shrink-0 text-amber-700 dark:text-amber-400" />
                   </Link>
                 ))}
                 {pendingCount > 3 && (

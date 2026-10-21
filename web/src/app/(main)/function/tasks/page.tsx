@@ -1305,7 +1305,7 @@ const TaskRow = React.memo(function TaskRow({
       <TableCell className="font-medium">
         <div className="flex max-w-48 items-center gap-2">
           <TaskNameEditor task={task} onRename={onRename} />
-          {task.active && <StarIcon className="size-4 shrink-0 fill-amber-400 text-amber-400" />}
+          {task.active && <StarIcon className="size-4 shrink-0 fill-amber-400 text-amber-700 dark:text-amber-400" />}
           {taskIsPinned(task) && (
             <PinIcon className="text-primary size-4 shrink-0" aria-label={swt("interface.m0094")} />
           )}
@@ -1345,7 +1345,7 @@ const TaskRow = React.memo(function TaskRow({
               <span className="text-muted-foreground">/</span>
               {seg(f.high, "text-red-600 dark:text-red-400")}
               <span className="text-muted-foreground">/</span>
-              {seg(f.medium, "text-amber-600 dark:text-amber-400")}
+              {seg(f.medium, "text-amber-700 dark:text-amber-400")}
               <span className="text-muted-foreground">/</span>
               {seg(f.low, "text-slate-600 dark:text-slate-400")}
             </span>

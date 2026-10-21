@@ -504,7 +504,7 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
                   )}
                   <span className="text-muted-foreground truncate flex-1">{ver.note}</span>
                   {ver.ts && (
-                    <span className="text-muted-foreground/60 shrink-0 tabular-nums">
+                    <span className="text-muted-foreground shrink-0 tabular-nums">
                       {new Date(ver.ts).toLocaleDateString(getIntlLocale(), {
                         month: "2-digit",
                         day: "2-digit",
@@ -547,7 +547,7 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
                 <DialogDescription>
                   {viewVer?.note || swt("interface.m1939")}
                   {viewVer?.ts && (
-                    <span className="ml-2 text-muted-foreground/60">
+                    <span className="ml-2 text-muted-foreground">
                       {new Date(viewVer.ts).toLocaleString(getIntlLocale())}
                     </span>
                   )}
@@ -604,7 +604,7 @@ export function AgentEditor({ agentKey, onSaved }: { agentKey: string; onSaved?:
                     <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-red-600 dark:text-red-400">
                       {swt("interface.m1945")}
                     </span>
-                    <span className="rounded bg-green-500/15 px-1.5 py-0.5 text-green-600 dark:text-green-400">
+                    <span className="rounded bg-green-500/15 px-1.5 py-0.5 text-green-700 dark:text-green-400">
                       {swt("interface.m1946")}
                     </span>
                   </span>

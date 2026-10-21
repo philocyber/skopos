@@ -234,7 +234,7 @@ export default function WorkspacePage() {
                       className="flex items-center gap-2 text-left hover:underline"
                     >
                       {e.dir ? (
-                        <FolderIcon className="size-4 shrink-0 text-blue-500" />
+                        <FolderIcon className="size-4 shrink-0 text-blue-600 dark:text-blue-400" />
                       ) : (
                         <FileIcon className="text-muted-foreground size-4 shrink-0" />
                       )}

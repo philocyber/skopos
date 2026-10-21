@@ -390,7 +390,7 @@ function AssetTreeRow({
           </span>
         )}
         {node.high > 0 && (
-          <span className="text-red-500" title={swt("interface.m0318", { p0: node.high })}>
+          <span className="text-red-600 dark:text-red-400" title={swt("interface.m0318", { p0: node.high })}>
             {node.high}
           </span>
         )}
