@@ -547,7 +547,7 @@ export default function InterceptPage() {
       <div className="flex items-center gap-2.5">
         <ShieldAlertIcon className="h-5 w-5 shrink-0" />
         <div>
-          <h1 className="text-lg font-semibold leading-tight">{swt("interface.m1235")}</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m1235")}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{swt("interface.m1236")}</p>
         </div>
       </div>

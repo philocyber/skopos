@@ -129,4 +129,5 @@ export const en = {
   e210: "Tool result",
   e211: "Message",
   e212: "Result",
+  e213: "Add a profile",
 };

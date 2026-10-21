@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 
 import { AssetDslSearch } from "@/components/asset-dsl-search";
+import { PageHeader } from "@/components/page-header";
 import { ScopeTextEditor } from "@/components/scope-text-editor";
 import {
   AlertDialog,
@@ -358,26 +359,26 @@ export default function AssetsPage() {
 
   return (
     <div className="flex h-[calc(100vh-6rem)] min-h-0 flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m0222")}</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">
-            {swt("interface.m0199")} <span className="tabular-nums">{totalAssets}</span> {swt("interface.m0223")}
-          </span>
-          {selected.size > 0 && (
-            <Button variant="destructive" size="sm" onClick={() => openDelete(Array.from(selected) as number[])}>
-              <Trash2Icon className="size-3.5" /> {swt("interface.m0224")}
-              {selected.size})
+      <PageHeader
+        title={swt("interface.m0222")}
+        actions={
+          <>
+            <span className="text-sm text-muted-foreground">
+              {swt("interface.m0199")} <span className="tabular-nums">{totalAssets}</span> {swt("interface.m0223")}
+            </span>
+            {selected.size > 0 && (
+              <Button variant="destructive" size="sm" onClick={() => openDelete(Array.from(selected) as number[])}>
+                <Trash2Icon className="size-3.5" /> {swt("interface.m0224")}
+                {selected.size})
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
+              <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} /> {swt("interface.m0225")}
             </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
-            <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} /> {swt("interface.m0225")}
-          </Button>
-          <CompanyDialog onSaved={refresh} />
-        </div>
-      </div>
+            <CompanyDialog onSaved={refresh} />
+          </>
+        }
+      />
 
       <Tabs value={tab} onValueChange={setTab} className="flex min-h-0 flex-1 flex-col gap-4">
         <div className="overflow-x-auto overflow-y-hidden">
@@ -394,7 +395,7 @@ export default function AssetsPage() {
 
         {/* Companies. */}
         <TabsContent value="company" className="mt-0 flex min-h-0 flex-1 flex-col">
-          <Card className="flex min-h-0 flex-1 flex-col overflow-hidden py-0">
+          <Card className="flex min-h-0 flex-initial flex-col overflow-hidden py-0">
             <div className="min-h-0 flex-1 overflow-auto">
               <Table>
                 <TableHeader className="sticky top-0 z-10 bg-card">
@@ -914,7 +915,7 @@ function AssetCard({
   const someSelected = selected != null && pageIds.some((id) => selected.has(id));
 
   return (
-    <Card className="flex min-h-0 flex-1 flex-col overflow-hidden py-0">
+    <Card className="flex min-h-0 flex-initial flex-col overflow-hidden py-0">
       <div className="min-h-0 flex-1 overflow-auto scrollbar-thin scrollbar-track-transparent">
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-card">

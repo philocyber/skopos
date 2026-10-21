@@ -146,7 +146,7 @@ export function FindingsTable({
 
   return (
     /* Fixed column widths keep expanded content within the table; narrow screens scroll inside it. */
-    <Table className="min-w-[60rem] table-fixed">
+    <Table className="min-w-[56rem] table-fixed">
       <TableHeader>
         <TableRow>
           <TableHead className="w-8">
@@ -159,7 +159,7 @@ export function FindingsTable({
           <TableHead className="w-8" />
           <TableHead className="w-20">{swt("interface.m0321")}</TableHead>
           <TableHead>{swt("interface.m0322")}</TableHead>
-          <TableHead className="w-32">{swt("interface.m0222")}</TableHead>
+          <TableHead className="w-28">{swt("interface.m0222")}</TableHead>
           <TableHead className="w-36">{swt("interface.m0191")}</TableHead>
           <TableHead className="w-32">{swt("interface.m0323")}</TableHead>
           <TableHead className="w-28">{swt("interface.m0291")}</TableHead>

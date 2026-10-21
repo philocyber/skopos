@@ -887,7 +887,7 @@ export function ApprovalRecords({ taskId }: { taskId?: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <ClipboardListIcon className="size-5 text-muted-foreground" />
-          <h1 className="font-semibold text-xl">{title}</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
           {pending.length ? (
             <Badge variant="secondary">
               {pending.length} {swt("interface.m2049")}

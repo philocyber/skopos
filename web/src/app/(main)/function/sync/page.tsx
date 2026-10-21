@@ -57,7 +57,7 @@ export default function AssetSyncPage() {
   return (
     <div className="p-4 md:p-6">
       <div className="mb-4">
-        <h1 className="font-semibold text-xl">{swt("interface.m0445")}</h1>
+        <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m0445")}</h1>
         <p className="text-muted-foreground text-sm">{swt("interface.m0446")}</p>
       </div>
       <Tabs defaultValue="scopesentry">

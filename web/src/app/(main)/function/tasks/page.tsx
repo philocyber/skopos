@@ -1035,7 +1035,7 @@ export default function TasksPage() {
                       />
                       <TableHead>{swt("interface.m0868")}</TableHead>
                       <TableHead>{swt("interface.m0605")}</TableHead>
-                      <TableHead>{swt("interface.m0523")}</TableHead>
+                      <TableHead className="hidden min-[1440px]:table-cell">{swt("interface.m0523")}</TableHead>
                       <SortableTaskHead
                         field="status"
                         label={swt("interface.m0191")}
@@ -1311,7 +1311,7 @@ const TaskRow = React.memo(function TaskRow({
           )}
         </div>
       </TableCell>
-      <TableCell className="text-muted-foreground max-w-32">
+      <TableCell className="max-w-24 text-muted-foreground min-[1440px]:max-w-32">
         <Link
           href={`/function/tasks/detail?id=${encodeURIComponent(task.id)}`}
           className="block truncate rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -1320,7 +1320,7 @@ const TaskRow = React.memo(function TaskRow({
           {task.description}
         </Link>
       </TableCell>
-      <TableCell className="text-muted-foreground max-w-32 truncate" title={task.goal}>
+      <TableCell className="hidden max-w-32 truncate text-muted-foreground min-[1440px]:table-cell" title={task.goal}>
         {task.goal}
       </TableCell>
       <TableCell>

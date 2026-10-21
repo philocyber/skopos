@@ -25,6 +25,7 @@ import { toast } from "sonner";
 
 import { ApprovalExecutionFocus, useApprovalFocus, useApprovalHistory } from "@/components/approval-execution-focus";
 import { MentionTextarea } from "@/components/mention-textarea";
+import { PageHeader } from "@/components/page-header";
 import { SideQuestionButton, SideQuestionWorkspace } from "@/components/side-question-workspace";
 import { TaskContextPanel } from "@/components/task-context-panel";
 import { TodoPopover } from "@/components/todo-popover";
@@ -1129,13 +1130,15 @@ export default function ChatPage() {
   const [profiles, setProfiles] = React.useState<LLMProfile[]>([]);
   const [convs, setConvs] = React.useState<Conversation[]>([]);
   const [historyOpen, setHistoryOpen] = React.useState(false);
-  const [contextOpen, setContextOpen] = React.useState(true);
+  // Closed until a task exists: with nothing selected the panel only shows an empty prompt.
+  const [contextOpen, setContextOpen] = React.useState(false);
   const [createdTask, setCreatedTask] = React.useState<{ conversationId: number; id: string } | null>(null);
   const [agentFilter, setAgentFilter] = React.useState<string | null>(null);
   const [selectedId, setSelectedId] = React.useState<number | null>(null);
   const handleTaskCreated = React.useCallback(
     (id: string) => {
       if (selectedId === null) return;
+      setContextOpen(true);
       setCreatedTask((current) =>
         current?.id === id && current.conversationId === selectedId ? current : { conversationId: selectedId, id },
       );
@@ -1465,40 +1468,41 @@ export default function ChatPage() {
     <div
       data-content-padding="false"
       data-design-direction="owner-approved-chat-auto-task-context"
-      className="flex h-[calc(100dvh-3.5rem)] min-h-0 min-w-0 flex-col gap-3 overflow-hidden p-4"
+      className="flex h-[calc(100dvh-3.5rem)] min-h-0 min-w-0 flex-col gap-4 overflow-hidden p-4 md:p-6"
     >
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 className="text-base font-semibold">Chat</h1>
-          <p className="text-xs text-muted-foreground">Natural-language planning, Auto and your task workspace.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant={historyOpen ? "secondary" : "outline"}
-            aria-expanded={historyOpen}
-            aria-controls="chat-history"
-            onClick={() => {
-              setHistoryOpen((open) => !open);
-              setContextOpen(false);
-            }}
-          >
-            <HistoryIcon /> History <span className="text-muted-foreground tabular-nums">{convs.length}</span>
-          </Button>
-          <Button
-            size="sm"
-            variant={contextOpen ? "secondary" : "outline"}
-            aria-expanded={contextOpen}
-            aria-controls="chat-task-panel"
-            onClick={() => {
-              setContextOpen((open) => !open);
-              setHistoryOpen(false);
-            }}
-          >
-            <PanelRightIcon /> Task context
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        className="shrink-0"
+        title="Chat"
+        description="Natural-language planning, Auto and your task workspace."
+        actions={
+          <>
+            <Button
+              size="sm"
+              variant={historyOpen ? "secondary" : "outline"}
+              aria-expanded={historyOpen}
+              aria-controls="chat-history"
+              onClick={() => {
+                setHistoryOpen((open) => !open);
+                setContextOpen(false);
+              }}
+            >
+              <HistoryIcon /> History <span className="text-muted-foreground tabular-nums">{convs.length}</span>
+            </Button>
+            <Button
+              size="sm"
+              variant={contextOpen ? "secondary" : "outline"}
+              aria-expanded={contextOpen}
+              aria-controls="chat-task-panel"
+              onClick={() => {
+                setContextOpen((open) => !open);
+                setHistoryOpen(false);
+              }}
+            >
+              <PanelRightIcon /> Task context
+            </Button>
+          </>
+        }
+      />
       <div
         className={cn(
           "console-chat-grid grid min-h-0 min-w-0 flex-1 gap-4",

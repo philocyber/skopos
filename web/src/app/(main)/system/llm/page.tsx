@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -961,25 +962,25 @@ export default function LLMPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="font-semibold text-xl tracking-tight">LLM</h1>
-          <p className="text-muted-foreground text-sm">{swt("interface.m1423")}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => setPoolOpen(true)}>
-            <ZapIcon /> {swt("interface.m1424")}{" "}
-            {poolOn && (
-              <Badge variant="outline" className="ml-1 border-emerald-500/50 text-emerald-600 dark:text-emerald-400">
-                {swt("interface.m1425")}
-              </Badge>
-            )}
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => openEditor(null)}>
-            <PlusIcon /> {swt("interface.m0728")}
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="LLM"
+        description={swt("interface.m1423")}
+        actions={
+          <>
+            <Button size="sm" variant="outline" onClick={() => setPoolOpen(true)}>
+              <ZapIcon /> {swt("interface.m1424")}{" "}
+              {poolOn && (
+                <Badge variant="outline" className="ml-1 border-emerald-500/50 text-emerald-600 dark:text-emerald-400">
+                  {swt("interface.m1425")}
+                </Badge>
+              )}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => openEditor(null)}>
+              <PlusIcon /> {swt("interface.m0728")}
+            </Button>
+          </>
+        }
+      />
 
       <Tabs defaultValue="profiles" className="flex-1">
         <TabsList>
@@ -1091,10 +1092,19 @@ export default function LLMPage() {
                 </Card>
               );
             })}
-            {profiles.length === 0 && (
+            {profiles.length === 0 ? (
               <div className="col-span-full rounded-lg border border-dashed p-10 text-center text-muted-foreground text-sm">
                 {swt("interface.m1433")}
               </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openEditor(null)}
+                className="flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-muted-foreground text-sm outline-none transition-colors hover:border-foreground/30 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <PlusIcon className="size-5" />
+                {swt("english.e213")}
+              </button>
             )}
           </div>
         </TabsContent>

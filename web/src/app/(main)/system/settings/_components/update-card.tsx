@@ -217,9 +217,11 @@ export function UpdateCard() {
           </Badge>
           {info && (
             <>
-              <Badge variant="outline" className="font-mono">
-                {info.os}/{info.arch}
-              </Badge>
+              {info.os && info.arch && (
+                <Badge variant="outline" className="font-mono">
+                  {info.os}/{info.arch}
+                </Badge>
+              )}
               <Badge variant="outline">{info.mode === "docker" ? "Docker" : swt("interface.m1606")}</Badge>
             </>
           )}
