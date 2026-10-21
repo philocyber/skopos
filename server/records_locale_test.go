@@ -25,7 +25,7 @@ func TestRecordsMentionProtocolAndLocalizedErrors(t *testing.T) {
 	if got := locale.ErrorMessage(locale.En, missing); !strings.Contains(got, "Finding #42") {
 		t.Fatalf("nested record label=%q", got)
 	}
-	raw := "Untouched user text 원본 100%"
+	raw := "Untouched user text café 100%"
 	if got, err := composeChatMentionMessageForLanguage(nil, raw, locale.En); err != nil || got != raw {
 		t.Fatalf("plain user message changed: %q %v", got, err)
 	}
@@ -55,7 +55,7 @@ func TestRecordsGoalConstraintValidationLanguages(t *testing.T) {
 }
 
 func TestRecordsZipErrorsLocalizeWithoutChangingNames(t *testing.T) {
-	name := "custom 100% 원본/SKILL.md"
+	name := "custom 100% café/SKILL.md"
 	err := checkSkillZipMethods([]skillZipEntry{{f: &zip.File{FileHeader: zip.FileHeader{Method: zipMethodDeflate64}}, name: name}})
 	if err == nil {
 		t.Fatal("unsupported method accepted")

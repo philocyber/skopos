@@ -56,7 +56,7 @@ func TestTaskTrancheLocalizedBatchAndRequestErrors(t *testing.T) {
 
 func TestTaskTrancheResolutionPreservesProfileData(t *testing.T) {
 	s := &Server{}
-	p := &db.LLMProfile{ID: 7, Name: "Raw profile 원본", Format: "openai", Model: "user-model"}
+	p := &db.LLMProfile{ID: 7, Name: "Raw profile café", Format: "openai", Model: "user-model"}
 	got := s.resolutionFromProfileForLanguage(p, "agent_binding", locale.En)
 	if got.Name != p.Name || got.Model != p.Model || got.Source != "agent_binding" || got.ProfileID == nil || *got.ProfileID != p.ID || got.Available {
 		t.Fatalf("profile data changed: %+v", got)
@@ -67,14 +67,14 @@ func TestTaskTrancheResolutionPreservesProfileData(t *testing.T) {
 }
 
 func TestTaskTrancheArchiveErrorsPreserveCauses(t *testing.T) {
-	cause := errors.New("driver-owned detail / 원본")
-	err := locale.Errorf("stage task archive path %s: %w", "user/path 원본", cause)
+	cause := errors.New("driver-owned detail / café")
+	err := locale.Errorf("stage task archive path %s: %w", "user/path café", cause)
 	joined := errors.Join(err, locale.NewError("task archive checksum mismatch"))
 	if !errors.Is(joined, cause) {
 		t.Fatal("lost wrapped error identity")
 	}
 	en := locale.ErrorMessage(locale.En, joined)
-	for _, part := range []string{"stage task archive path", "user/path 원본", cause.Error(), "checksum mismatch"} {
+	for _, part := range []string{"stage task archive path", "user/path café", cause.Error(), "checksum mismatch"} {
 		if !strings.Contains(en, part) {
 			t.Fatalf("missing %q in %q", part, en)
 		}
