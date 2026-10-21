@@ -395,7 +395,7 @@ func TestFindingTrafficFailedReportDoesNotTrigger(t *testing.T) {
 func TestFindingTrafficUTF8SegmentsAndInheritedWrites(t *testing.T) {
 	s, f, req := trafficEvidenceServer(t)
 	ctx := context.Background()
-	text := strings.Repeat("中文证据🙂", 2000)
+	text := strings.Repeat("café evidence🙂", 2000)
 	seedServerEvidenceFlow(t, s, "unicode", []byte(text))
 	list, err := s.evidenceStore().Bind(ctx, f.FindingID, []db.TrafficRef{{TrafficID: "unicode"}})
 	if err != nil {
@@ -459,7 +459,7 @@ func TestFindingTrafficUTF8SegmentsAndInheritedWrites(t *testing.T) {
 	if _, err = s.m.traffic.DeleteHost("evidence.local"); err != nil {
 		t.Fatal(err)
 	}
-	result, err := s.toolUpdateFindingReport().Call(ctx, json.RawMessage(fmt.Sprintf(`{"finding_id":%d,"evidence_version":1,"report":"## 证据报告\n\n证据 #%d：已验证完整请求响应"}`, f.NodeID, list.Bindings[0].ID)), nil)
+	result, err := s.toolUpdateFindingReport().Call(ctx, json.RawMessage(fmt.Sprintf(`{"finding_id":%d,"evidence_version":1,"report":"## Evidence report\n\nEvidence #%d: fully verified request/response"}`, f.NodeID, list.Bindings[0].ID)), nil)
 	if err != nil || result.IsError {
 		t.Fatal(result, err)
 	}
@@ -557,8 +557,8 @@ func TestFindingLocalizedEvidencePreservesRawBytes(t *testing.T) {
 			}
 		}
 	}
-	bad := req("GET", fmt.Sprintf("/api/exploration/findings/%d/traffic/%d/body?side=response&offset=-1&lang=ko", f.FindingID, list.Bindings[0].ID), "")
-	if bad.Code != 422 || !strings.Contains(bad.Body.String(), "음수일 수 없습니다") {
+	bad := req("GET", fmt.Sprintf("/api/exploration/findings/%d/traffic/%d/body?side=response&offset=-1&lang=en", f.FindingID, list.Bindings[0].ID), "")
+	if bad.Code != 422 || !strings.Contains(bad.Body.String(), "must not be negative") {
 		t.Fatalf("Localized preview validation: %d %s", bad.Code, bad.Body)
 	}
 }

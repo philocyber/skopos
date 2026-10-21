@@ -12,7 +12,7 @@ func TestPowerShellCommandTemplateRoundTrip(t *testing.T) {
 		t.Skip("requires PowerShell")
 	}
 	for _, template := range []string{`Write-Output {value}`, `Write-Output '{value}'`, `Write-Output "{value}"`} {
-		for _, value := range []string{`normal`, `a'b"c;$HOME $(Write-Output INJECTED) ` + "`data", "line one\nline two", `한글 ñ ‘ ’ “ ” {second}`} {
+		for _, value := range []string{`normal`, `a'b"c;$HOME $(Write-Output INJECTED) ` + "`data", "line one\nline two", `café ñ ‘ ’ “ ” {second}`} {
 			got, err := renderPowerShellCommandTemplate(template, map[string]any{"value": value, "second": "changed"})
 			if err != nil {
 				t.Fatal(err)

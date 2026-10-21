@@ -1,7 +1,5 @@
 # Skopos agent adapter
 
-[한국어](../../docs/ko/agent-adapter.md)
-
 Connect Claude Code and Codex through a local stdio MCP server, or Pi through its native extension interface. All three use the same validated tools and authenticated Skopos HTTP API. This adapter lets your coding agent control Skopos; it does not replace Skopos's own planner/workers or turn a coding-agent subscription into a model API key.
 
 ## Setup

@@ -175,8 +175,8 @@ func TestAuthLoginPasswordByteBoundary(t *testing.T) {
 	}{
 		{"72 ASCII bytes", strings.Repeat("a", 72), http.StatusUnauthorized},
 		{"73 ASCII bytes", strings.Repeat("a", 73), http.StatusBadRequest},
-		{"72 UTF-8 bytes", strings.Repeat("한", 24), http.StatusUnauthorized},
-		{"75 UTF-8 bytes", strings.Repeat("한", 25), http.StatusBadRequest},
+		{"72 UTF-8 bytes", strings.Repeat("€", 24), http.StatusUnauthorized},
+		{"75 UTF-8 bytes", strings.Repeat("€", 25), http.StatusBadRequest},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			body, err := json.Marshal(map[string]string{"username": "wrong user", "password": tc.password})

@@ -24,7 +24,7 @@ func TestCommandTemplateQuoteContextsRoundTrip(t *testing.T) {
 		t.Skip("requires actual Bash")
 	}
 	for _, template := range []string{`printf '%s' {value}`, `printf '%s' '{value}'`, `printf '%s' "{value}"`, `printf '%s' $'{value}'`, `printf '%s' "$(printf '%s' {value})"`} {
-		for _, value := range []string{`normal`, `a'b"c\d;$HOME $(printf INJECTED) ` + "`printf INJECTED`", "line one\nline two", `{second}`, `Unicode 한글 ñ`} {
+		for _, value := range []string{`normal`, `a'b"c\d;$HOME $(printf INJECTED) ` + "`printf INJECTED`", "line one\nline two", `{second}`, `Unicode café ñ`} {
 			got, err := renderBashCommandTemplate(template, map[string]any{"value": value, "second": "changed"})
 			if err != nil {
 				t.Fatal(err)
@@ -75,7 +75,7 @@ func TestCommandTemplateNativeExternalArguments(t *testing.T) {
 		application = "& " + quotePowerShellLiteral(python)
 	}
 	for _, quote := range []string{"", "'", `"`} {
-		for n, value := range []string{`a'b"c $HOME; $(printf INJECTED)`, "", "a b", `path space\`, `a\"b c`, `a""b`, "line one\nline two", `한글 ñ ‘ ’ “ ” {second}`} {
+		for n, value := range []string{`a'b"c $HOME; $(printf INJECTED)`, "", "a b", `path space\`, `a\"b c`, `a""b`, "line one\nline two", `café ñ ‘ ’ “ ” {second}`} {
 			t.Run(quote+"/"+fmt.Sprint(n), func(t *testing.T) {
 				program := application + ` -c 'import sys,json;print(json.dumps(sys.argv[1:]))' ` + quote + "{value}" + quote + " " + quote + "pre{value}{second}post" + quote
 				spec, _ := json.Marshal(map[string]string{"command": program})
@@ -129,7 +129,7 @@ func TestCommandTemplateNativeRuntimeExpansion(t *testing.T) {
 	prefix := `pre\" quote `
 	suffix := ` suffix\`
 	for _, expression := range []string{`${env:SWT}`, `${prefix}`, `$(++$global:SWExpansionCount; Write-Output $prefix)`} {
-		for n, value := range []string{`a'b"c $HOME; $(printf INJECTED)`, "", "a b", `path space\`, `a\"b c`, `a""b`, "line one\nline two", `한글 ñ ‘ ’ “ ” {second}`} {
+		for n, value := range []string{`a'b"c $HOME; $(printf INJECTED)`, "", "a b", `path space\`, `a\"b c`, `a""b`, "line one\nline two", `café ñ ‘ ’ “ ” {second}`} {
 			t.Run(expression+"/"+fmt.Sprint(n), func(t *testing.T) {
 				program := `$prefix=$env:SWT; $global:SWExpansionCount=0; & ` + quotePowerShellLiteral(python) + ` -c 'import sys,json;print(json.dumps(sys.argv[1:]))' "` + expression + `{value}${env:SWSuffix}"; Write-Output $global:SWExpansionCount`
 				spec, _ := json.Marshal(map[string]string{"command": program})
@@ -181,7 +181,7 @@ func TestCommandTemplateNativeAliasBecomesApplication(t *testing.T) {
 	}
 	for _, name := range []string{"Write-Output", "sw-native-fixture"} {
 		for _, argument := range []string{`{value}`, `'{value}'`, `"${env:SWT}{value}"`} {
-			for _, value := range []string{`a\"b c`, "", `한글 ñ $HOME; $(Write-Output INJECTED)`} {
+			for _, value := range []string{`a\"b c`, "", `café ñ $HOME; $(Write-Output INJECTED)`} {
 				program := "Set-Alias -Force -Name " + quotePowerShellLiteral(name) + " -Value " + quotePowerShellLiteral(python) + "; " + name + ` -c 'import sys,json;print(json.dumps(sys.argv[1:]))' ` + argument
 				spec, _ := json.Marshal(map[string]string{"command": program})
 				result, err := (&Server{}).runCommandTool(context.Background(), spec, map[string]any{"value": value}, &actool.ToolContext{Env: []string{"SWT=prefix"}})
@@ -227,10 +227,10 @@ func TestCommandTemplateNativeNestedParameters(t *testing.T) {
 	}
 	for en, expression := range []string{`$('pre{prefix}')`, `$(Write-Output 'pre{prefix}')`, `$(++$global:SWNestedCount; Write-Output 'pre{prefix}')`, `$(& ` + quotePowerShellLiteral(python) + ` -c 'import sys;print(sys.argv[1])' 'pre{prefix}')`} {
 		for tn, trailing := range []string{"{value}", ""} {
-			for vn, value := range []string{`a\"b c`, "", `한글 ñ ' $HOME; $(Write-Output INJECTED)`} {
+			for vn, value := range []string{`a\"b c`, "", `café ñ ' $HOME; $(Write-Output INJECTED)`} {
 				t.Run(fmt.Sprintf("%d/%d/%d", en, tn, vn), func(t *testing.T) {
 					prefix := `x'"\$HOME $(Write-Output INJECTED)`
-					program := `$global:SWNestedCount=0; $unused='한글 😀'; & ` + quotePowerShellLiteral(python) + ` -c 'import sys,json;print(json.dumps(sys.argv[1:]))' "` + expression + trailing + `"; Write-Output $global:SWNestedCount`
+					program := `$global:SWNestedCount=0; $unused='café 😀'; & ` + quotePowerShellLiteral(python) + ` -c 'import sys,json;print(json.dumps(sys.argv[1:]))' "` + expression + trailing + `"; Write-Output $global:SWNestedCount`
 					spec, _ := json.Marshal(map[string]string{"command": program})
 					result, err := (&Server{}).runCommandTool(context.Background(), spec, map[string]any{"value": value, "prefix": prefix}, nil)
 					lines := strings.Split(strings.TrimSpace(result.Flatten()), "\n")
@@ -262,7 +262,7 @@ func TestCommandTemplateParameterizedExecutable(t *testing.T) {
 	}
 	for _, head := range []string{`& {exe}`, `& '{exe}'`} {
 		for _, argument := range []string{`'{value}'`, `"${env:SWT}{value}"`} {
-			for _, value := range []string{`a\"b c`, "", `한글 ñ $HOME; $(Write-Output INJECTED) {exe}`} {
+			for _, value := range []string{`a\"b c`, "", `café ñ $HOME; $(Write-Output INJECTED) {exe}`} {
 				program := head + ` -c 'import sys,json;print(json.dumps(sys.argv[1:]))' ` + argument
 				spec, _ := json.Marshal(map[string]string{"command": program})
 				result, err := (&Server{}).runCommandTool(context.Background(), spec, map[string]any{"exe": python, "value": value}, &actool.ToolContext{Env: []string{"SWT=prefix"}})
@@ -300,7 +300,7 @@ func TestCommandTemplateDynamicExecutable(t *testing.T) {
 	// deliberately rejects substitution when exe is supplied as parameter data.
 	for hn, head := range []string{`$application`, `$holder.executable`, `$(++$global:SWExecutableCount; Write-Output $application)`, `"${application}"`, `$info`, `('{exe}')`, `"$(++$global:SWExecutableCount | Out-Null){exe}"`} {
 		for an, argument := range []string{`'{value}'`, `"$($application='Write-Output'; ++$global:SWArgumentCount | Out-Null){value}"`} {
-			for vn, value := range []string{`a\"b c`, "", `한글 ñ $HOME; $(Write-Output INJECTED)`} {
+			for vn, value := range []string{`a\"b c`, "", `café ñ $HOME; $(Write-Output INJECTED)`} {
 				t.Run(fmt.Sprintf("%d/%d/%d", hn, an, vn), func(t *testing.T) {
 					program := `$global:SWExecutableCount=0; $global:SWArgumentCount=0; $application=` + quotePowerShellLiteral(python) + `; $holder=@{executable=$application}; $info=Get-Command -Name $application; & ` + head + ` -c 'import sys,json;print(json.dumps(sys.argv[1:]))' ` + argument + `; Write-Output $global:SWExecutableCount; Write-Output $global:SWArgumentCount`
 					spec, _ := json.Marshal(map[string]string{"command": program})
