@@ -85,10 +85,10 @@ export const sidebarItems: NavGroup[] = [
     get label() { return swt("interface.m1848"); },
     items: [
       { id: "llm", title: "LLM", url: "/system/llm", icon: Brain },
-      { id: "agents", get title() { return swt("english.e082"); }, url: "/system/agents", icon: Bot },
+      { id: "agents", get title() { return swt("english.e194"); }, url: "/system/agents", icon: Bot },
       { id: "mcp", title: "MCP", url: "/system/mcp", icon: Plug },
-      { id: "skills", get title() { return swt("english.e084"); }, url: "/system/skills", icon: Sparkles },
-      { id: "tools", get title() { return swt("interface.m0292"); }, url: "/system/tools", icon: Wrench },
+      { id: "skills", get title() { return swt("english.e195"); }, url: "/system/skills", icon: Sparkles },
+      { id: "tools", get title() { return swt("english.e196"); }, url: "/system/tools", icon: Wrench },
       { id: "notify", get title() { return swt("interface.m1541"); }, url: "/system/notify", icon: BellRing },
       { id: "intercept", get title() { return swt("interface.m1239"); }, url: "/system/intercept", icon: ShieldAlert },
       { id: "asset-intercept", get title() { return swt("interface.m1166"); }, url: "/system/intercept/assets", icon: Ban },

@@ -126,7 +126,7 @@ export const DOC_SECTIONS: DocSection[] = [
         type: "callout",
         tone: "info",
         title: "How to read this",
-        text: "These are selection criteria and starting points, not benchmark results. Provider catalogs change quickly; verify availability, pricing and limits with your provider, and compare on your own tasks using the LLM recordings page.",
+        text: "Recommendations follow from how Skopos works (long tool-using loops, a rarely-waking planner, many parallel workers). They are starting points rather than benchmark results: confirm availability, pricing and limits with your provider, and compare models on your own tasks using the LLM recordings page.",
       },
       {
         type: "p",
@@ -174,22 +174,68 @@ export const DOC_SECTIONS: DocSection[] = [
           [
             "Planner",
             "Reasoning depth and judgment about what is still uncovered. Runs rarely, so cost per call matters least.",
-            "Your strongest reasoning model, effort high or above.",
+            "claude-fable-5-1 or claude-opus-5-5 at effort high or above.",
           ],
           [
             "Worker",
             "Tool-calling reliability and throughput. Runs most often and in parallel.",
-            "A strong, fast tool-using model at medium effort. Raise it only if workers stall.",
+            "claude-sonnet-5-5 at medium effort, or glm-5.3 as a lower-cost alternative. Raise effort only if workers stall.",
           ],
           [
             "Main agent (Chat)",
             "Instruction following and clear explanations for you.",
-            "The same model as the planner, or one tier below.",
+            "The planner's model, or claude-sonnet-5-5.",
           ],
           [
             "Interception fallback judge",
             "Low latency and conservative decisions. It cannot authorize the unmatched-command fallback; humans decide that.",
-            "A small, fast model at low effort.",
+            "claude-haiku-5-5 at low effort.",
+          ],
+        ],
+      },
+      {
+        type: "p",
+        text: "Recommended models and how to configure them.",
+      },
+      {
+        type: "table",
+        head: ["Model", "Format", "Best for", "Configuration notes"],
+        rows: [
+          [
+            "claude-fable-5-1",
+            "anthropic",
+            "Planner, hardest tasks",
+            "Strongest option for planning. Use high effort; expect higher cost per call, which is acceptable because the planner wakes rarely.",
+          ],
+          [
+            "claude-opus-5-5",
+            "anthropic",
+            "Planner, main agent",
+            "Strong reasoning at lower cost than the top tier. A good default for both the planner and Chat.",
+          ],
+          [
+            "claude-sonnet-5-5",
+            "anthropic",
+            "Workers, main agent",
+            "Best balance of tool-calling reliability, speed and cost for the many parallel workers.",
+          ],
+          [
+            "claude-haiku-5-5",
+            "anthropic",
+            "Interception judge, light agents",
+            "Fast and cheap. Use at low effort for short, conservative decisions; avoid it for planning.",
+          ],
+          [
+            "glm-5.3",
+            "openai",
+            "Workers, cost-sensitive runs",
+            "Built-in template (LLM, then New). Text-only, 1M-token context, reasoning must stay on; effort low, high or max. Use the General API endpoint.",
+          ],
+          [
+            "GPT-5 class",
+            "openai-responses or openai",
+            "Planner or workers",
+            "Set the output-limit field to max_completion_tokens when using the openai format. Check your account's model access first.",
           ],
         ],
       },

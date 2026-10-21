@@ -109,5 +109,8 @@ export const en = {
   "e190": "Soft Pop",
   "e191": "Tangerine",
   "e192": "Documentation",
-  "e193": "Docs"
+  "e193": "Docs",
+  "e194": "Agents",
+  "e195": "Skills",
+  "e196": "Tools"
 };
