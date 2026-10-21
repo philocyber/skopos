@@ -187,8 +187,7 @@ export const en = {
   m0167: "LLM token usage",
   m0168: "Historical",
   m0169: "Exact",
-  m0170:
-    "Exact: per-call metering from llm_usage, including interrupted calls; only covers data since it was enabled",
+  m0170: "Exact: per-call metering from llm_usage, including interrupted calls; only covers data since it was enabled",
   m0171:
     "Historical: activity statistics including historical tasks; excludes interrupted calls and cannot identify models precisely",
   m0172: "All",

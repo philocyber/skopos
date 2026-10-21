@@ -364,8 +364,7 @@ export default function AssetsPage() {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">
-            {swt("interface.m0199")}{" "}
-            <span className="tabular-nums">{totalAssets}</span> {swt("interface.m0223")}
+            {swt("interface.m0199")} <span className="tabular-nums">{totalAssets}</span> {swt("interface.m0223")}
           </span>
           {selected.size > 0 && (
             <Button variant="destructive" size="sm" onClick={() => openDelete(Array.from(selected) as number[])}>

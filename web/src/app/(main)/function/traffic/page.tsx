@@ -365,8 +365,8 @@ export default function TrafficPage() {
           </span>
           {traffic?.proxy && <span className="font-mono text-xs text-muted-foreground">{traffic.proxy}</span>}
           <span className="text-xs text-muted-foreground">
-            {swt("interface.m0199")}{" "}
-            <span className="tabular-nums">{traffic?.count ?? 0}</span> {swt("interface.m0328")}
+            {swt("interface.m0199")} <span className="tabular-nums">{traffic?.count ?? 0}</span>{" "}
+            {swt("interface.m0328")}
           </span>
         </div>
       </div>
