@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -166,7 +167,8 @@ export default function WorkspacePage() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Header breadcrumbs and actions. */}
+      <PageHeader title={swt("interface.m1113")} description={swt("english.e217")} />
+      {/* Path breadcrumbs and actions. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-1 text-sm">
           <HardDriveIcon className="text-muted-foreground mr-1 size-4 shrink-0" />

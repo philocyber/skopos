@@ -5,6 +5,7 @@ import * as React from "react";
 import { BotIcon, ListFilterIcon, PencilIcon, PlusIcon, ShieldAlertIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
+import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -542,15 +543,8 @@ export default function InterceptPage() {
   // ---- render ----
 
   return (
-    <div className="flex flex-1 flex-col gap-5 p-6">
-      {/* ---- header ---- */}
-      <div className="flex items-center gap-2.5">
-        <ShieldAlertIcon className="h-5 w-5 shrink-0" />
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m1235")}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{swt("interface.m1236")}</p>
-        </div>
-      </div>
+    <div className="flex flex-1 flex-col gap-5">
+      <PageHeader title={swt("interface.m1235")} description={swt("interface.m1236")} />
 
       {/* Shared interception-scope strip: neither rules nor model fallback process out-of-scope tools. */}
       <div

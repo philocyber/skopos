@@ -13,6 +13,7 @@ import {
   XIcon,
 } from "lucide-react";
 
+import { PageHeader } from "@/components/page-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -282,13 +283,14 @@ export default function LLMRecordsPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <RadioIcon className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m0426")}</h1>
-          <Badge variant="secondary">{total}</Badge>
-        </div>
-      </div>
+      <PageHeader
+        title={
+          <span className="flex items-center gap-2">
+            {swt("interface.m0426")}
+            <Badge variant="secondary">{total}</Badge>
+          </span>
+        }
+      />
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">

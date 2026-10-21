@@ -15,6 +15,12 @@ export const en = {
   officialPolicy: "Coding Plan usage policy",
   claudeGroup: "Anthropic Claude",
   zaiGroup: "Z.ai GLM",
+  openaiGroup: "OpenAI",
+  openaiSol: "GPT-6.1 Sol · planner or workers",
+  openaiLuna: "GPT-6 Luna · workers, light agents and the interception judge",
+  openaiHelp:
+    "Uses the Responses API, which Skopos needs here: GPT-6.1 Sol does not support function calling on Chat Completions. Base URL stays empty for the official endpoint. The window is 1.05M tokens with 128K output, so Context window is set to 922 (the input share). Effort is the documented default, medium. Add your OpenAI API key.",
+  openaiOfficial: "Model page",
   claudeFable: "Claude Fable 5.1 · planner for the hardest tasks",
   claudeOpus: "Claude Opus 5.5 · planner and main agent (recommended)",
   claudeSonnet: "Claude Sonnet 5.5 · workers",

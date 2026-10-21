@@ -590,6 +590,11 @@ function ProfileSheet({
                     <SelectItem value="claude-haiku-5-5">{swt("providers.claudeHaiku")}</SelectItem>
                   </SelectGroup>
                   <SelectGroup>
+                    <SelectLabel>{swt("providers.openaiGroup")}</SelectLabel>
+                    <SelectItem value="openai-gpt-6-1-sol">{swt("providers.openaiSol")}</SelectItem>
+                    <SelectItem value="openai-gpt-6-luna">{swt("providers.openaiLuna")}</SelectItem>
+                  </SelectGroup>
+                  <SelectGroup>
                     <SelectLabel>{swt("providers.zaiGroup")}</SelectLabel>
                     <SelectItem value="zai-general">{swt("providers.general")}</SelectItem>
                     <SelectItem value="zai-coding-reference">{swt("providers.coding")}</SelectItem>
@@ -608,6 +613,21 @@ function ProfileSheet({
                       rel="noreferrer"
                     >
                       {swt("providers.claudeOfficial")}
+                    </a>
+                  </div>
+                </>
+              )}
+              {preset?.startsWith("openai-") && (
+                <>
+                  <p className="text-xs text-muted-foreground">{swt("providers.openaiHelp")}</p>
+                  <div className="flex flex-wrap gap-3 text-xs">
+                    <a
+                      className="underline underline-offset-4"
+                      href={`https://developers.openai.com/api/docs/models/${preset === "openai-gpt-6-1-sol" ? "gpt-6.1-sol" : "gpt-6-luna"}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {swt("providers.openaiOfficial")}
                     </a>
                   </div>
                 </>

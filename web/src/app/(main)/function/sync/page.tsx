@@ -5,6 +5,7 @@ import * as React from "react";
 import { AlertCircleIcon, CheckCircle2Icon, DownloadIcon, PlugZapIcon, RefreshCwIcon, SearchIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,11 +56,8 @@ export default function AssetSyncPage() {
   const { t: swt, locale: swLocale } = useI18n();
 
   return (
-    <div className="p-4 md:p-6">
-      <div className="mb-4">
-        <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m0445")}</h1>
-        <p className="text-muted-foreground text-sm">{swt("interface.m0446")}</p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <PageHeader title={swt("interface.m0445")} description={swt("interface.m0446")} />
       <Tabs defaultValue="scopesentry">
         <TabsList>
           <TabsTrigger value="scopesentry">ScopeSentry</TabsTrigger>
