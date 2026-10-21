@@ -683,6 +683,20 @@ export default function SkillsPage() {
     );
   }
 
+  // Keyboard support shared by every tree row: Enter/Space activates, Right/Left open and close folders.
+  function rowKeys(activate: () => void, folder?: { open: boolean; toggle: () => void }) {
+    return (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.target !== e.currentTarget) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        activate();
+      } else if (folder && ((e.key === "ArrowRight" && !folder.open) || (e.key === "ArrowLeft" && folder.open))) {
+        e.preventDefault();
+        folder.toggle();
+      }
+    };
+  }
+
   // ── Recursive tree renderer ───────────────────────────────────────────────
   function renderTree(nodes: TreeNode[], skill: string, depth: number): React.ReactNode {
     // depth+1: the skill root sits at 8px (px-2); its children indent one step
@@ -695,9 +709,13 @@ export default function SkillsPage() {
         return (
           <div key={node.path}>
             <div
-              className="group relative flex cursor-pointer select-none items-center gap-1 rounded py-0.5 pr-1 text-sm hover:bg-muted"
+              role="treeitem"
+              tabIndex={0}
+              aria-expanded={open}
+              className="group relative flex cursor-pointer select-none items-center gap-1 rounded py-0.5 pr-1 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
               style={{ paddingLeft: baseIndent }}
               onClick={() => toggleExpanded(key)}
+              onKeyDown={rowKeys(() => toggleExpanded(key), { open, toggle: () => toggleExpanded(key) })}
             >
               <ChevronRightIcon className={cn("size-3.5 shrink-0 transition-transform", open && "rotate-90")} />
               {open ? (
@@ -709,7 +727,7 @@ export default function SkillsPage() {
                 {node.name}
               </span>
               {/* Absolute so a long name can never push the actions out of view */}
-              <span className="absolute inset-y-0 right-1 hidden items-center gap-0.5 rounded bg-muted pl-1 group-hover:flex">
+              <span className="absolute inset-y-0 right-1 hidden items-center gap-0.5 rounded bg-muted pl-1 group-focus-within:flex group-hover:flex">
                 <Button
                   size="icon"
                   variant="ghost"
@@ -749,10 +767,11 @@ export default function SkillsPage() {
               </span>
             </div>
             {open && (
-              <>
+              // biome-ignore lint/a11y/useSemanticElements: ARIA tree children must be role=group, not a fieldset
+              <div role="group">
                 {renderTree(node.children, skill, depth + 1)}
                 {creating?.skill === skill && creating.inDir === node.path && inlineInputJSX(baseIndent + 14)}
-              </>
+              </div>
             )}
           </div>
         );
@@ -763,12 +782,16 @@ export default function SkillsPage() {
       return (
         <div
           key={node.path}
+          role="treeitem"
+          tabIndex={0}
+          aria-selected={isSelected}
           className={cn(
-            "group relative flex cursor-pointer select-none items-center gap-1 rounded py-0.5 pr-1 text-sm",
+            "group relative flex cursor-pointer select-none items-center gap-1 rounded py-0.5 pr-1 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isSelected ? "bg-accent text-accent-foreground" : "hover:bg-muted",
           )}
           style={{ paddingLeft: baseIndent + 16 }}
           onClick={() => setSelected({ skill, path: node.path })}
+          onKeyDown={rowKeys(() => setSelected({ skill, path: node.path }))}
         >
           <FileTextIcon className="size-3.5 shrink-0 text-muted-foreground" />
           <span className="min-w-0 flex-1 truncate font-mono text-xs" title={node.path}>
@@ -776,7 +799,7 @@ export default function SkillsPage() {
           </span>
           <span
             className={cn(
-              "absolute inset-y-0 right-1 hidden items-center rounded pl-1 group-hover:flex",
+              "absolute inset-y-0 right-1 hidden items-center rounded pl-1 group-focus-within:flex group-hover:flex",
               isSelected ? "bg-accent" : "bg-muted",
             )}
           >
@@ -804,7 +827,7 @@ export default function SkillsPage() {
     <div data-content-padding="false" className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <div className="flex items-center gap-3 border-b px-4 py-2.5 lg:px-6">
         <div className="flex flex-col gap-0.5">
-          <h1 className="text-sm font-semibold leading-tight">{swt("english.e084")}</h1>
+          <h1 className="text-sm font-semibold leading-tight">{swt("english.e195")}</h1>
           <p className="text-muted-foreground text-xs">{swt("interface.m1795")}</p>
         </div>
         {/* Requested-but-missing skills identify capability gaps to fill. */}
@@ -866,7 +889,7 @@ export default function SkillsPage() {
               content — force it to block so long names truncate instead of
               widening the rows past the sidebar. */}
           <ScrollArea className="flex-1 [&>[data-slot=scroll-area-viewport]>div]:!block">
-            <div className="p-1">
+            <div className="p-1" role="tree" aria-label={swt("english.e195")}>
               {skills.map((s) => {
                 const isOpen = expanded.has(s.name);
                 const tree = buildTree(s.files);
@@ -875,14 +898,25 @@ export default function SkillsPage() {
                   <div key={s.name}>
                     {/* Skill root node. */}
                     <div
+                      role="treeitem"
+                      tabIndex={0}
+                      aria-expanded={isOpen}
+                      aria-selected={isSkillSelected}
                       className={cn(
-                        "group relative flex cursor-pointer select-none items-center gap-1 rounded px-2 py-1 text-sm",
+                        "group relative flex cursor-pointer select-none items-center gap-1 rounded px-2 py-1 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         isSkillSelected ? "bg-accent text-accent-foreground" : "hover:bg-muted",
                       )}
                       onClick={() => {
                         toggleExpanded(s.name);
                         setSelected({ skill: s.name, path: null });
                       }}
+                      onKeyDown={rowKeys(
+                        () => {
+                          toggleExpanded(s.name);
+                          setSelected({ skill: s.name, path: null });
+                        },
+                        { open: isOpen, toggle: () => toggleExpanded(s.name) },
+                      )}
                     >
                       <ChevronRightIcon
                         className={cn("size-3.5 shrink-0 transition-transform", isOpen && "rotate-90")}
@@ -905,7 +939,7 @@ export default function SkillsPage() {
                       )}
                       <span
                         className={cn(
-                          "absolute inset-y-0 right-1 hidden items-center gap-0.5 rounded pl-1 group-hover:flex",
+                          "absolute inset-y-0 right-1 hidden items-center gap-0.5 rounded pl-1 group-focus-within:flex group-hover:flex",
                           isSkillSelected ? "bg-accent" : "bg-muted",
                         )}
                       >
@@ -950,10 +984,11 @@ export default function SkillsPage() {
 
                     {/* Expanded recursive file tree. */}
                     {isOpen && (
-                      <>
+                      // biome-ignore lint/a11y/useSemanticElements: ARIA tree children must be role=group, not a fieldset
+                      <div role="group">
                         {renderTree(tree, s.name, 0)}
                         {creating?.skill === s.name && creating.inDir === "" && inlineInputJSX(22)}
-                      </>
+                      </div>
                     )}
                   </div>
                 );
