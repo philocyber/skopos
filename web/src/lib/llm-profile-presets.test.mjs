@@ -18,6 +18,33 @@ test("GLM templates distinguish billing endpoints and use documented model setti
   }
 });
 
+test("Claude presets use the documented model IDs, 1M context and an unset thinking field", () => {
+  const expected = {
+    "claude-fable-5-1": "high",
+    "claude-opus-5-5": "medium",
+    "claude-sonnet-5-5": "high",
+    "claude-haiku-5-5": "medium",
+  };
+  for (const [id, effort] of Object.entries(expected)) {
+    const preset = getLLMProfilePreset(id);
+    assert.equal(preset.format, "anthropic");
+    assert.equal(preset.model, id, "the preset ID is the API model ID");
+    assert.equal(preset.base_url, "", "empty base URL means the official endpoint");
+    assert.equal(preset.context_window_k, 1000);
+    assert.equal(preset.reasoning_effort, effort, "effort is the documented default");
+    assert.equal(preset.thinking_type, "", "adaptive models must not get thinking enabled or disabled");
+    assert.equal(preset.max_tokens, 0);
+    assert.equal(preset.max_tokens_field, "");
+  }
+});
+
+test("presets are independent copies", () => {
+  const first = getLLMProfilePreset("claude-opus-5-5");
+  const mutable = { ...first, model: "changed" };
+  assert.equal(getLLMProfilePreset("claude-opus-5-5").model, "claude-opus-5-5");
+  assert.equal(mutable.model, "changed");
+});
+
 test("applying a template preserves entered secrets and unrelated draft preferences", () => {
   const draft = Object.freeze({
     name: "My profile",

@@ -22,7 +22,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
@@ -30,7 +38,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useI18n } from "@/i18n";
 import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
-import { applyLLMProfilePreset, type LLMProfilePresetId } from "@/lib/llm-profile-presets";
+import { applyLLMProfilePreset, LLM_PROFILE_PRESET_NAMES, type LLMProfilePresetId } from "@/lib/llm-profile-presets";
 import type { LLMPoolMember, LLMPoolStatus, LLMProfile, LLMRetryOverride } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -438,11 +446,12 @@ function ProfileSheet({
     if (!isNew) return;
     const next = applyLLMProfilePreset({ name, api_key: apiKey, proxy, session_header_key: sessionHeaderKey }, id);
     setPreset(id as LLMProfilePresetId);
+    if (!name.trim()) setName(LLM_PROFILE_PRESET_NAMES[id as LLMProfilePresetId]);
     setFormat(next.format);
     setModel(next.model);
     setBaseUrl(next.base_url);
-    setThinkingType(next.thinking_type);
-    setEffort(next.reasoning_effort);
+    setThinkingType(fromStore(next.thinking_type));
+    setEffort(fromStore(next.reasoning_effort));
     setCw(String(next.context_window_k));
     setMaxTokens(String(next.max_tokens));
     setMaxTokensField(fromStore(next.max_tokens_field));
@@ -572,12 +581,37 @@ function ProfileSheet({
                   <SelectValue placeholder={swt("providers.chooseTemplate")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="zai-general">{swt("providers.general")}</SelectItem>
-                  <SelectItem value="zai-coding-reference">{swt("providers.coding")}</SelectItem>
+                  <SelectGroup>
+                    <SelectLabel>{swt("providers.claudeGroup")}</SelectLabel>
+                    <SelectItem value="claude-opus-5-5">{swt("providers.claudeOpus")}</SelectItem>
+                    <SelectItem value="claude-fable-5-1">{swt("providers.claudeFable")}</SelectItem>
+                    <SelectItem value="claude-sonnet-5-5">{swt("providers.claudeSonnet")}</SelectItem>
+                    <SelectItem value="claude-haiku-5-5">{swt("providers.claudeHaiku")}</SelectItem>
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>{swt("providers.zaiGroup")}</SelectLabel>
+                    <SelectItem value="zai-general">{swt("providers.general")}</SelectItem>
+                    <SelectItem value="zai-coding-reference">{swt("providers.coding")}</SelectItem>
+                  </SelectGroup>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">{swt("providers.introduction")}</p>
-              {preset && (
+              {preset?.startsWith("claude-") && (
+                <>
+                  <p className="text-xs text-muted-foreground">{swt("providers.claudeHelp")}</p>
+                  <div className="flex flex-wrap gap-3 text-xs">
+                    <a
+                      className="underline underline-offset-4"
+                      href={`https://platform.claude.com/docs/en/models/${preset.replace("claude-", "")}/overview`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {swt("providers.claudeOfficial")}
+                    </a>
+                  </div>
+                </>
+              )}
+              {preset?.startsWith("zai-") && (
                 <>
                   <p
                     className={
@@ -642,7 +676,7 @@ function ProfileSheet({
               <Input
                 id="p-model"
                 className="font-mono"
-                placeholder="claude-opus-4-8"
+                placeholder="claude-opus-5-5"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
               />
@@ -687,7 +721,7 @@ function ProfileSheet({
             <Input
               id="p-base-url"
               className="font-mono"
-              placeholder="https://api.openai.com/v1"
+              placeholder={format === "anthropic" ? "https://api.anthropic.com" : "https://api.openai.com/v1"}
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
             />
@@ -755,6 +789,9 @@ function ProfileSheet({
             </div>
           </div>
           <p className="-mt-2 text-muted-foreground text-xs">{swt("interface.m1403")}</p>
+          {(Number(cw) || 0) === 0 && (
+            <p className="-mt-2 text-amber-700 text-xs dark:text-amber-400">{swt("providers.cwUnset")}</p>
+          )}
 
           <div className="grid gap-3 rounded-lg border p-3">
             <div className="flex items-center justify-between gap-4">
