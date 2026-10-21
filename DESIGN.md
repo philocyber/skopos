@@ -91,8 +91,8 @@ Up/Down/Home/End; the horizontal agent tablist uses Left/Right.
 - Skip link, landmark regions, labelled nav, visible themed focus ring (blue on
   light, light-blue on dark).
 - ARIA tabs with correct `aria-selected` / `tabindex` / `hidden`; keyboard
-  operable; copy buttons announce localised state (`Copy`/`Copied` ·
-  `복사`/`복사됨`) and degrade to manual selection without clipboard support.
+  operable; copy buttons announce state (`Copy`/`Copied`) and degrade to
+  manual selection without clipboard support.
 - Mobile nav disclosure with `aria-expanded`. Header items never shrink; a
   ≤420px step tightens spacing down to 320px. The icon-only GitHub link keeps
   its visually hidden "GitHub" text as its accessible name.

@@ -1,7 +1,5 @@
 # Skopos `/btw`
 
-[한국어](../docs/ko/sidequestion/README.md)
-
 Ordinary chat, a task's MainAgent, and Workers belonging to the current task support independent side questions. Enter `/btw question` in the main input to submit; an empty `/btw` or the side-question button opens history. Desktop uses a resizable sidebar, while mobile uses a Drawer.
 
 Answers use the agent context snapshot at submission and support streaming, follow-ups, stopping and clearing. Closing the panel, refreshing or disconnecting SSE does not cancel the model request. Stop affects only the current side question. Clear cancels it and deletes side-question history while retaining the main context snapshot.

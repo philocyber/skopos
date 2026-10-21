@@ -72,7 +72,7 @@ func TestCommandTemplatePowerShellVariableNativeArguments(t *testing.T) {
 	if python == "" {
 		t.Skip("requires explicitly selected Python")
 	}
-	for _, value := range []string{`a'b"c\d $(Write-Output SW_PS_FLOW_OUTSIDE); {other}`, "", "line one\nline two", `한글 ñ trailing space\`} {
+	for _, value := range []string{`a'b"c\d $(Write-Output SW_PS_FLOW_OUTSIDE); {other}`, "", "line one\nline two", `café ñ trailing space\`} {
 		for _, array := range []bool{false, true} {
 			program := `$data='{value}'; `
 			want := []string{value}

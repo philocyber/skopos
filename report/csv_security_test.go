@@ -42,7 +42,7 @@ func TestFindingsCSVTreatsUntrustedCellsAsText(t *testing.T) {
 }
 
 func TestFindingsCSVPreservesOrdinaryTextAndDelimiters(t *testing.T) {
-	text := "user 한국어, quoted \"text\""
+	text := "user café, quoted \"text\""
 	f := &db.DBFinding{ID: 1, Name: text, Summary: text}
 	rows, err := csv.NewReader(strings.NewReader(strings.TrimPrefix(string(FindingsCSV([]*db.DBFinding{f})), "\uFEFF"))).ReadAll()
 	if err != nil || rows[1][1] != text || rows[1][7] != text {
