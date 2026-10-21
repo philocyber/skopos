@@ -126,7 +126,7 @@ func TestCustomOperationsReviewResolvedPlansThroughSDK(t *testing.T) {
 	t.Cleanup(func() { agent.ToolResolve, agent.ToolAugment = priorResolve, priorAugment })
 	for _, kind := range []string{"command", "script", "http"} {
 		for _, action := range []string{"deny", "allow", "ask", "human_deny"} {
-			for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+			for _, lang := range []locale.Lang{locale.En} {
 				for _, deferred := range []bool{false, true} {
 					name := fmt.Sprintf("%s/%s/%s/deferred=%v", kind, action, lang, deferred)
 					t.Run(name, func(t *testing.T) {

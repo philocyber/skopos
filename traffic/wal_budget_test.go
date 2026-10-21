@@ -127,7 +127,7 @@ func TestWALAdmissionImportRollbackAndRetry(t *testing.T) {
 	count, _ := tr.Count()
 	if _, err := tr.ImportArchive(archive); !errors.Is(err, ErrWALAdmission) {
 		t.Fatalf("pinned WAL import accepted or wrong failure: %v", err)
-	} else if !strings.Contains(locale.ErrorMessage(locale.Ko, err), "스냅샷") {
+	} else if !strings.Contains(locale.ErrorMessage(locale.En, err), "snapshot") {
 		t.Fatal("WAL error not localized")
 	}
 	if n, _ := tr.Count(); n != count || tr.BlobStorageStatus().UsedBytes != 0 {
@@ -223,7 +223,7 @@ func TestWALAdmissionIncomingImportRollbackAndRetry(t *testing.T) {
 	}
 	if _, err := target.ImportArchive(archive); !errors.Is(err, ErrWALWriteEstimate) {
 		t.Fatalf("oversized import did not report its estimated write: %v", err)
-	} else if !strings.Contains(locale.ErrorMessage(locale.Ko, err), "예상") {
+	} else if !strings.Contains(locale.ErrorMessage(locale.En, err), "estimate") {
 		t.Fatal("estimated-write error not localized")
 	}
 	status, err := target.WALStorageStatus()

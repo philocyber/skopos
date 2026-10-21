@@ -539,7 +539,7 @@ func TestSideLocalizedCancellationPreservesQuestionAndSSE(t *testing.T) {
 	p, path := f.conversation(t)
 	f.checkpoint(t, p)
 	question := "Raw user question"
-	e := decodeSide(t, f.call(t, "POST", path+"?lang=ko", map[string]string{"question": question, "client_request_id": "localized-cancel"}, 202))
+	e := decodeSide(t, f.call(t, "POST", path+"?lang=en", map[string]string{"question": question, "client_request_id": "localized-cancel"}, 202))
 	select {
 	case <-f.provider.started:
 	case <-time.After(time.Second):
@@ -547,7 +547,7 @@ func TestSideLocalizedCancellationPreservesQuestionAndSSE(t *testing.T) {
 	}
 	f.call(t, "POST", "/api/side-questions/"+e.ID+"/cancel", nil, 200)
 	row := waitSide(t, f.m.pg, e.ID, "cancelled")
-	if row.Question != question || row.Error != locale.Text(locale.Ko, "Answer stopped") {
+	if row.Question != question || row.Error != locale.Text(locale.En, "Answer stopped") {
 		t.Fatalf("Localized cancellation changed raw question or lost language: %+v", row)
 	}
 	req := httptest.NewRequest("GET", "/api/side-questions/"+e.ID+"/events?lang=en", nil)

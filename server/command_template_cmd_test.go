@@ -107,7 +107,7 @@ func TestCommandTemplateCMDProgramInterpolationCannotExecuteParameter(t *testing
 	if err != nil || result.IsError || strings.TrimSpace(result.Flatten()) != "literal data\r\nSTATIC_PROGRAM" {
 		t.Fatalf("fixed CMD program or managed data was broken: %q %v", result.Flatten(), err)
 	}
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		spec, _ := json.Marshal(map[string]string{"command": `& $env:ComSpec /d /s /c 'echo {value}'`})
 		result, err := (&Server{}).runCommandTool(locale.WithLang(t.Context(), lang), spec, map[string]any{"value": "plain data"}, &actool.ToolContext{})
 		want := locale.Text(lang, "Command parameters cannot be interpolated into CMD programs; use literal native arguments or a script data channel")

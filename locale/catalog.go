@@ -2,55 +2,36 @@ package locale
 
 import "fmt"
 
-// catalog holds every localizable human message keyed by a stable message key,
-// then by language. English is authoritative: every key MUST have an En entry.
-// Korean entries are optional per key — a missing Ko falls back to En, and an
-// unknown key falls back to the key itself, so a lookup never panics.
+// catalog holds every localizable human message keyed by a stable message key.
+// English is the only supported language; the Lang parameter on Lookup/T/Text
+// is kept so call sites and the request-negotiation plumbing don't need to
+// change if a second language is reintroduced later.
 //
 // Keys are dotted, namespaced by domain (e.g. "api.task.not_found"). Interpolation
 // uses fmt verbs; pass args to T in the same order the verbs appear.
-var catalog = map[string]map[Lang]string{}
+var catalog = map[string]string{}
 
-// Register adds (or overrides) catalog entries for a message key. Packages call
-// this from init() so their domain strings live next to the code that uses them
-// while the negotiation/formatting logic stays here. En is required.
-func Register(key string, en, ko string) {
-	m := catalog[key]
-	if m == nil {
-		m = map[Lang]string{}
-		catalog[key] = m
-	}
-	m[En] = en
-	if ko != "" {
-		m[Ko] = ko
-	}
+// Register adds (or overrides) the catalog entry for a message key. Packages
+// call this from init() so their domain strings live next to the code that
+// uses them while the negotiation/formatting logic stays here.
+func Register(key, en string) {
+	catalog[key] = en
 }
 
-// RegisterAll bulk-registers entries: entries[key] = {En: ..., Ko: ...}.
-func RegisterAll(entries map[string]map[Lang]string) {
-	for key, langs := range entries {
-		Register(key, langs[En], langs[Ko])
-	}
-}
-
-// Lookup returns the raw (un-interpolated) template for key in lang, falling back
-// to English then to the key. ok reports whether any catalog entry was found.
+// Lookup returns the raw (un-interpolated) template for key, falling back to
+// the key itself when it is unknown, so a lookup never panics. The Lang
+// parameter is accepted for API stability but has no effect: English is the
+// only supported language.
 func Lookup(l Lang, key string) (string, bool) {
-	m, exists := catalog[key]
-	if !exists {
+	s, ok := catalog[key]
+	if !ok {
 		return key, false
 	}
-	if s, ok := m[l]; ok {
-		return s, true
-	}
-	if s, ok := m[En]; ok {
-		return s, true
-	}
-	return key, false
+	return s, true
 }
 
-// T resolves key for lang and interpolates args with fmt.Sprintf when any are
-// given. Unknown keys return the key verbatim so a missing translation is visible
+// T resolves key and interpolates args with fmt.Sprintf when any are given.
+// Unknown keys return the key verbatim so a missing translation is visible
 // but never fatal.
 func T(l Lang, key string, args ...any) string {
 	s, _ := Lookup(l, key)
@@ -60,7 +41,7 @@ func T(l Lang, key string, args ...any) string {
 	return fmt.Sprintf(s, args...)
 }
 
-// Has reports whether key exists in the catalog (any language).
+// Has reports whether key exists in the catalog.
 func Has(key string) bool {
 	_, ok := catalog[key]
 	return ok

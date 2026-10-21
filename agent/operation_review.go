@@ -220,4 +220,3 @@ func (h *operationHooks) Stop(ctx context.Context, messages []llm.Message) (bool
 // Preserve decorators' discovery of the underlying custom executor/defaults.
 func (g *guardedTool) UnwrapTool() actool.CoreTool    { return g.CoreTool }
 func (t *overriddenTool) UnwrapTool() actool.CoreTool { return t.CoreTool }
-func (t *localizedTool) UnwrapTool() actool.CoreTool  { return t.CoreTool }

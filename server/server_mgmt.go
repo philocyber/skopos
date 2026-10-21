@@ -768,10 +768,6 @@ func (s *Server) pgListTools(w http.ResponseWriter, r *http.Request) {
 			tool.Calls = counts[tool.Key]
 		}
 	}
-	pairs := s.knownToolLanguages()
-	for i, tool := range ts {
-		ts[i] = translatedStoredTool(tool, pairs, locale.FromRequest(r))
-	}
 	writeJSON(w, 200, map[string]any{"tools": ts})
 }
 
@@ -803,14 +799,6 @@ func (s *Server) pgUpdateTool(w http.ResponseWriter, r *http.Request) {
 	if err := decode(r, &body); err != nil {
 		writeError(w, 400, err)
 		return
-	}
-	if cur.System {
-		copy := *cur
-		copy.Description = body.Description
-		copy.Schema = body.Schema
-		canonical := translatedStoredTool(&copy, s.knownToolLanguages(), locale.En)
-		body.Description = canonical.Description
-		body.Schema = canonical.Schema
 	}
 	agents, _ := json.Marshal(body.Agents)
 	if err := pg.UpdateTool(key, body.Description, body.Schema, agents, body.Enabled); err != nil {

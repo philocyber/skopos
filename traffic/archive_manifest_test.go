@@ -44,7 +44,7 @@ func TestArchiveManifestRejectsOversizeBeforeAllocation(t *testing.T) {
 	if n != 0 || !errors.Is(err, ErrIndexBudget) {
 		t.Errorf("oversize manifest accepted or wrong error: %d %v", n, err)
 	}
-	if err != nil && !strings.Contains(locale.ErrorMessage(locale.Ko, err), "제한") {
+	if err != nil && !strings.Contains(locale.ErrorMessage(locale.En, err), "limit") {
 		t.Error("manifest budget failure lost localization")
 	}
 	if allocated := after.TotalAlloc - before.TotalAlloc; allocated > 2<<20 {

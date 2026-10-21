@@ -64,7 +64,7 @@ func TestDefaultHTTPDeleteRulesBlockSDKRequestsBeforeTransport(t *testing.T) {
 	agent.ToolResolve = nil
 	t.Cleanup(func() { agent.ToolResolve, agent.ToolAugment = priorResolve, priorAugment })
 	for _, judge := range []bool{false, true} {
-		for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+		for _, lang := range []locale.Lang{locale.En} {
 			for _, tc := range []struct {
 				name, kind, command, method string
 				denied                      bool

@@ -16,9 +16,7 @@ func TestNormalize(t *testing.T) {
 		"EN":    {En, true},
 		"en-US": {En, true},
 		"en_GB": {En, true},
-		"ko":    {Ko, true},
-		"ko-KR": {Ko, true},
-		"KO":    {Ko, true},
+		"ko":    {Default, false},
 		"fr":    {Default, false},
 		"":      {Default, false},
 		"zh-CN": {Default, false},
@@ -33,39 +31,40 @@ func TestNormalize(t *testing.T) {
 
 func TestFromRequestPrecedence(t *testing.T) {
 	SetServerDefault(En)
-	// query wins over everything
-	r := newReq("/x?lang=ko", "en-US,en;q=0.9", "en")
-	if got := FromRequest(r); got != Ko {
+	// query wins over everything, even when it is the only supported value
+	r := newReq("/x?lang=en", "ko-KR,ko;q=0.9", "ko")
+	if got := FromRequest(r); got != En {
 		t.Errorf("query should win: got %q", got)
 	}
-	// Accept-Language wins over cookie when no query
-	r = newReq("/x", "ko-KR,ko;q=0.9,en;q=0.5", "en")
-	if got := FromRequest(r); got != Ko {
-		t.Errorf("accept-language should win over cookie: got %q", got)
+	// an unsupported query falls through to Accept-Language
+	r = newReq("/x?lang=ko", "en-US,en;q=0.9", "ko")
+	if got := FromRequest(r); got != En {
+		t.Errorf("unsupported query should fall through: got %q", got)
 	}
-	// cookie wins when no query and no supported Accept-Language
-	r = newReq("/x", "fr-FR,fr;q=0.9", "ko")
-	if got := FromRequest(r); got != Ko {
-		t.Errorf("cookie should win: got %q", got)
+	// an unsupported Accept-Language falls through to the cookie
+	r = newReq("/x", "ko-KR,ko;q=0.9", "en")
+	if got := FromRequest(r); got != En {
+		t.Errorf("unsupported accept-language should fall through to cookie: got %q", got)
 	}
-	// server default when nothing matches
-	SetServerDefault(Ko)
-	r = newReq("/x", "", "")
-	if got := FromRequest(r); got != Ko {
-		t.Errorf("server default should apply: got %q", got)
+	// an unsupported cookie falls through to the server default
+	r = newReq("/x", "", "ko")
+	if got := FromRequest(r); got != En {
+		t.Errorf("unsupported cookie should fall through to default: got %q", got)
 	}
-	SetServerDefault(En)
+	// SetServerDefault coerces an unsupported value, so the default is always En
+	SetServerDefault(Lang("xx"))
 	r = newReq("/x", "", "")
 	if got := FromRequest(r); got != En {
-		t.Errorf("default en: got %q", got)
+		t.Errorf("server default must coerce to en: got %q", got)
 	}
+	SetServerDefault(En)
 }
 
 func TestAcceptLanguageQWeights(t *testing.T) {
-	// ko has higher q than en -> ko
+	// ko has a higher q than en but is not negotiable, so en still wins
 	r := newReq("/x", "en;q=0.3, ko;q=0.9", "")
-	if got := FromRequest(r); got != Ko {
-		t.Errorf("q-weight pick: got %q", got)
+	if got := FromRequest(r); got != En {
+		t.Errorf("unsupported language must not win on q-weight: got %q", got)
 	}
 	// unsupported primary with supported fallback
 	r = newReq("/x", "fr, en-US;q=0.8", "")
@@ -74,16 +73,14 @@ func TestAcceptLanguageQWeights(t *testing.T) {
 	}
 }
 
-func TestFromEnvPrefersSkopos(t *testing.T) {
-	// The legacy ARTEX_LANGUAGE alias was retired with the module rename;
-	// only SKOPOS_LANGUAGE is consulted now.
-	env := map[string]string{"SKOPOS_LANGUAGE": "ko"}
-	if l, ok := FromEnv(func(k string) string { return env[k] }); !ok || l != Ko {
-		t.Errorf("SKOPOS_LANGUAGE should resolve: got %q,%v", l, ok)
+func TestFromEnvResolvesEnglishOnly(t *testing.T) {
+	env := map[string]string{"SKOPOS_LANGUAGE": "en"}
+	if l, ok := FromEnv(func(k string) string { return env[k] }); !ok || l != En {
+		t.Errorf("SKOPOS_LANGUAGE=en should resolve: got %q,%v", l, ok)
 	}
-	env = map[string]string{"ARTEX_LANGUAGE": "ko"}
+	env = map[string]string{"SKOPOS_LANGUAGE": "ko"}
 	if _, ok := FromEnv(func(k string) string { return env[k] }); ok {
-		t.Errorf("legacy ARTEX_LANGUAGE must no longer be honored")
+		t.Error("SKOPOS_LANGUAGE=ko must not resolve; Korean is not supported")
 	}
 	if _, ok := FromEnv(func(string) string { return "" }); ok {
 		t.Errorf("empty env should not resolve")
@@ -97,9 +94,10 @@ func TestFromEnvPrefersSkopos(t *testing.T) {
 
 func TestContextRoundTrip(t *testing.T) {
 	SetServerDefault(En)
-	ctx := WithLang(context.Background(), Ko)
-	if got := FromContext(ctx); got != Ko {
-		t.Errorf("FromContext = %q", got)
+	// WithLang coerces an unsupported language to the default.
+	ctx := WithLang(context.Background(), Lang("xx"))
+	if got := FromContext(ctx); got != En {
+		t.Errorf("FromContext = %q, want coercion to en", got)
 	}
 	if got := FromContext(context.Background()); got != En {
 		t.Errorf("FromContext default = %q", got)
@@ -107,13 +105,9 @@ func TestContextRoundTrip(t *testing.T) {
 }
 
 func TestCatalogFallback(t *testing.T) {
-	Register("test.hello", "Hello %s", "")
-	if got := T(Ko, "test.hello", "world"); got != "Hello world" {
-		t.Errorf("Ko should fall back to En: %q", got)
-	}
-	Register("test.bye", "Bye", "안녕")
-	if got := T(Ko, "test.bye"); got != "안녕" {
-		t.Errorf("Ko lookup: %q", got)
+	Register("test.hello", "Hello %s")
+	if got := T(En, "test.hello", "world"); got != "Hello world" {
+		t.Errorf("interpolation: %q", got)
 	}
 	if got := T(En, "test.missing.key"); got != "test.missing.key" {
 		t.Errorf("unknown key returns key: %q", got)
@@ -132,36 +126,37 @@ func newReq(target, acceptLang, cookie string) *http.Request {
 }
 
 func TestRejectedLanguageWeights(t *testing.T) {
-	for _, header := range []string{"ko;q=0", "ko;q=-1", "ko;q=2", "ko;q=NaN", "ko;q=Inf", "ko;q=broken"} {
+	for _, header := range []string{"en;q=0", "en;q=-1", "en;q=2", "en;q=NaN", "en;q=Inf", "en;q=broken"} {
 		if got, ok := fromAcceptLanguage(header); ok {
-			t.Errorf("accepted excluded/malformed language %q: %s", header, got)
+			t.Errorf("accepted excluded/malformed weight %q: %s", header, got)
 		}
 	}
-	if got, ok := fromAcceptLanguage("ko;q=0,en;q=0.5"); !ok || got != En {
-		t.Fatal("q=0 language was selected")
+	// ko is unsupported regardless of its weight, so it never displaces en
+	if got, ok := fromAcceptLanguage("ko;q=0.9,en;q=0.1"); !ok || got != En {
+		t.Fatal("unsupported language with a higher weight was selected")
 	}
-	if got, ok := fromAcceptLanguage("ko;q=0.5,en;q=0.5"); !ok || got != Ko {
-		t.Fatal("equal weights lost header order")
+	if _, ok := fromAcceptLanguage("ko;q=0.9"); ok {
+		t.Fatal("header with only an unsupported language should not resolve")
 	}
 }
 
 func TestLocalizedErrorPreservesWrapping(t *testing.T) {
 	cause := errors.New("user supplied 原文 %s")
-	Register("Operation %s failed: %w", "Operation %s failed: %w", "작업 %s 실패: %w")
+	Register("Operation %s failed: %w", "Operation %s failed: %w")
 	err := Errorf("Operation %s failed: %w", "raw-id", cause)
 	if !errors.Is(err, cause) {
 		t.Fatal("error wrapping lost")
 	}
-	if got := ErrorMessage(Ko, err); got != "작업 raw-id 실패: user supplied 原文 %s" {
+	if got := ErrorMessage(En, err); got != "Operation raw-id failed: user supplied 原文 %s" {
 		t.Fatalf("raw cause changed: %q", got)
 	}
 }
 
 func TestJoinedErrorsPreserveRawCauses(t *testing.T) {
-	Register("Missing task", "Missing task", "작업 없음")
+	Register("Missing task", "Missing task")
 	raw := errors.New("driver 原文 %s")
 	joined := errors.Join(NewError("Missing task"), raw)
-	if got := ErrorMessage(Ko, joined); got != "작업 없음\ndriver 原文 %s" {
+	if got := ErrorMessage(En, joined); got != "Missing task\ndriver 原文 %s" {
 		t.Fatalf("joined localization altered raw content: %q", got)
 	}
 	if !errors.Is(joined, raw) {

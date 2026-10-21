@@ -49,7 +49,7 @@ func TestWorkerHTTPDestinationPolicyWithoutIntentAssets(t *testing.T) {
 	priorResolve, priorAugment := agent.ToolResolve, agent.ToolAugment
 	agent.ToolResolve, agent.ToolAugment = nil, nil
 	defer func() { agent.ToolResolve, agent.ToolAugment = priorResolve, priorAugment }()
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		for _, streaming := range []bool{false, true} {
 			for _, mode := range []string{"allowed", "denied-initial", "denied-redirect", "no-allowlist", "task-block", "global-block", "disabled-allow", "revoked-redirect", "revoked-review"} {
 				t.Run(fmt.Sprintf("%s/stream=%v/%s", lang, streaming, mode), func(t *testing.T) {
@@ -160,10 +160,7 @@ func TestWorkerHTTPDestinationPolicyWithoutIntentAssets(t *testing.T) {
 					if mode == "revoked-review" && reviews != 1 {
 						t.Fatalf("expected actual operation review, got %d", reviews)
 					}
-					if deny && lang == locale.Ko && !strings.Contains(result.Detail, "자산 정책") {
-						t.Fatal("destination rejection not localized")
-					}
-					if deny && lang == locale.En && !strings.Contains(result.Detail, "blocked by asset policy") {
+					if deny && !strings.Contains(result.Detail, "blocked by asset policy") {
 						t.Fatal("request failed for a reason other than destination policy")
 					}
 					if deny && strings.Contains(result.Detail, querySecret) {
@@ -226,9 +223,9 @@ func TestHTTPResolvedDestinationBlock(t *testing.T) {
 	}
 	s := &Server{m: &Manager{assets: d.Assets()}}
 	raw, _ := json.Marshal(httpExec{URL: endpoint})
-	ctx := agent.WithRunInfo(locale.WithLang(t.Context(), locale.Ko), agent.RunInfo{TaskID: task.ID})
+	ctx := agent.WithRunInfo(locale.WithLang(t.Context(), locale.En), agent.RunInfo{TaskID: task.ID})
 	res, err := s.runHTTPTool(ctx, raw, nil, nil)
-	if err != nil || !res.IsError || requests.Load() != 0 || !strings.Contains(res.Flatten(), "자산 정책") || strings.Contains(res.Flatten(), "SYNTHETIC_PEER_SECRET") {
+	if err != nil || !res.IsError || requests.Load() != 0 || !strings.Contains(res.Flatten(), "blocked by asset policy") || strings.Contains(res.Flatten(), "SYNTHETIC_PEER_SECRET") {
 		t.Fatalf("resolved IP block escaped or diagnostic changed: requests=%d result=%s err=%v", requests.Load(), res.Flatten(), err)
 	}
 	for _, id := range blocks {

@@ -51,7 +51,7 @@ func TestRuntimeExecutableApprovalPreservesStaticDataAndControls(t *testing.T) {
 	if dec, hit := i.Match("Write", input); hit {
 		t.Errorf("non-execution tool entered shell approval: %+v", dec)
 	}
-	if dec, hit := i.Match("Bash", input, locale.Ko); !hit || dec.Message == "" || dec.Message == locale.Text(locale.En, "The command selects its executable at runtime; human approval is required") {
-		t.Errorf("Korean approval reason missing: %+v", dec)
+	if dec, hit := i.Match("Bash", input, locale.En); !hit || dec.Message != locale.Text(locale.En, "The command selects its executable at runtime; human approval is required") {
+		t.Errorf("approval reason missing or altered: %+v", dec)
 	}
 }

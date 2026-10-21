@@ -12,7 +12,7 @@ import (
 func TestIntentTargetAdmissionRetainsRequiredAnchors(t *testing.T) {
 	d := testDB(t)
 	defer d.Close()
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		t.Run(string(lang), func(t *testing.T) {
 			task, err := d.CreateTask("intent admission policy", "fixture", nil, 0, 0)
 			if err != nil {

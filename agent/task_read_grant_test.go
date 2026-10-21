@@ -18,7 +18,7 @@ import (
 func TestSDKAgentScopeUpdatesCannotReadForeignCredentials(t *testing.T) {
 	d := testDB(t)
 	t.Cleanup(func() { _ = d.Close() })
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		for _, streaming := range []bool{false, true} {
 			t.Run(fmt.Sprintf("%s/stream=%v", lang, streaming), func(t *testing.T) {
 				fixture, err := d.CreateTask("agent scope fixture", "test", nil, 0, 0)

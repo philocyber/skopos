@@ -210,11 +210,7 @@ func seedPrompts(pg *db.DB) {
 // tool-assembly time each built-in tool is filtered by its agent binding / enabled
 // flag and, if kept, wrapped so the model sees the DB-overridden description/schema
 // and default arguments are injected. MCP/skill/host tools have no row and pass through.
-func wireTools(pg *db.DB, domainReg map[string]actool.CoreTool, metadata ...map[string][2]actool.CoreTool) {
-	var localized map[string][2]actool.CoreTool
-	if len(metadata) > 0 {
-		localized = metadata[0]
-	}
+func wireTools(pg *db.DB, domainReg map[string]actool.CoreTool) {
 	agent.FindingTrafficBindingEnabled = func() bool { return pg.GetBool(settingAgentTrafficBinding, false) }
 	// Seed the built-in domain tools (first-insert only; DO NOTHING preserves edits).
 	// No startup prune: rows we didn't seed are left alone so future user-defined
@@ -260,9 +256,6 @@ func wireTools(pg *db.DB, domainReg map[string]actool.CoreTool, metadata ...map[
 				_ = json.Unmarshal(row.Schema, &schema)
 			}
 			prepared := agent.DecorateTool(t, row.Description, schema)
-			if row.System {
-				prepared = translatedToolMetadata(prepared, localized[row.Key], locale.FromContext(ctx))
-			}
 			return meterTool(prepared, pg, row.Key, agentKey, runInfo)
 		}
 		out := tools[:0:0]

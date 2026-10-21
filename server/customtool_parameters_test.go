@@ -20,7 +20,7 @@ import (
 func TestCommandToolDeclaredParametersThroughNativeSDK(t *testing.T) {
 	previous := agent.ToolAugment
 	t.Cleanup(func() { agent.ToolAugment = previous })
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		for _, deferred := range []bool{false, true} {
 			for _, mode := range []string{"declared", "default", "extra", "metadata-change", "fallback", "fallback-extra"} {
 				t.Run(string(lang)+"/"+map[bool]string{false: "direct", true: "deferred"}[deferred]+"/"+mode, func(t *testing.T) {

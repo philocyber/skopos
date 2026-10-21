@@ -115,7 +115,7 @@ func TestNativeRecordedHTTPUsesTaskAssetIPPolicy(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer d.Assets().DeleteTaskInterceptRule(task.ID, ipv6.ID)
-	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
+	for _, lang := range []locale.Lang{locale.En} {
 		for _, explicit := range []bool{false, true} {
 			t.Run(string(lang)+"/"+map[bool]string{false: "automatic", true: "explicit"}[explicit], func(t *testing.T) {
 				var requests atomic.Int32

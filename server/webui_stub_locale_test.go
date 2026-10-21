@@ -9,6 +9,8 @@ import (
 )
 
 func TestWebUIStubUsesRequestLanguage(t *testing.T) {
+	// Korean is no longer negotiable: Accept-Language: ko now falls through to
+	// the English default, same as any other unsupported language.
 	for _, lang := range []string{"en", "ko"} {
 		req := httptest.NewRequest("GET", "/", nil)
 		req.Header.Set("Accept-Language", lang)
@@ -17,11 +19,7 @@ func TestWebUIStubUsesRequestLanguage(t *testing.T) {
 		if rec.Code != 404 {
 			t.Fatalf("status=%d", rec.Code)
 		}
-		want := "The frontend is not embedded"
-		if lang == "ko" {
-			want = "프런트엔드가 포함되지 않았습니다"
-		}
-		if !strings.Contains(rec.Body.String(), want) {
+		if !strings.Contains(rec.Body.String(), "The frontend is not embedded") {
 			t.Fatalf("%s response=%q", lang, rec.Body.String())
 		}
 	}
