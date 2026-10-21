@@ -114,8 +114,8 @@ func ParseVerdict(text string) Verdict {
 	valid := false
 	for _, markers := range [][3]string{
 		{"Operation: ", "; Effect if successful: ", "; Rule: "},
-		{"작업: ", "; 성공 시 영향: ", "; 적용 규칙: "},
-		// Legacy Chinese markers are retained for saved policies and historical integrations.
+		// Legacy Chinese markers are retained for saved policies and historical
+		// integrations from upstream ARTEX.
 		{"实际操作：", "；成功后的后果：", "；命中规则："},
 	} {
 		if !strings.HasPrefix(reason, markers[0]) {
