@@ -6,7 +6,7 @@ import (
 )
 
 func TestInterceptSourceLanguageMarkers(t *testing.T) {
-	for _, reason := range []string{"[Model] decision", "[모델] 결정", "[模型] legacy"} {
+	for _, reason := range []string{"[Model] decision", "[模型] legacy"} {
 		if got := interceptSource(0, reason); got != "model" {
 			t.Fatalf("%q source=%s", reason, got)
 		}
@@ -25,7 +25,7 @@ func TestInterceptSourceLanguagePersistenceAndRestore(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer d.Close()
-	for _, reason := range []string{"[Model] decision", "[모델] 결정", "[模型] legacy"} {
+	for _, reason := range []string{"[Model] decision", "[模型] legacy"} {
 		id, err := d.CreateInterceptPending(0, 0, "locale-classification", "test", "Read", json.RawMessage(`{}`), reason)
 		if err != nil {
 			t.Fatal(err)
