@@ -228,7 +228,7 @@ func scanInterceptApprovalRow(rows interface{ Scan(...any) error }, r *Intercept
 // Keep legacy rows without decision_source consistent with their displayed source.
 const approvalDecisionSource = `COALESCE(NULLIF(ip.decision_source,''), CASE
  WHEN ip.rule_id IS NOT NULL THEN 'rule'
- WHEN ip.reason LIKE '[Model]%' OR ip.reason LIKE '[모델]%' OR ip.reason LIKE '[模型]%' THEN 'model' ELSE 'unknown' END)`
+ WHEN ip.reason LIKE '[Model]%' OR ip.reason LIKE '[模型]%' THEN 'model' ELSE 'unknown' END)`
 
 const approvalRowColumns = `ip.id, ip.rule_id, ip.conversation_id, ip.task_id, ip.agent_name,
        ip.tool_name, ip.tool_input, ip.status, ip.reason, ip.decided_at, ip.created_at, ` + approvalDecisionSource + `,
@@ -373,8 +373,9 @@ func (d *DB) listInterceptsPage(taskID string, page, size int, filter InterceptA
 	return out, total, rows.Err()
 }
 
-// isModelInterceptReason recognizes current English/Korean and legacy model markers.
-// The marker is classification metadata; the decision prose remains untouched.
+// isModelInterceptReason recognizes the current English and legacy Chinese
+// (upstream ARTEX) model markers. The marker is classification metadata; the
+// decision prose remains untouched.
 func isModelInterceptReason(reason string) bool {
-	return strings.HasPrefix(reason, "[Model]") || strings.HasPrefix(reason, "[모델]") || strings.HasPrefix(reason, "[模型]")
+	return strings.HasPrefix(reason, "[Model]") || strings.HasPrefix(reason, "[模型]")
 }

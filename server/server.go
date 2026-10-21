@@ -3842,8 +3842,8 @@ func (s *Server) stopChat(w http.ResponseWriter, r *http.Request) {
 // fallbackChat handles human steering without an LLM through simple commands and task-state summaries.
 func (s *Server) fallbackChat(t *Task, msg string, langs ...locale.Lang) string {
 	m := strings.TrimSpace(msg)
-	intentText, intentCommand := steeringCommandText(m, "intent", "의도", "意图")
-	hintText, hintCommand := steeringCommandText(m, "hint", "힌트", "提示")
+	intentText, intentCommand := steeringCommandText(m, "intent", "意图")
+	hintText, hintCommand := steeringCommandText(m, "hint", "提示")
 	switch {
 	case intentCommand:
 		text := intentText
