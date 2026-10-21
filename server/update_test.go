@@ -82,7 +82,7 @@ func TestReleaseCacheUsesShorterTTLForErrors(t *testing.T) {
 	calls := 0
 	c := newTestCache(func(context.Context, *http.Client) (*selfupdate.Release, error) {
 		calls++
-		return nil, errors.New("github 不可达")
+		return nil, errors.New("github unreachable")
 	})
 
 	if _, err := c.get(t.Context(), nil, false); err == nil {

@@ -53,7 +53,7 @@ func TestTemplateCannotReachUnknownData(t *testing.T) {
 		t.Fatal("Unknown fields must return an error")
 	}
 	// Errors must not contain actual finding titles or summaries from the context.
-	for _, leak := range []string{"SQL注入", "参数 id"} {
+	for _, leak := range []string{"SQL injection", "parameter id"} {
 		if strings.Contains(err.Error(), leak) {
 			t.Errorf("Template error leaked message content %q: %v", leak, err)
 		}
