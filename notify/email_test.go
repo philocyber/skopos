@@ -307,7 +307,7 @@ func TestFilterValidateRejectsTypo(t *testing.T) {
 		}
 	}
 	// Reject all of these realistic typos.
-	for _, s := range []string{"hgih", "HIGH", "严重", "high ", "crit"} {
+	for _, s := range []string{"hgih", "HIGH", "danger", "high ", "crit"} {
 		err := (Filter{MinSeverity: s}).Validate()
 		if err == nil {
 			t.Errorf("Invalid threshold %q must be rejected to prevent silent unrestricted delivery", s)
