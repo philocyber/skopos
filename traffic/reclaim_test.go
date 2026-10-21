@@ -82,7 +82,7 @@ func TestReclaimMergesFTSTombstones(t *testing.T) {
 		host := fmt.Sprintf("fts%d.example.com", round)
 		for i := 0; i < 20; i++ {
 			tr.record(newFlow(host, "GET", fmt.Sprintf("/p/%d", i), nil,
-				[]byte(strings.Repeat("secret token 中文正文 padding ", 200))))
+				[]byte(strings.Repeat("secret token body text padding ", 200))))
 		}
 		if _, err := tr.DeleteHostsExact([]string{host}); err != nil {
 			t.Fatal(err)
@@ -211,7 +211,7 @@ func TestDeleteAllPurgesAndCompacts(t *testing.T) {
 		t.Fatalf("Orphaned legacy host directory was not removed: %v", err)
 	}
 	// Recording must keep working against the freshly rewritten file.
-	tr.record(newFlow("d.example.com", "GET", "/after", nil, []byte("清空后仍可录制")))
+	tr.record(newFlow("d.example.com", "GET", "/after", nil, []byte("still recordable after clearing")))
 	if n, err := tr.Count(); err != nil || n != 1 {
 		t.Fatalf("After clearing, Count=(%d,%v), want (1,nil)", n, err)
 	}

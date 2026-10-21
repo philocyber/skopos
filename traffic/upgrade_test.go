@@ -52,10 +52,10 @@ VALUES(?,?,?,'GET','/x','http://x/x',200,'text/html',0,9,?)`, row[0], 1700000000
 			t.Fatal(err)
 		}
 		if _, err := old.Exec(`INSERT INTO exchange_bodies(id,req_head,req_body,resp_head,resp_body)
-VALUES(?,'GET /x','','HTTP 200','老数据正文')`, row[0]); err != nil {
+VALUES(?,'GET /x','','HTTP 200','old data body')`, row[0]); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := old.Exec(`INSERT INTO ex_fts(rowid,content) VALUES(?,?)`, i+1, "老数据正文 secret-token"); err != nil {
+		if _, err := old.Exec(`INSERT INTO ex_fts(rowid,content) VALUES(?,?)`, i+1, "old data body secret-token"); err != nil {
 			t.Fatal(err)
 		}
 	}
