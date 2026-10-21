@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
@@ -31,6 +27,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { type Tone, toneClasses, toneDot } from "@/lib/status";
 import { taskAssetTypeLabel } from "@/lib/task-assets";
@@ -46,49 +44,65 @@ type KindMeta = { label: string; icon: LucideIcon; dot: string; chip: string };
 // from timeline rows in density and color needs, so evolve them independently.
 const KIND_META: Record<string, KindMeta> = {
   begin: {
-    get label() { return swt("interface.m0521"); },
+    get label() {
+      return swt("interface.m0521");
+    },
     icon: FlagIcon,
     dot: "bg-slate-500",
     chip: "bg-slate-500/15 text-slate-600 dark:text-slate-300",
   },
   task: {
-    get label() { return swt("interface.m0522"); },
+    get label() {
+      return swt("interface.m0522");
+    },
     icon: FlagIcon,
     dot: "bg-slate-500",
     chip: "bg-slate-500/15 text-slate-600 dark:text-slate-300",
   },
   goal: {
-    get label() { return swt("interface.m0523"); },
+    get label() {
+      return swt("interface.m0523");
+    },
     icon: TargetIcon,
     dot: "bg-emerald-500",
     chip: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
   },
   intent: {
-    get label() { return swt("interface.m0524"); },
+    get label() {
+      return swt("interface.m0524");
+    },
     icon: CompassIcon,
     dot: "bg-blue-500",
     chip: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
   },
   fact: {
-    get label() { return swt("interface.m0525"); },
+    get label() {
+      return swt("interface.m0525");
+    },
     icon: FlaskConicalIcon,
     dot: "bg-amber-500",
     chip: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
   },
   finding: {
-    get label() { return swt("interface.m0526"); },
+    get label() {
+      return swt("interface.m0526");
+    },
     icon: BugIcon,
     dot: "bg-rose-500",
     chip: "bg-rose-500/15 text-rose-600 dark:text-rose-400",
   },
   hint: {
-    get label() { return swt("interface.m0527"); },
+    get label() {
+      return swt("interface.m0527");
+    },
     icon: LightbulbIcon,
     dot: "bg-violet-500",
     chip: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
   },
   digest: {
-    get label() { return swt("interface.m0528"); },
+    get label() {
+      return swt("interface.m0528");
+    },
     icon: LayersIcon,
     dot: "bg-teal-500",
     chip: "bg-teal-500/15 text-teal-600 dark:text-teal-400",
@@ -99,32 +113,87 @@ const KIND_META: Record<string, KindMeta> = {
 const FILTER_KINDS: ExploreKind[] = ["goal", "intent", "fact", "finding", "hint", "digest"];
 
 const REL_LABEL: Record<string, string> = {
-  get spawns() { return swt("interface.m0529"); },
-  get derived_from() { return swt("interface.m0530"); },
-  get yields() { return swt("interface.m0531"); },
-  get proves() { return swt("interface.m0532"); },
-  get covers() { return swt("interface.m0528"); },
+  get spawns() {
+    return swt("interface.m0529");
+  },
+  get derived_from() {
+    return swt("interface.m0530");
+  },
+  get yields() {
+    return swt("interface.m0531");
+  },
+  get proves() {
+    return swt("interface.m0532");
+  },
+  get covers() {
+    return swt("interface.m0528");
+  },
 };
 
 // Goal/intent status semantics come from the global StatusBadge table; supplement types
 // used only in the graph and broadcast here.
 const STATE_META: Record<string, Record<string, { label: string; tone: Tone }>> = {
   fact: {
-    origin: { get label() { return swt("interface.m0521"); }, tone: "slate" },
-    confirmed: { get label() { return swt("interface.m0533"); }, tone: "green" },
-    dismissed: { get label() { return swt("interface.m0534"); }, tone: "slate" },
+    origin: {
+      get label() {
+        return swt("interface.m0521");
+      },
+      tone: "slate",
+    },
+    confirmed: {
+      get label() {
+        return swt("interface.m0533");
+      },
+      tone: "green",
+    },
+    dismissed: {
+      get label() {
+        return swt("interface.m0534");
+      },
+      tone: "slate",
+    },
   },
   finding: {
-    confirmed: { get label() { return swt("interface.m0533"); }, tone: "red" },
-    dismissed: { get label() { return swt("interface.m0535"); }, tone: "slate" },
+    confirmed: {
+      get label() {
+        return swt("interface.m0533");
+      },
+      tone: "red",
+    },
+    dismissed: {
+      get label() {
+        return swt("interface.m0535");
+      },
+      tone: "slate",
+    },
   },
   hint: {
-    active: { get label() { return swt("interface.m0536"); }, tone: "violet" },
-    consumed: { get label() { return swt("interface.m0537"); }, tone: "slate" },
+    active: {
+      get label() {
+        return swt("interface.m0536");
+      },
+      tone: "violet",
+    },
+    consumed: {
+      get label() {
+        return swt("interface.m0537");
+      },
+      tone: "slate",
+    },
   },
   digest: {
-    active: { get label() { return swt("interface.m0538"); }, tone: "green" },
-    superseded: { get label() { return swt("interface.m0539"); }, tone: "slate" },
+    active: {
+      get label() {
+        return swt("interface.m0538");
+      },
+      tone: "green",
+    },
+    superseded: {
+      get label() {
+        return swt("interface.m0539");
+      },
+      tone: "slate",
+    },
   },
 };
 
@@ -180,12 +249,13 @@ function relTime(ts: number, now: number): string {
 }
 
 const dayFmt = () => new Intl.DateTimeFormat(getIntlLocale(), { month: "long", day: "numeric", weekday: "short" });
-const clockFmt = () => new Intl.DateTimeFormat(getIntlLocale(), {
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: false,
-});
+const clockFmt = () =>
+  new Intl.DateTimeFormat(getIntlLocale(), {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
 
 function NodeStateBadge({ node }: { node: TaskNode }) {
   "use no memo";
@@ -227,7 +297,10 @@ function AssetList({ assets, dense = false }: { assets: FindingAsset[]; dense?: 
   if (assets.length === 0) return null;
   return (
     <div>
-      <div className="mb-1.5 text-xs font-medium text-muted-foreground">{swt("interface.m0545")}{assets.length}</div>
+      <div className="mb-1.5 text-xs font-medium text-muted-foreground">
+        {swt("interface.m0545")}
+        {assets.length}
+      </div>
       <ul className="flex flex-wrap gap-1.5">
         {assets.map((a) => {
           // Runtime asset types may be absent from the label map; widen the type so raw-string fallback is meaningful.
@@ -273,8 +346,12 @@ function RelatedNodeCard({ node, assets }: { node: TaskNode; assets: FindingAsse
         )}
       </div>
       <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-        <span>{swt("interface.m0546")}{" "}{meta.label}</span>
-        <span>{swt("interface.m0512")}{" "}{node.origin || "system"}</span>
+        <span>
+          {swt("interface.m0546")} {meta.label}
+        </span>
+        <span>
+          {swt("interface.m0512")} {node.origin || "system"}
+        </span>
         <span>{Number.isNaN(ts) ? node.ts : new Date(ts).toLocaleString(getIntlLocale())}</span>
       </div>
       <p className="line-clamp-4 text-xs break-words">{summary || swt("interface.m0361")}</p>
@@ -329,7 +406,10 @@ function RelatedList({
                   </HoverCardContent>
                 </HoverCard>
               ) : (
-                <span className="text-muted-foreground">{swt("interface.m0548")}{row.id}</span>
+                <span className="text-muted-foreground">
+                  {swt("interface.m0548")}
+                  {row.id}
+                </span>
               )}
             </li>
           );
@@ -407,11 +487,14 @@ function BroadcastRow({
               )}
               {fresh && (
                 <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                  {swt("interface.m0549")}</span>
+                  {swt("interface.m0549")}
+                </span>
               )}
               <span className="ml-auto shrink-0 text-xs text-muted-foreground">{node.origin || "system"}</span>
             </div>
-            <p className={cn("mt-1 text-sm", !open && "line-clamp-2")}>{summary || swt("interface.m0547", { p0: node.id })}</p>
+            <p className={cn("mt-1 text-sm", !open && "line-clamp-2")}>
+              {summary || swt("interface.m0547", { p0: node.id })}
+            </p>
           </div>
         </button>
 
@@ -419,10 +502,15 @@ function BroadcastRow({
           <div className="mt-2 ml-5 flex flex-col gap-3 rounded-md border bg-muted/30 p-3">
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
               <span>
-                {swt("interface.m0200")}<code className="font-mono">#{node.id}</code>
+                {swt("interface.m0200")}
+                <code className="font-mono">#{node.id}</code>
               </span>
-              <span>{swt("interface.m0546")}{" "}{meta.label}</span>
-              <span>{swt("interface.m0512")}{" "}{node.origin || "system"}</span>
+              <span>
+                {swt("interface.m0546")} {meta.label}
+              </span>
+              <span>
+                {swt("interface.m0512")} {node.origin || "system"}
+              </span>
               <span>{Number.isNaN(ts) ? node.ts : new Date(ts).toLocaleString(getIntlLocale())}</span>
             </div>
             {node.state === "deleted" && node.delete_reason && (
@@ -630,7 +718,8 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
                 setPage(1);
               }}
             >
-              {swt("interface.m0556")}</Button>
+              {swt("interface.m0556")}
+            </Button>
           )}
         </div>
         <div className="ml-auto flex items-center gap-2">
@@ -668,7 +757,8 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
           className="flex w-full items-center justify-center gap-1.5 border-b bg-primary/10 py-1.5 text-xs font-medium text-primary hover:bg-primary/15"
         >
           <ArrowUpToLineIcon className="size-3.5" />
-          {pending > 99 ? "99+" : pending} {swt("interface.m0565")}</button>
+          {pending > 99 ? "99+" : pending} {swt("interface.m0565")}
+        </button>
       )}
 
       <CardContent className="px-4 py-0">
@@ -717,7 +807,8 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
             <SelectGroup>
               {PAGE_SIZES.map((n) => (
                 <SelectItem key={n} value={String(n)}>
-                  {n} {swt("interface.m0261")}</SelectItem>
+                  {n} {swt("interface.m0261")}
+                </SelectItem>
               ))}
             </SelectGroup>
           </SelectContent>

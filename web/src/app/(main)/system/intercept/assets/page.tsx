@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { BanIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
@@ -18,19 +16,84 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { AssetInterceptKind, AssetInterceptRule } from "@/lib/types";
 
 // Kind metadata.
 
 const KIND_OPTIONS: { value: AssetInterceptKind; label: string; group: string; placeholder: string }[] = [
-  { value: "exact_domain", get label() { return swt("interface.m1151"); }, get group() { return swt("interface.m1152"); }, placeholder: "example.gov.cn" },
-  { value: "exact_ip", get label() { return swt("interface.m1153"); }, get group() { return swt("interface.m1152"); }, placeholder: "203.0.113.10" },
-  { value: "exact_url", get label() { return swt("interface.m1154"); }, get group() { return swt("interface.m1152"); }, placeholder: "https://example.gov.cn/login" },
-  { value: "fuzzy_domain", get label() { return swt("interface.m1155"); }, get group() { return swt("interface.m1156"); }, placeholder: ".gov.cn" },
-  { value: "fuzzy_ip", get label() { return swt("interface.m1157"); }, get group() { return swt("interface.m1156"); }, placeholder: "203.0.113." },
-  { value: "fuzzy_url", get label() { return swt("interface.m1158"); }, get group() { return swt("interface.m1156"); }, placeholder: "/admin" },
-  { value: "cidr", get label() { return swt("interface.m0670"); }, get group() { return swt("interface.m0598"); }, placeholder: "192.168.0.0/16" },
+  {
+    value: "exact_domain",
+    get label() {
+      return swt("interface.m1151");
+    },
+    get group() {
+      return swt("interface.m1152");
+    },
+    placeholder: "example.gov.cn",
+  },
+  {
+    value: "exact_ip",
+    get label() {
+      return swt("interface.m1153");
+    },
+    get group() {
+      return swt("interface.m1152");
+    },
+    placeholder: "203.0.113.10",
+  },
+  {
+    value: "exact_url",
+    get label() {
+      return swt("interface.m1154");
+    },
+    get group() {
+      return swt("interface.m1152");
+    },
+    placeholder: "https://example.gov.cn/login",
+  },
+  {
+    value: "fuzzy_domain",
+    get label() {
+      return swt("interface.m1155");
+    },
+    get group() {
+      return swt("interface.m1156");
+    },
+    placeholder: ".gov.cn",
+  },
+  {
+    value: "fuzzy_ip",
+    get label() {
+      return swt("interface.m1157");
+    },
+    get group() {
+      return swt("interface.m1156");
+    },
+    placeholder: "203.0.113.",
+  },
+  {
+    value: "fuzzy_url",
+    get label() {
+      return swt("interface.m1158");
+    },
+    get group() {
+      return swt("interface.m1156");
+    },
+    placeholder: "/admin",
+  },
+  {
+    value: "cidr",
+    get label() {
+      return swt("interface.m0670");
+    },
+    get group() {
+      return swt("interface.m0598");
+    },
+    placeholder: "192.168.0.0/16",
+  },
 ];
 
 const KIND_LABEL: Record<AssetInterceptKind, string> = Object.fromEntries(
@@ -192,17 +255,16 @@ export default function AssetInterceptPage() {
         <BanIcon className="h-5 w-5 shrink-0" />
         <div>
           <h1 className="text-lg font-semibold leading-tight">{swt("interface.m1166")}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {swt("interface.m1167")}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">{swt("interface.m1167")}</p>
         </div>
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">
-          {swt("interface.m1168")}</p>
+        <p className="text-xs text-muted-foreground">{swt("interface.m1168")}</p>
         <Button onClick={openNew} size="sm" className="shrink-0">
           <PlusIcon className="h-4 w-4" />
-          {swt("interface.m1169")}</Button>
+          {swt("interface.m1169")}
+        </Button>
       </div>
 
       <Card>
@@ -215,7 +277,8 @@ export default function AssetInterceptPage() {
               <p className="text-sm text-muted-foreground">{swt("interface.m1170")}</p>
               <Button size="sm" variant="outline" onClick={openNew}>
                 <PlusIcon className="h-4 w-4" />
-                {swt("interface.m1171")}</Button>
+                {swt("interface.m1171")}
+              </Button>
             </div>
           ) : (
             <Table>
@@ -243,7 +306,8 @@ export default function AssetInterceptPage() {
                       <div className="flex items-center gap-1.5">
                         {rule.builtin && (
                           <Badge variant="secondary" className="shrink-0 px-1 py-0 text-[10px]">
-                            {swt("interface.m1135")}</Badge>
+                            {swt("interface.m1135")}
+                          </Badge>
                         )}
                         <span className="truncate">{rule.note}</span>
                       </div>
@@ -337,13 +401,15 @@ export default function AssetInterceptPage() {
             <div className="flex items-center gap-3">
               <Switch id="asset-rule-enabled" checked={form.enabled} onCheckedChange={(v) => set({ enabled: v })} />
               <Label htmlFor="asset-rule-enabled" className="cursor-pointer">
-                {swt("interface.m1184")}</Label>
+                {swt("interface.m1184")}
+              </Label>
             </div>
           </div>
 
           <SheetFooter className="border-t px-6 py-4 flex-row justify-end gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? swt("interface.m0272") : swt("interface.m0273")}
             </Button>

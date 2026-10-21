@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import Link from "next/link";
@@ -23,6 +21,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Progress } from "@/components/ui/progress";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type {
   Activity,
@@ -46,9 +46,24 @@ import { cn } from "@/lib/utils";
 // ── chart constants ───────────────────────────────────────────────────────────
 
 const dailyTrendConfig = {
-  input: { get label() { return swt("interface.m0135"); }, color: "var(--chart-1)" },
-  output: { get label() { return swt("interface.m0136"); }, color: "var(--chart-2)" },
-  cacheRead: { get label() { return swt("interface.m0137"); }, color: "var(--chart-3)" },
+  input: {
+    get label() {
+      return swt("interface.m0135");
+    },
+    color: "var(--chart-1)",
+  },
+  output: {
+    get label() {
+      return swt("interface.m0136");
+    },
+    color: "var(--chart-2)",
+  },
+  cacheRead: {
+    get label() {
+      return swt("interface.m0137");
+    },
+    color: "var(--chart-3)",
+  },
 } satisfies ChartConfig;
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -72,12 +87,22 @@ function fmtTokens(n: number): string {
 }
 
 const ASSET_TYPE_LABELS: Record<string, string> = {
-  get root_domain() { return swt("interface.m0142"); },
+  get root_domain() {
+    return swt("interface.m0142");
+  },
   ip: "IP",
-  get subdomain() { return swt("interface.m0143"); },
-  get app() { return swt("interface.m0144"); },
-  get service() { return swt("interface.m0145"); },
-  get endpoint() { return swt("interface.m0146"); },
+  get subdomain() {
+    return swt("interface.m0143");
+  },
+  get app() {
+    return swt("interface.m0144");
+  },
+  get service() {
+    return swt("interface.m0145");
+  },
+  get endpoint() {
+    return swt("interface.m0146");
+  },
 };
 
 const ASSET_COLORS: Record<string, string> = {
@@ -303,7 +328,10 @@ export default function DashboardPage() {
     [swLocale, activity],
   );
 
-  const totalAssets = React.useMemo(() => Object.values(assetCounts).reduce((a, b) => a + b, 0), [swLocale, assetCounts]);
+  const totalAssets = React.useMemo(
+    () => Object.values(assetCounts).reduce((a, b) => a + b, 0),
+    [swLocale, assetCounts],
+  );
 
   // asset type breakdown
   const assetByType = React.useMemo(() => {
@@ -518,16 +546,29 @@ export default function DashboardPage() {
         <Card className="gap-1">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <TargetIcon className="size-3" /> {swt("interface.m0149")}</div>
+              <TargetIcon className="size-3" /> {swt("interface.m0149")}
+            </div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-semibold tabular-nums">{tasksByStatus.running ?? 0}</span>
               <span className="text-xs text-muted-foreground">/ {tasks.length}</span>
             </div>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-x-2.5 gap-y-0.5 text-[10px]">
-            {(tasksByStatus.running ?? 0) > 0 && <span className="text-blue-400">{swt("app.metricValue", { label: swt("interface.m2851"), value: tasksByStatus.running })}</span>}
-            {(tasksByStatus.paused ?? 0) > 0 && <span className="text-amber-400">{swt("app.metricValue", { label: swt("interface.m0564"), value: tasksByStatus.paused })}</span>}
-            {(tasksByStatus.done ?? 0) > 0 && <span className="text-emerald-400">{swt("app.metricValue", { label: swt("interface.m0809"), value: tasksByStatus.done })}</span>}
+            {(tasksByStatus.running ?? 0) > 0 && (
+              <span className="text-blue-400">
+                {swt("app.metricValue", { label: swt("interface.m2851"), value: tasksByStatus.running })}
+              </span>
+            )}
+            {(tasksByStatus.paused ?? 0) > 0 && (
+              <span className="text-amber-400">
+                {swt("app.metricValue", { label: swt("interface.m0564"), value: tasksByStatus.paused })}
+              </span>
+            )}
+            {(tasksByStatus.done ?? 0) > 0 && (
+              <span className="text-emerald-400">
+                {swt("app.metricValue", { label: swt("interface.m0809"), value: tasksByStatus.done })}
+              </span>
+            )}
             {tasks.length === 0 && <span className="text-muted-foreground">{swt("interface.m0152")}</span>}
           </CardContent>
         </Card>
@@ -536,14 +577,23 @@ export default function DashboardPage() {
         <Card className="gap-1">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <BugIcon className="size-3" /> {swt("interface.m0153")}</div>
+              <BugIcon className="size-3" /> {swt("interface.m0153")}
+            </div>
             <div className="text-2xl font-semibold tabular-nums">{findings.length}</div>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2.5 text-[10px]">
-            <span className="text-rose-500">{swt("app.metricValue", { label: swt("interface.m0154"), value: findingsBySev.critical })}</span>
-            <span className="text-red-400">{swt("app.metricValue", { label: swt("interface.m0155"), value: findingsBySev.high })}</span>
-            <span className="text-amber-400">{swt("app.metricValue", { label: swt("interface.m0156"), value: findingsBySev.medium })}</span>
-            <span className="text-slate-400">{swt("app.metricValue", { label: swt("interface.m0157"), value: findingsBySev.low })}</span>
+            <span className="text-rose-500">
+              {swt("app.metricValue", { label: swt("interface.m0154"), value: findingsBySev.critical })}
+            </span>
+            <span className="text-red-400">
+              {swt("app.metricValue", { label: swt("interface.m0155"), value: findingsBySev.high })}
+            </span>
+            <span className="text-amber-400">
+              {swt("app.metricValue", { label: swt("interface.m0156"), value: findingsBySev.medium })}
+            </span>
+            <span className="text-slate-400">
+              {swt("app.metricValue", { label: swt("interface.m0157"), value: findingsBySev.low })}
+            </span>
           </CardContent>
         </Card>
 
@@ -551,7 +601,8 @@ export default function DashboardPage() {
         <Card className="gap-1">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <NetworkIcon className="size-3" /> {swt("interface.m0158")}</div>
+              <NetworkIcon className="size-3" /> {swt("interface.m0158")}
+            </div>
             <div className="text-2xl font-semibold tabular-nums">{totalAssets}</div>
           </CardHeader>
           <CardContent className="text-[10px] text-muted-foreground">{swt("interface.m0159")}</CardContent>
@@ -561,7 +612,8 @@ export default function DashboardPage() {
         <Card className="gap-1">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <ActivityIcon className="size-3" /> {swt("interface.m0160")}</div>
+              <ActivityIcon className="size-3" /> {swt("interface.m0160")}
+            </div>
             <div className="text-2xl font-semibold tabular-nums">{traffic.length}</div>
           </CardHeader>
           <CardContent className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
@@ -580,13 +632,18 @@ export default function DashboardPage() {
         <Card className="gap-1">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <ZapIcon className="size-3" /> {swt("interface.m0163")}</div>
+              <ZapIcon className="size-3" /> {swt("interface.m0163")}
+            </div>
             <div className="text-2xl font-semibold tabular-nums">
               {fmtTokens(displayedTokens.input + displayedTokens.output) || "—"}
             </div>
           </CardHeader>
           <CardContent className="text-[10px] text-muted-foreground">
-            {swt("app.tokenSummary", { input: fmtTokens(displayedTokens.input), cache: fmtTokens(displayedTokens.cacheRead), output: fmtTokens(displayedTokens.output) })}
+            {swt("app.tokenSummary", {
+              input: fmtTokens(displayedTokens.input),
+              cache: fmtTokens(displayedTokens.cacheRead),
+              output: fmtTokens(displayedTokens.output),
+            })}
           </CardContent>
         </Card>
       </div>
@@ -597,7 +654,8 @@ export default function DashboardPage() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold">
             <ZapIcon className="size-3.5 text-muted-foreground" />
-            {swt("interface.m0167")}{/* Legacy activity includes historical tasks; the more precise llm_usage ledger covers only data since enablement. */}
+            {swt("interface.m0167")}
+            {/* Legacy activity includes historical tasks; the more precise llm_usage ledger covers only data since enablement. */}
             <div className="ml-1 flex gap-0.5 rounded-md border bg-muted/30 p-0.5">
               {(
                 [
@@ -609,11 +667,7 @@ export default function DashboardPage() {
                   type="button"
                   key={v}
                   onClick={() => setTokenVersion(v)}
-                  title={
-                    v === "new"
-                      ? swt("interface.m0170")
-                      : swt("interface.m0171")
-                  }
+                  title={v === "new" ? swt("interface.m0170") : swt("interface.m0171")}
                   className={cn(
                     "rounded px-2 py-0.5 text-[9px] font-medium transition-colors",
                     tokenVersion === v
@@ -641,7 +695,8 @@ export default function DashboardPage() {
                   : "bg-muted/30 text-muted-foreground hover:text-foreground",
               )}
             >
-              {swt("interface.m0172")}</button>
+              {swt("interface.m0172")}
+            </button>
             {llmProfiles.map((p) => {
               const key = Number(p.id);
               const hasData = tokenByProfile.has(key) || (p.is_default && tokenByProfile.has(defaultProfileId));
@@ -669,7 +724,8 @@ export default function DashboardPage() {
                           : "bg-emerald-500/20 text-emerald-400",
                       )}
                     >
-                      {swt("interface.m0077")}</span>
+                      {swt("interface.m0077")}
+                    </span>
                   )}
                 </button>
               );
@@ -687,7 +743,9 @@ export default function DashboardPage() {
               <div className="mt-0.5 text-3xl font-bold tabular-nums tracking-tight">
                 {fmtTokens(displayedTokens.input + displayedTokens.output) || "—"}
               </div>
-              <div className="mt-0.5 text-[10px] text-muted-foreground">{displayedTokens.taskCount} {swt("interface.m0174")}</div>
+              <div className="mt-0.5 text-[10px] text-muted-foreground">
+                {displayedTokens.taskCount} {swt("interface.m0174")}
+              </div>
             </div>
 
             {/* Per-type bars */}
@@ -798,7 +856,8 @@ export default function DashboardPage() {
                 className="flex flex-1 items-center justify-center rounded-lg border bg-muted/10 text-xs text-muted-foreground"
                 style={{ minHeight: 180 }}
               >
-                {swt("interface.m0183")}</div>
+                {swt("interface.m0183")}
+              </div>
             ) : (
               <ChartContainer config={dailyTrendConfig} className="h-[200px] w-full">
                 <BarChart data={dailyTokenData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }} maxBarSize={40}>
@@ -852,15 +911,18 @@ export default function DashboardPage() {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-semibold">
               <ActivityIcon className="size-3.5 text-muted-foreground" />
-              {swt("interface.m0184")}</div>
+              {swt("interface.m0184")}
+            </div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-muted-foreground">
-                {activity.filter((a) => a.kind !== "usage").length} {swt("interface.m0185")}</span>
+                {activity.filter((a) => a.kind !== "usage").length} {swt("interface.m0185")}
+              </span>
               <Link
                 href="/function/tasks"
                 className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground"
               >
-                {swt("interface.m0186")}<ArrowUpRightIcon className="size-3" />
+                {swt("interface.m0186")}
+                <ArrowUpRightIcon className="size-3" />
               </Link>
             </div>
           </div>
@@ -912,12 +974,14 @@ export default function DashboardPage() {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-semibold">
               <BugIcon className="size-3.5 text-muted-foreground" />
-              {swt("interface.m0188")}</div>
+              {swt("interface.m0188")}
+            </div>
             <Link
               href="/function/findings"
               className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground"
             >
-              {swt("interface.m0172")}<ArrowUpRightIcon className="size-3" />
+              {swt("interface.m0172")}
+              <ArrowUpRightIcon className="size-3" />
             </Link>
           </div>
 
@@ -956,21 +1020,32 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex items-center gap-1.5 text-xs font-semibold">
             <ClockIcon className="size-3.5 text-muted-foreground" />
-            {swt("interface.m0190")}</div>
+            {swt("interface.m0190")}
+          </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-muted-foreground">{tasks.length} {swt("interface.m0174")}</span>
+            <span className="text-[10px] text-muted-foreground">
+              {tasks.length} {swt("interface.m0174")}
+            </span>
             <Link
               href="/function/tasks"
               className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground"
             >
-              {swt("interface.m0172")}<ArrowUpRightIcon className="size-3" />
+              {swt("interface.m0172")}
+              <ArrowUpRightIcon className="size-3" />
             </Link>
           </div>
         </div>
         <table className="w-full border-collapse text-xs">
           <thead>
             <tr className="border-b">
-              {[swt("interface.m0190"), swt("interface.m0191"), swt("interface.m0192"), swt("interface.m0193"), swt("interface.m0194"), swt("interface.m0195")].map((h) => (
+              {[
+                swt("interface.m0190"),
+                swt("interface.m0191"),
+                swt("interface.m0192"),
+                swt("interface.m0193"),
+                swt("interface.m0194"),
+                swt("interface.m0195"),
+              ].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-2 text-left text-[9px] font-semibold uppercase tracking-widest text-muted-foreground first:pl-4"
@@ -984,7 +1059,8 @@ export default function DashboardPage() {
             {sortedTasks.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-6 text-center text-xs text-muted-foreground">
-                  {swt("interface.m0152")}</td>
+                  {swt("interface.m0152")}
+                </td>
               </tr>
             ) : (
               sortedTasks.map((t) => {
@@ -1042,7 +1118,8 @@ export default function DashboardPage() {
         {/* Asset distribution. */}
         <Card className="p-4">
           <SectionTitle icon={NetworkIcon} sub={swt("interface.m0196")}>
-            {swt("interface.m0197")}</SectionTitle>
+            {swt("interface.m0197")}
+          </SectionTitle>
 
           {assetByType.length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground">{swt("interface.m0198")}</div>
@@ -1065,13 +1142,16 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className="mt-3 border-t pt-3 text-[10px] text-muted-foreground">{swt("interface.m0199")}{" "}{totalAssets} {swt("interface.m0200")}</div>
+          <div className="mt-3 border-t pt-3 text-[10px] text-muted-foreground">
+            {swt("interface.m0199")} {totalAssets} {swt("interface.m0200")}
+          </div>
         </Card>
 
         {/* Traffic status codes. */}
         <Card className="p-4">
           <SectionTitle icon={ActivityIcon} sub={swt("interface.m0201", { p0: traffic.length })}>
-            {swt("interface.m0202")}</SectionTitle>
+            {swt("interface.m0202")}
+          </SectionTitle>
 
           {/* bar chart */}
           {trafficByCodes.length === 0 ? (
@@ -1165,7 +1245,10 @@ export default function DashboardPage() {
           {/* pending approvals */}
           {pendingCount > 0 && (
             <div className="mt-3">
-              <div className="mb-1.5 text-[10px] font-medium text-amber-400">{swt("interface.m0213")}{pendingCount})</div>
+              <div className="mb-1.5 text-[10px] font-medium text-amber-400">
+                {swt("interface.m0213")}
+                {pendingCount})
+              </div>
               <div className="flex flex-col gap-1.5">
                 {pending.slice(0, 3).map((p) => (
                   <Link
@@ -1185,7 +1268,8 @@ export default function DashboardPage() {
                     href="/system/intercept/approvals"
                     className="text-center text-[10px] text-muted-foreground hover:text-foreground"
                   >
-                    {swt("interface.m0214")}{" "}{pendingCount - 3} {swt("interface.m0215")}</Link>
+                    {swt("interface.m0214")} {pendingCount - 3} {swt("interface.m0215")}
+                  </Link>
                 )}
               </div>
             </div>
@@ -1194,7 +1278,8 @@ export default function DashboardPage() {
           {pendingCount === 0 && (
             <div className="mt-3 rounded-lg border bg-muted/10 px-3 py-3 text-center text-[10px] text-muted-foreground">
               <ShieldCheckIcon className="mx-auto mb-1 size-4 text-emerald-500/50" />
-              {swt("interface.m0216")}</div>
+              {swt("interface.m0216")}
+            </div>
           )}
         </Card>
       </div>

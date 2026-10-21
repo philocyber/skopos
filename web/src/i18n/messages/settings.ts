@@ -1,20 +1,36 @@
 // Complete paragraphs keep word order and emphasis natural.
 export const en = {
-  captureDisabled: "When disabled (the default), no traffic is recorded. Agents receive <b>neither proxy settings nor traffic tools</b>, and their prompts contain <b>no proxy instructions</b>. Switching rebuilds Agents immediately to apply the change.",
-  binding: "Off by default. When enabled, the report Agent triggered on vulnerability creation reviews existing HTTP requests and responses, links the relevant traffic, then writes the report. <b>Inspecting packets and making extra tool calls increases token usage.</b>",
-  proxy: "All Agents’ <b>target traffic</b> uses this outbound proxy to hide the source IP or use a jump host. Supports <b>HTTP, HTTPS, and SOCKS5</b>, optionally with <code>user:pass</code> authentication. Leave blank for a direct connection.",
-  proxyCapture: "With <b>traffic capture enabled</b>, this is the recording proxy’s <b>upstream</b>: traffic is recorded before forwarding. With capture disabled, the proxy is injected directly into Agent Bash/WebFetch. It is independent of web search and LLM proxies.",
-  proxySocks: "<b>SOCKS5 note:</b> With capture disabled, each command-line tool must support <code>ALL_PROXY</code>. curl does; some tools may ignore it. For SOCKS5, enabling capture is recommended: the MITM proxy establishes the connection directly, without requiring tool support.",
-  constraints: "When enabled, each task’s <b>operational constraints</b>—the allow/deny entries in Task overview—are included in the Agent’s system prompt to define exploration boundaries, such as testing only the current port or prohibiting brute force.",
-  constraintTargets: "Control injection separately for the <b>planner</b> and <b>worker</b>; both are enabled by default. Changes apply on the next read without rebuilding Agents. When injection is disabled, that Agent no longer sees the constraints.",
-  compression: "<b>noa context compression</b> uses the model to compress long conversation histories (norma v0.4.0). When enabled, <b>planner, worker, main-Agent, and chat</b> contexts use noa instead of built-in compression. Original content is archived in the task working directory for review. Changes affect subsequent runs without rebuilding Agents; disabling immediately restores built-in compression.",
-  webSearch: "This is the web search <b>master switch and source configuration</b>. Enable it first, then enable <b>web_search in each Agent’s settings</b>. Search returns titles, links, and snippets; WebFetch retrieves full content. Web search <b>does not use the recording proxy</b> and is independent of traffic capture.",
-  searchSources: "Available sources are <b>DuckDuckGo (ddgs)</b> without an API key, <b>Brave’s free tier</b> with a Brave API key, <b>Tavily</b> with a Tavily API key, or <b>DeepSeek</b> using the current LLM profile. The master switch must be on before Agents can enable web search.",
-  deepseekRequirements: "This source reuses the <b>currently active LLM profile</b>. It supports <b>only official DeepSeek models</b>, and the profile <b>must use the Anthropic protocol</b>. DeepSeek’s OpenAI endpoint does not support server-side search. Switching LLM profiles may make this source unavailable.",
-  deepseekBehavior: "Unlike other sources, search runs <b>on DeepSeek’s servers</b>. Each search adds a model call and token cost. Search requests <b>bypass the outbound proxy above</b> and <b>are not recorded as traffic</b>. Results contain <b>only titles and links</b>, without snippets; use WebFetch for full content.",
-  python: "Custom <b>script</b> tools use this Python interpreter. It is detected at startup, preferring python3. Enter an absolute path to a virtual environment or specific version, or leave blank for automatic runtime detection.",
-  workers: "Number of Worker Agents running concurrently per task (default: 3). More Workers increase parallel exploration and cost. Changes <b>apply to tasks started afterward</b>; running tasks are unaffected.",
-  sendPreference: "This preference is stored <b>only in this browser</b> and does not sync with your account. Set it again after changing browsers or clearing site data.",
-  updateLauncher: "One-click updates rely on the supervisor script to restart the application. Start with <code>start.sh</code> (Windows: <code>start.bat</code>). Running the binary directly does not restart it automatically after exit.",
+  captureDisabled:
+    "When disabled (the default), no traffic is recorded. Agents receive <b>neither proxy settings nor traffic tools</b>, and their prompts contain <b>no proxy instructions</b>. Switching rebuilds Agents immediately to apply the change.",
+  binding:
+    "Off by default. When enabled, the report Agent triggered on vulnerability creation reviews existing HTTP requests and responses, links the relevant traffic, then writes the report. <b>Inspecting packets and making extra tool calls increases token usage.</b>",
+  proxy:
+    "All Agents’ <b>target traffic</b> uses this outbound proxy to hide the source IP or use a jump host. Supports <b>HTTP, HTTPS, and SOCKS5</b>, optionally with <code>user:pass</code> authentication. Leave blank for a direct connection.",
+  proxyCapture:
+    "With <b>traffic capture enabled</b>, this is the recording proxy’s <b>upstream</b>: traffic is recorded before forwarding. With capture disabled, the proxy is injected directly into Agent Bash/WebFetch. It is independent of web search and LLM proxies.",
+  proxySocks:
+    "<b>SOCKS5 note:</b> With capture disabled, each command-line tool must support <code>ALL_PROXY</code>. curl does; some tools may ignore it. For SOCKS5, enabling capture is recommended: the MITM proxy establishes the connection directly, without requiring tool support.",
+  constraints:
+    "When enabled, each task’s <b>operational constraints</b>—the allow/deny entries in Task overview—are included in the Agent’s system prompt to define exploration boundaries, such as testing only the current port or prohibiting brute force.",
+  constraintTargets:
+    "Control injection separately for the <b>planner</b> and <b>worker</b>; both are enabled by default. Changes apply on the next read without rebuilding Agents. When injection is disabled, that Agent no longer sees the constraints.",
+  compression:
+    "<b>noa context compression</b> uses the model to compress long conversation histories (norma v0.4.0). When enabled, <b>planner, worker, main-Agent, and chat</b> contexts use noa instead of built-in compression. Original content is archived in the task working directory for review. Changes affect subsequent runs without rebuilding Agents; disabling immediately restores built-in compression.",
+  webSearch:
+    "This is the web search <b>master switch and source configuration</b>. Enable it first, then enable <b>web_search in each Agent’s settings</b>. Search returns titles, links, and snippets; WebFetch retrieves full content. Web search <b>does not use the recording proxy</b> and is independent of traffic capture.",
+  searchSources:
+    "Available sources are <b>DuckDuckGo (ddgs)</b> without an API key, <b>Brave’s free tier</b> with a Brave API key, <b>Tavily</b> with a Tavily API key, or <b>DeepSeek</b> using the current LLM profile. The master switch must be on before Agents can enable web search.",
+  deepseekRequirements:
+    "This source reuses the <b>currently active LLM profile</b>. It supports <b>only official DeepSeek models</b>, and the profile <b>must use the Anthropic protocol</b>. DeepSeek’s OpenAI endpoint does not support server-side search. Switching LLM profiles may make this source unavailable.",
+  deepseekBehavior:
+    "Unlike other sources, search runs <b>on DeepSeek’s servers</b>. Each search adds a model call and token cost. Search requests <b>bypass the outbound proxy above</b> and <b>are not recorded as traffic</b>. Results contain <b>only titles and links</b>, without snippets; use WebFetch for full content.",
+  python:
+    "Custom <b>script</b> tools use this Python interpreter. It is detected at startup, preferring python3. Enter an absolute path to a virtual environment or specific version, or leave blank for automatic runtime detection.",
+  workers:
+    "Number of Worker Agents running concurrently per task (default: 3). More Workers increase parallel exploration and cost. Changes <b>apply to tasks started afterward</b>; running tasks are unaffected.",
+  sendPreference:
+    "This preference is stored <b>only in this browser</b> and does not sync with your account. Set it again after changing browsers or clearing site data.",
+  updateLauncher:
+    "One-click updates rely on the supervisor script to restart the application. Start with <code>start.sh</code> (Windows: <code>start.bat</code>). Running the binary directly does not restart it automatically after exit.",
   pagination: "{from}–{to} / {total} records",
 };

@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { RotateCcwIcon } from "lucide-react";
@@ -19,6 +17,8 @@ import {
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { FindingRetest } from "@/lib/types";
 
@@ -60,10 +60,14 @@ export function FindingRetestDialog({ findingId, findingName, onClose, onStarted
     <Dialog open onOpenChange={(open) => !open && !submitLock.current && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{swt("interface.m2209")}{findingId}</DialogTitle>
+          <DialogTitle>
+            {swt("interface.m2209")}
+            {findingId}
+          </DialogTitle>
           <DialogDescription className="break-words">
             {findingName ? <span className="mb-2 block">{findingName}</span> : null}
-            {swt("interface.m2210")}</DialogDescription>
+            {swt("interface.m2210")}
+          </DialogDescription>
         </DialogHeader>
         <FieldGroup>
           <Field data-disabled={submitting}>
@@ -82,7 +86,8 @@ export function FindingRetestDialog({ findingId, findingName, onClose, onStarted
         </FieldGroup>
         <DialogFooter>
           <Button variant="outline" disabled={submitting} onClick={onClose}>
-            {swt("interface.m0063")}</Button>
+            {swt("interface.m0063")}
+          </Button>
           <Button disabled={submitting} onClick={() => void start()}>
             {submitting ? <Spinner data-icon="inline-start" /> : <RotateCcwIcon data-icon="inline-start" />}
             {submitting ? swt("interface.m2214") : swt("interface.m2215")}

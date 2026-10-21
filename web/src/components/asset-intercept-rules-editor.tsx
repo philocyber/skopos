@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { PlusIcon, Trash2Icon } from "lucide-react";
@@ -9,6 +7,8 @@ import { PlusIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import type { AssetInterceptKind, AssetInterceptRuleInput } from "@/lib/types";
 
 // Use NativeSelect rather than shadcn Select inside Sheet drawers:
@@ -18,13 +18,55 @@ export const ASSET_INTERCEPT_KIND_OPTIONS: {
   label: string;
   placeholder: string;
 }[] = [
-  { value: "exact_domain", get label() { return swt("interface.m0664"); }, placeholder: "example.gov.cn" },
-  { value: "exact_ip", get label() { return swt("interface.m0665"); }, placeholder: "203.0.113.10" },
-  { value: "exact_url", get label() { return swt("interface.m0666"); }, placeholder: "https://example.com/login" },
-  { value: "fuzzy_domain", get label() { return swt("interface.m0667"); }, placeholder: ".gov.cn" },
-  { value: "fuzzy_ip", get label() { return swt("interface.m0668"); }, placeholder: "203.0.113." },
-  { value: "fuzzy_url", get label() { return swt("interface.m0669"); }, placeholder: "/admin" },
-  { value: "cidr", get label() { return swt("interface.m0670"); }, placeholder: "192.168.0.0/16" },
+  {
+    value: "exact_domain",
+    get label() {
+      return swt("interface.m0664");
+    },
+    placeholder: "example.gov.cn",
+  },
+  {
+    value: "exact_ip",
+    get label() {
+      return swt("interface.m0665");
+    },
+    placeholder: "203.0.113.10",
+  },
+  {
+    value: "exact_url",
+    get label() {
+      return swt("interface.m0666");
+    },
+    placeholder: "https://example.com/login",
+  },
+  {
+    value: "fuzzy_domain",
+    get label() {
+      return swt("interface.m0667");
+    },
+    placeholder: ".gov.cn",
+  },
+  {
+    value: "fuzzy_ip",
+    get label() {
+      return swt("interface.m0668");
+    },
+    placeholder: "203.0.113.",
+  },
+  {
+    value: "fuzzy_url",
+    get label() {
+      return swt("interface.m0669");
+    },
+    placeholder: "/admin",
+  },
+  {
+    value: "cidr",
+    get label() {
+      return swt("interface.m0670");
+    },
+    placeholder: "192.168.0.0/16",
+  },
 ];
 
 // AssetInterceptRulesEditor is a controlled multiline editor for block/allow rules,
@@ -101,7 +143,8 @@ export function AssetInterceptRulesEditor({
         );
       })}
       <Button type="button" size="sm" variant="outline" className="w-fit" onClick={add}>
-        <PlusIcon className="size-4" /> {swt("interface.m2197")}</Button>
+        <PlusIcon className="size-4" /> {swt("interface.m2197")}
+      </Button>
     </div>
   );
 }

@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import { useEffect, useRef } from "react";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
@@ -9,6 +7,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 
 interface TablePaginationProps {
   page: number; // 1-based
@@ -71,8 +71,7 @@ export function TablePagination({
         </Select>
         <span>{swt("interface.m2319")}</span>
         {total > 0 ? (
-          <span className="tabular-nums">
-            {swt("settings.pagination", { from, to, total })}</span>
+          <span className="tabular-nums">{swt("settings.pagination", { from, to, total })}</span>
         ) : (
           <span>{swt("interface.m2321")}</span>
         )}

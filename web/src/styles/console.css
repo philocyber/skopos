@@ -72,7 +72,9 @@
     min-height: 2rem;
     border-radius: var(--radius-md);
     font-size: 0.8125rem;
-    transition: color 160ms ease, background-color 160ms ease;
+    transition:
+      color 160ms ease,
+      background-color 160ms ease;
   }
 
   [data-slot="sidebar-menu-button"][data-active="true"] {
@@ -216,7 +218,9 @@
 
 /* Suppress decorative and component motion together, including portalled UI. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

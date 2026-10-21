@@ -1,32 +1,11 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
-import { toast } from "sonner";
-import { Bot, PlusIcon, Trash2Icon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Bot, PlusIcon, Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
+
+import { AgentEditor } from "@/components/agent-editor";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,22 +17,30 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { AgentEditor } from "@/components/agent-editor";
+import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { Agent } from "@/lib/types";
 
 // AgentGridCard is one clickable tile opening the agent's editor drawer. Custom
 // (non-builtin) agents get a delete button.
-function AgentGridCard({
-  agent,
-  onOpen,
-  onDeleted,
-}: {
-  agent: Agent;
-  onOpen: () => void;
-  onDeleted: () => void;
-}) {
+function AgentGridCard({ agent, onOpen, onDeleted }: { agent: Agent; onOpen: () => void; onDeleted: () => void }) {
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
 
@@ -75,14 +62,17 @@ function AgentGridCard({
           <span className="text-muted-foreground font-mono text-xs">{agent.key}</span>
           {agent.builtin ? (
             <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-              {swt("interface.m1135")}</Badge>
+              {swt("interface.m1135")}
+            </Badge>
           ) : (
             <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
-              {swt("interface.m0081")}</Badge>
+              {swt("interface.m0081")}
+            </Badge>
           )}
           {!agent.enabled && (
             <Badge variant="outline" className="text-destructive px-1.5 py-0 text-[10px]">
-              {swt("interface.m1069")}</Badge>
+              {swt("interface.m1069")}
+            </Badge>
           )}
         </div>
         <p className="text-muted-foreground line-clamp-2 min-h-8 text-xs">
@@ -90,8 +80,12 @@ function AgentGridCard({
         </p>
         <div className="text-muted-foreground flex flex-wrap gap-1.5 text-[10px]">
           <span className="rounded border px-1.5 py-0.5">MCP {agent.mcp_count ?? 0}</span>
-          <span className="rounded border px-1.5 py-0.5">{swt("english.e084")}{" "}{agent.skill_count ?? 0}</span>
-          <span className="rounded border px-1.5 py-0.5">{swt("interface.m0292")}{" "}{agent.tool_count ?? 0}</span>
+          <span className="rounded border px-1.5 py-0.5">
+            {swt("english.e084")} {agent.skill_count ?? 0}
+          </span>
+          <span className="rounded border px-1.5 py-0.5">
+            {swt("interface.m0292")} {agent.tool_count ?? 0}
+          </span>
         </div>
       </button>
       {!agent.builtin && (
@@ -107,9 +101,11 @@ function AgentGridCard({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>{swt("interface.m1137")}{agent.name}」？</AlertDialogTitle>
-              <AlertDialogDescription>
-                {swt("interface.m1138")}</AlertDialogDescription>
+              <AlertDialogTitle>
+                {swt("interface.m1137")}
+                {agent.name}」？
+              </AlertDialogTitle>
+              <AlertDialogDescription>{swt("interface.m1138")}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{swt("interface.m0063")}</AlertDialogCancel>
@@ -156,13 +152,13 @@ function CreateAgentDialog({ onCreated }: { onCreated: (key: string) => void }) 
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm">
-          <PlusIcon /> {swt("interface.m1140")}</Button>
+          <PlusIcon /> {swt("interface.m1140")}
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{swt("interface.m1141")}</DialogTitle>
-          <DialogDescription>
-            {swt("interface.m1142")}</DialogDescription>
+          <DialogDescription>{swt("interface.m1142")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-2">
           <div className="grid gap-1.5">
@@ -174,9 +170,7 @@ function CreateAgentDialog({ onCreated }: { onCreated: (key: string) => void }) 
               onChange={(e) => setKey(e.target.value)}
               className="font-mono"
             />
-            {key.length > 0 && !keyOk && (
-              <span className="text-destructive text-xs">{swt("interface.m1144")}</span>
-            )}
+            {key.length > 0 && !keyOk && <span className="text-destructive text-xs">{swt("interface.m1144")}</span>}
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="agent-name">{swt("interface.m0868")}</Label>
@@ -200,7 +194,8 @@ function CreateAgentDialog({ onCreated }: { onCreated: (key: string) => void }) 
         </div>
         <DialogFooter>
           <Button onClick={create} disabled={!canCreate}>
-            {swt("interface.m0995")}</Button>
+            {swt("interface.m0995")}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -215,7 +210,10 @@ export default function AgentsPage() {
   const [editKey, setEditKey] = React.useState<string | null>(null);
 
   const reload = React.useCallback(() => {
-    api.agents().then(setAgents).catch(() => setAgents([]));
+    api
+      .agents()
+      .then(setAgents)
+      .catch(() => setAgents([]));
   }, []);
   React.useEffect(() => {
     reload();
@@ -228,8 +226,7 @@ export default function AgentsPage() {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">{swt("english.e082")}</h1>
-          <p className="text-muted-foreground text-sm">
-            {swt("interface.m1147")}</p>
+          <p className="text-muted-foreground text-sm">{swt("interface.m1147")}</p>
         </div>
         <CreateAgentDialog
           onCreated={(key) => {
@@ -242,7 +239,9 @@ export default function AgentsPage() {
       <Card>
         <CardHeader>
           <CardTitle>{swt("interface.m1148")}</CardTitle>
-          <CardDescription>{swt("interface.m0199")}{" "}{agents.length} {swt("interface.m0862")}</CardDescription>
+          <CardDescription>
+            {swt("interface.m0199")} {agents.length} {swt("interface.m0862")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {agents.length === 0 ? (
@@ -270,7 +269,8 @@ export default function AgentsPage() {
                   <span className="text-muted-foreground font-mono text-xs">{editing.key}</span>
                   {!editing.builtin && (
                     <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
-                      {swt("interface.m0081")}</Badge>
+                      {swt("interface.m0081")}
+                    </Badge>
                   )}
                 </SheetTitle>
                 <SheetDescription>{editing.description || swt("interface.m1150")}</SheetDescription>

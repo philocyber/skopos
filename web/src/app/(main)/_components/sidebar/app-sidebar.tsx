@@ -1,6 +1,5 @@
 "use client";
 
-import { useI18n } from "@/i18n";
 import Link from "next/link";
 
 import { useShallow } from "zustand/react/shallow";
@@ -16,13 +15,13 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useI18n } from "@/i18n";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import { SidebarSupportCard } from "./sidebar-support-card";
-
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   "use no memo";

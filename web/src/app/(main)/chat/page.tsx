@@ -1,20 +1,16 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
   ArrowUpIcon,
   Bot,
-  HistoryIcon,
-  PanelRightIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  HistoryIcon,
   ListChecksIcon,
   Loader2Icon,
   MoreHorizontalIcon,
+  PanelRightIcon,
   PaperclipIcon,
   PencilIcon,
   PinIcon,
@@ -27,12 +23,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ApprovalExecutionFocus, useApprovalFocus, useApprovalHistory } from "@/components/approval-execution-focus";
 import { MentionTextarea } from "@/components/mention-textarea";
 import { SideQuestionButton, SideQuestionWorkspace } from "@/components/side-question-workspace";
-import { TodoPopover } from "@/components/todo-popover";
-import { ApprovalExecutionFocus, useApprovalFocus, useApprovalHistory } from "@/components/approval-execution-focus";
-import { Transcript } from "@/components/transcript";
 import { TaskContextPanel } from "@/components/task-context-panel";
+import { TodoPopover } from "@/components/todo-popover";
+import { Transcript } from "@/components/transcript";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,14 +55,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useSideQuestions } from "@/hooks/use-side-questions";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { mergeActivities } from "@/lib/activity-merge";
 import { api } from "@/lib/api";
 import { shouldSubmitOnKey, useChatSendMode } from "@/lib/chat-send-mode";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 import { isBtwCommand } from "@/lib/side-questions";
+import { latestSpawnedTask } from "@/lib/task-workspace";
 import type { Activity, Agent, ChatAttachment, Conversation, LLMProfile } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { latestSpawnedTask } from "@/lib/task-workspace";
 
 // fmtBytes renders a human file size for attachment chips (mirrors transcript.tsx).
 function fmtBytes(n: number): string {

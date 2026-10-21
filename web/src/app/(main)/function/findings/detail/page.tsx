@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import Link from "next/link";
@@ -24,6 +20,8 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from "@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { statusMeta } from "@/lib/status";
 import type { Finding, FindingStatus, Severity } from "@/lib/types";
@@ -127,7 +125,8 @@ function FindingDetailInner() {
         {loaded && (
           <Button asChild variant="outline">
             <Link href="/function/findings">
-              <ArrowLeftIcon /> {swt("interface.m0355")}</Link>
+              <ArrowLeftIcon /> {swt("interface.m0355")}
+            </Link>
           </Button>
         )}
       </div>
@@ -156,7 +155,10 @@ function FindingDetailInner() {
           <StatusBadge domain="severity" value={finding.severity} dot />
           <StatusBadge domain="finding" value={finding.status} dot />
           {finding.inherited && finding.source_task_id && (
-            <Badge variant="outline">{swt("interface.m0356")}{finding.source_task_id} {swt("interface.m0357")}</Badge>
+            <Badge variant="outline">
+              {swt("interface.m0356")}
+              {finding.source_task_id} {swt("interface.m0357")}
+            </Badge>
           )}
         </div>
         <TabsList>
@@ -177,7 +179,9 @@ function FindingDetailInner() {
                   <CardTitle className="text-sm">{swt("interface.m0360")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{finding.summary || swt("interface.m0361")}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {finding.summary || swt("interface.m0361")}
+                  </p>
                 </CardContent>
               </Card>
               <FindingRetestPanel key={id} findingId={id} readOnly={finding.inherited} onCompleted={load} />

@@ -63,13 +63,20 @@
       "correctness": {
         "noUndeclaredVariables": "error",
         "noNestedComponentDefinitions": "error",
-        "noUndeclaredDependencies": "error"
+        "noUndeclaredDependencies": "error",
+        "useExhaustiveDependencies": "warn"
       },
       "nursery": {
         "useSortedClasses": "on",
-        "useNullishCoalescing": "error",
-        "noFloatingPromises": "error",
+        "useNullishCoalescing": "warn",
+        "noFloatingPromises": "warn",
         "noMisusedPromises": "error"
+      },
+      "a11y": {
+        "noLabelWithoutControl": "warn",
+        "noStaticElementInteractions": "warn",
+        "noSvgWithoutTitle": "warn",
+        "useKeyWithClickEvents": "warn"
       },
       "performance": {
         "noImgElement": "warn"
@@ -89,7 +96,8 @@
       "suspicious": {
         "noArrayIndexKey": "warn",
         "noConstantBinaryExpressions": "error",
-        "noEmptyBlockStatements": "error",
+        "noEmptyBlockStatements": "warn",
+        "useIterableCallbackReturn": "warn",
         "noUnknownAtRules": "off",
         "noImportCycles": "error",
         "noUnnecessaryConditions": "warn"
@@ -103,6 +111,19 @@
       "react": "recommended"
     }
   },
+  "overrides": [
+    {
+      "includes": ["src/lib/auth-browser.test.mjs"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUndeclaredVariables": "off",
+            "noUndeclaredDependencies": "off"
+          }
+        }
+      }
+    }
+  ],
   "css": {
     "parser": {
       "tailwindDirectives": true

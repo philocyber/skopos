@@ -1,21 +1,25 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import type { ParsedCompanyScopeText } from "@/lib/company-scope";
 import type { CompanyScopeKind } from "@/lib/types";
 
 const SCOPE_KIND_LABELS: Record<CompanyScopeKind, string> = {
-  get domain() { return swt("interface.m0232"); },
+  get domain() {
+    return swt("interface.m0232");
+  },
   ip: "IP",
   cidr: "CIDR",
   icp: "ICP",
-  get keyword() { return swt("interface.m0599"); },
+  get keyword() {
+    return swt("interface.m0599");
+  },
 };
 
 export function ScopeTextEditor({
@@ -57,7 +61,9 @@ export function ScopeTextEditor({
       />
       {parsed.rules.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs">
-          <span>{swt("interface.m2287")}{" "}{parsed.rules.length} {swt("interface.m0328")}</span>
+          <span>
+            {swt("interface.m2287")} {parsed.rules.length} {swt("interface.m0328")}
+          </span>
           {Object.entries(SCOPE_KIND_LABELS).map(([kind, kindLabel]) => {
             const count = counts.get(kind as CompanyScopeKind) ?? 0;
             return count > 0 ? (
@@ -72,10 +78,15 @@ export function ScopeTextEditor({
         <FieldError>
           {parsed.errors.slice(0, 5).map((item) => (
             <span key={`${item.line}-${item.error}`} className="block">
-              {swt("interface.m0489")}{" "}{item.line} {swt("interface.m2288")}{item.error}
+              {swt("interface.m0489")} {item.line} {swt("interface.m2288")}
+              {item.error}
             </span>
           ))}
-          {parsed.errors.length > 5 && <span className="block">{swt("interface.m2203")}{" "}{parsed.errors.length - 5} {swt("interface.m2289")}</span>}
+          {parsed.errors.length > 5 && (
+            <span className="block">
+              {swt("interface.m2203")} {parsed.errors.length - 5} {swt("interface.m2289")}
+            </span>
+          )}
         </FieldError>
       )}
     </Field>

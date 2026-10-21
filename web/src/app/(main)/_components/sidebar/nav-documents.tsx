@@ -1,7 +1,4 @@
 "use client";
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
-
 import { Ellipsis, Folder, Forward, type LucideIcon, Trash2 } from "lucide-react";
 
 import {
@@ -20,6 +17,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 
 export function NavDocuments({
   items,

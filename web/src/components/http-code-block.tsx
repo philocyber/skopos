@@ -1,6 +1,4 @@
 "use client";
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { CheckIcon, CopyIcon, WrapTextIcon } from "lucide-react";
@@ -8,6 +6,8 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { cn, copyText } from "@/lib/utils";
 
 function statusTone(status: number) {

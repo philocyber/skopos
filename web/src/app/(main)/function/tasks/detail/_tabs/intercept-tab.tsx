@@ -1,7 +1,6 @@
 "use client";
-import { useI18n } from "@/i18n";
-
 import { ApprovalRecords } from "@/components/approval-records";
+import { useI18n } from "@/i18n";
 
 export function InterceptTab({ taskId }: { taskId: string }) {
   "use no memo";

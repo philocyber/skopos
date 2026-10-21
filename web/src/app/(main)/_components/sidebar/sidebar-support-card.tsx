@@ -1,13 +1,13 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import Link from "next/link";
 
 import { siX } from "simple-icons";
 
 import { SimpleIcon } from "@/components/simple-icon";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 
 export function SidebarSupportCard() {
   "use no memo";
@@ -18,7 +18,8 @@ export function SidebarSupportCard() {
       <CardHeader className="min-w-0 px-4">
         <CardTitle className="truncate text-sm">{swt("english.e049")}</CardTitle>
         <CardDescription className="line-clamp-2">
-          {swt("english.e050")}<Link
+          {swt("english.e050")}
+          <Link
             href="https://x.com/arhamkhnz"
             target="_blank"
             rel="noreferrer"

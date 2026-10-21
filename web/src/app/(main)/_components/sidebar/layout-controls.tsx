@@ -1,7 +1,4 @@
 "use client";
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
-
 import { Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -9,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { type FontKey, fontOptions } from "@/lib/fonts/registry";
 import type { ContentLayout, NavbarStyle, SidebarCollapsible, SidebarVariant } from "@/lib/preferences/layout";
 import {
@@ -169,11 +168,14 @@ export function LayoutControls() {
                 onValueChange={onThemeModeChange}
               >
                 <ToggleGroupItem value="light" aria-label={swt("english.e011")}>
-                  {swt("english.e012")}</ToggleGroupItem>
+                  {swt("english.e012")}
+                </ToggleGroupItem>
                 <ToggleGroupItem value="dark" aria-label={swt("english.e013")}>
-                  {swt("english.e014")}</ToggleGroupItem>
+                  {swt("english.e014")}
+                </ToggleGroupItem>
                 <ToggleGroupItem value="system" aria-label={swt("english.e015")}>
-                  {swt("english.e016")}</ToggleGroupItem>
+                  {swt("english.e016")}
+                </ToggleGroupItem>
               </ToggleGroup>
             </div>
 
@@ -188,9 +190,11 @@ export function LayoutControls() {
                 onValueChange={onContentLayoutChange}
               >
                 <ToggleGroupItem value="centered" aria-label={swt("english.e018")}>
-                  {swt("english.e019")}</ToggleGroupItem>
+                  {swt("english.e019")}
+                </ToggleGroupItem>
                 <ToggleGroupItem value="full-width" aria-label={swt("english.e020")}>
-                  {swt("english.e021")}</ToggleGroupItem>
+                  {swt("english.e021")}
+                </ToggleGroupItem>
               </ToggleGroup>
             </div>
 
@@ -205,9 +209,11 @@ export function LayoutControls() {
                 onValueChange={onNavbarStyleChange}
               >
                 <ToggleGroupItem value="sticky" aria-label={swt("english.e023")}>
-                  {swt("english.e024")}</ToggleGroupItem>
+                  {swt("english.e024")}
+                </ToggleGroupItem>
                 <ToggleGroupItem value="scroll" aria-label={swt("english.e025")}>
-                  {swt("english.e026")}</ToggleGroupItem>
+                  {swt("english.e026")}
+                </ToggleGroupItem>
               </ToggleGroup>
             </div>
 
@@ -222,11 +228,14 @@ export function LayoutControls() {
                 onValueChange={onSidebarStyleChange}
               >
                 <ToggleGroupItem value="inset" aria-label={swt("english.e028")}>
-                  {swt("english.e029")}</ToggleGroupItem>
+                  {swt("english.e029")}
+                </ToggleGroupItem>
                 <ToggleGroupItem value="sidebar" aria-label={swt("english.e030")}>
-                  {swt("english.e031")}</ToggleGroupItem>
+                  {swt("english.e031")}
+                </ToggleGroupItem>
                 <ToggleGroupItem value="floating" aria-label={swt("english.e032")}>
-                  {swt("english.e033")}</ToggleGroupItem>
+                  {swt("english.e033")}
+                </ToggleGroupItem>
               </ToggleGroup>
             </div>
 
@@ -241,14 +250,17 @@ export function LayoutControls() {
                 onValueChange={onSidebarCollapseModeChange}
               >
                 <ToggleGroupItem value="icon" aria-label={swt("english.e035")}>
-                  {swt("english.e036")}</ToggleGroupItem>
+                  {swt("english.e036")}
+                </ToggleGroupItem>
                 <ToggleGroupItem value="offcanvas" aria-label={swt("english.e037")}>
-                  {swt("english.e038")}</ToggleGroupItem>
+                  {swt("english.e038")}
+                </ToggleGroupItem>
               </ToggleGroup>
             </div>
 
             <Button type="button" size="sm" variant="outline" className="w-full text-xs" onClick={handleRestore}>
-              {swt("english.e039")}</Button>
+              {swt("english.e039")}
+            </Button>
           </div>
         </div>
       </PopoverContent>

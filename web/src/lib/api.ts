@@ -1,16 +1,20 @@
-
 import { localizedFetch as fetch } from "@/i18n/request";
-import { localizedUrl } from "@/i18n/runtime";
-import { translate as swt } from "@/i18n/runtime";
+import { localizedUrl, translate as swt } from "@/i18n/runtime";
+
+// Real backend client. /api/* is proxied to the Go backend (next.config rewrites).
+// Returns the domain types in lib/types.ts. Shapes match the backend handlers;
+// a few fields the backend serializes differently (e.g. created_at as a unix int)
+// are passed through and formatted at the call site.
+
 // Real backend client. /api/* is proxied to the Go backend (next.config rewrites).
 // Returns the domain types in lib/types.ts. Shapes match the backend handlers;
 // a few fields the backend serializes differently (e.g. created_at as a unix int)
 // are passed through and formatted at the call site.
 
 import type { ChatMention } from "@/lib/chat-mentions";
+import { ManagementTransportError, managementTransportAllowed } from "@/lib/management-transport";
 import { MOCK } from "@/lib/mock/enabled";
 import { mockHandle } from "@/lib/mock/handler";
-import { ManagementTransportError, managementTransportAllowed } from "@/lib/management-transport";
 import type {
   ActiveFindingRetest,
   Activity,
@@ -222,9 +226,13 @@ export const api = {
   // ---- auth ----
   authStatus: () => get<{ initialized: boolean }>("/auth/status"),
   login: (username: string, password: string) => post<{ token: string }>("/auth/login", { username, password }),
-  initPassword: (password: string, setupToken: string) => post<{ token: string }>("/auth/init", { password, setup_token: setupToken }),
+  initPassword: (password: string, setupToken: string) =>
+    post<{ token: string }>("/auth/init", { password, setup_token: setupToken }),
   changePassword: (oldPassword: string, newPassword: string) =>
-    post<{ ok: boolean; token: string }>("/auth/change-password", { old_password: oldPassword, new_password: newPassword }),
+    post<{ ok: boolean; token: string }>("/auth/change-password", {
+      old_password: oldPassword,
+      new_password: newPassword,
+    }),
 
   // ---- tasks ----
   tasks: () =>
@@ -808,8 +816,7 @@ export const api = {
   // Channels are multi-instance resources: multiple bots per type with independent filters,
   // so manage them separately rather than flattening them into settings.
   notifyMeta: () => get<NotificationMeta>(`/notify/meta`),
-  notifyChannels: () =>
-    get<{ channels: NotificationChannel[] }>(`/notify/channels`).then((r) => arr(r.channels)),
+  notifyChannels: () => get<{ channels: NotificationChannel[] }>(`/notify/channels`).then((r) => arr(r.channels)),
   notifyCreateChannel: (payload: {
     name: string;
     kind: string;

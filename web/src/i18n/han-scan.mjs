@@ -2,10 +2,12 @@
 // Comments are ignored; string literals, template literals, JSX text and
 // regex literals are reported. Used by the i18n coverage test and by
 // `node src/i18n/han-scan.mjs` for a manual audit.
+
+import ts from "typescript";
+
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import ts from "typescript";
 
 const HAN = /\p{Script=Han}/u;
 
@@ -38,7 +40,7 @@ export function scanFile(file) {
       ts.isJsxText(node) ||
       ts.isRegularExpressionLiteral(node)
     ) {
-      const value = ts.isRegularExpressionLiteral(node) ? node.text : node.text ?? node.getText(sf);
+      const value = ts.isRegularExpressionLiteral(node) ? node.text : (node.text ?? node.getText(sf));
       if (HAN.test(value)) {
         const { line } = sf.getLineAndCharacterOfPosition(node.getStart(sf));
         hits.push({ line: line + 1, text: value.trim().slice(0, 120) });

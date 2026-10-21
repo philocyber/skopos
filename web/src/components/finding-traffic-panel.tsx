@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { ArrowDownIcon, ArrowUpIcon, PlusIcon } from "lucide-react";
@@ -27,14 +23,24 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { FindingTraffic, FindingTrafficBinding, TrafficEvidenceRole } from "@/lib/types";
 
 const ROLES: Record<TrafficEvidenceRole, string> = {
-  get baseline() { return swt("interface.m2232"); },
-  get proof() { return swt("interface.m2233"); },
-  get verification() { return swt("interface.m2234"); },
-  get supporting() { return swt("interface.m2235"); },
+  get baseline() {
+    return swt("interface.m2232");
+  },
+  get proof() {
+    return swt("interface.m2233");
+  },
+  get verification() {
+    return swt("interface.m2234");
+  },
+  get supporting() {
+    return swt("interface.m2235");
+  },
 };
 
 export function FindingTrafficPanel({
@@ -105,11 +111,14 @@ export function FindingTrafficPanel({
       <Card>
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <CardTitle>{swt("interface.m0946")}{" "}{data ? `(${data.bindings.length})` : ""}</CardTitle>
+            <CardTitle>
+              {swt("interface.m0946")} {data ? `(${data.bindings.length})` : ""}
+            </CardTitle>
             {!readOnly ? (
               <Button variant="outline" size="sm" disabled={!data || busy} onClick={() => setAdding(true)}>
                 <PlusIcon data-icon="inline-start" />
-                {swt("interface.m2237")}</Button>
+                {swt("interface.m2237")}
+              </Button>
             ) : (
               <Badge variant="outline">{swt("interface.m2238")}</Badge>
             )}
@@ -122,7 +131,8 @@ export function FindingTrafficPanel({
               <AlertDescription>
                 {error}
                 <Button variant="link" onClick={() => setReload((n) => n + 1)}>
-                  {swt("interface.m0682")}</Button>
+                  {swt("interface.m0682")}
+                </Button>
               </AlertDescription>
             </Alert>
           ) : null}
@@ -145,7 +155,10 @@ export function FindingTrafficPanel({
                   <Badge variant="secondary">
                     {b.snapshot.method} · {b.snapshot.status}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">{swt("interface.m2242")}{b.id}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {swt("interface.m2242")}
+                    {b.id}
+                  </span>
                 </div>
                 <Button
                   variant="link"
@@ -161,7 +174,8 @@ export function FindingTrafficPanel({
                   </span>
                   <div className="flex flex-wrap gap-1">
                     <Button variant="outline" size="sm" onClick={() => setPreview(b.id)}>
-                      {swt("interface.m2243")}</Button>
+                      {swt("interface.m2243")}
+                    </Button>
                     {!readOnly ? (
                       <>
                         <Button
@@ -174,7 +188,8 @@ export function FindingTrafficPanel({
                             setNote(b.note);
                           }}
                         >
-                          {swt("interface.m2244")}</Button>
+                          {swt("interface.m2244")}
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon-sm"
@@ -201,7 +216,8 @@ export function FindingTrafficPanel({
                             void mutate(() => api.removeFindingTraffic(findingId, b.id, data.version, contextTask))
                           }
                         >
-                          {swt("interface.m2247")}</Button>
+                          {swt("interface.m2247")}
+                        </Button>
                       </>
                     ) : null}
                   </div>
@@ -265,7 +281,8 @@ export function FindingTrafficPanel({
           </FieldGroup>
           <DialogFooter>
             <Button variant="outline" disabled={busy} onClick={() => setEditing(null)}>
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
             <Button
               disabled={busy || !editing || !data}
               onClick={() => {
@@ -275,7 +292,8 @@ export function FindingTrafficPanel({
                   );
               }}
             >
-              {swt("interface.m2252")}</Button>
+              {swt("interface.m2252")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
