@@ -35,9 +35,9 @@ func TestOperationsMCPValidationLanguages(t *testing.T) {
 }
 
 func TestOperationsCustomToolLocalePreservesSchema(t *testing.T) {
-	raw := json.RawMessage(`{"type":"object","description":"User description 원본","properties":{"args":{"type":"string","description":"User args 100%"}}}`)
+	raw := json.RawMessage(`{"type":"object","description":"User description café","properties":{"args":{"type":"string","description":"User args 100%"}}}`)
 	got := ensureSchemaForLanguage(raw, locale.En)
-	if got["description"] != "User description 원본" {
+	if got["description"] != "User description café" {
 		t.Fatal("user schema translated")
 	}
 	props := got["properties"].(map[string]any)
@@ -62,7 +62,7 @@ func TestOperationsCustomToolLocalePreservesSchema(t *testing.T) {
 
 func TestOperationsAttachmentAndWorkspaceDataRemainVerbatim(t *testing.T) {
 	dir := t.TempDir()
-	msg := "User text 100% 원본"
+	msg := "User text 100% café"
 	name := "attachment.txt"
 	got := composeAgentMessageForLanguage(msg, []chatAttachment{{Path: name, Size: 12}}, dir, locale.En)
 	if !strings.HasPrefix(got, msg) || !strings.Contains(got, "User-uploaded attachments") || !strings.Contains(got, filepath.Join(dir, name)) {

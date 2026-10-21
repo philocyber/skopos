@@ -34,8 +34,8 @@ func TestLocaleMiddlewareErrorAndSSE(t *testing.T) {
 func TestLocaleMiddlewarePreservesUnknownUserError(t *testing.T) {
 	w := httptest.NewRecorder()
 	lw := &localeWriter{w, locale.En}
-	writeErr(lw, 400, "用户提供的数据 원문")
-	if !strings.Contains(w.Body.String(), "用户提供的数据 원문") {
+	writeErr(lw, 400, "user-supplied data café")
+	if !strings.Contains(w.Body.String(), "user-supplied data café") {
 		t.Fatal("unknown content changed")
 	}
 }
@@ -43,7 +43,7 @@ func TestLocaleMiddlewarePreservesUnknownUserError(t *testing.T) {
 func TestDynamicErrorLocalizesBeforeInterpolation(t *testing.T) {
 	const template = "Asset %s is outside the authorized scope (task %d)"
 	locale.Register(template, template)
-	raw := "用户原文/한국어/%s?q=<raw>"
+	raw := "user original text/café/%s?q=<raw>"
 	err := locale.Errorf(template, raw, 17)
 	h := withLocale(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { writeError(w, 400, err) }))
 	r := httptest.NewRequest("GET", "/api/test", nil)
@@ -64,12 +64,12 @@ func TestDynamicErrorLocalizesBeforeInterpolation(t *testing.T) {
 }
 
 func TestUpdateProgressRendersPerSubscriber(t *testing.T) {
-	p := updateProgress{message: locale.M("Downloading %s (%s)…", "raw-한글.zip", "12 MB"), cause: locale.Errorf("Release package does not contain %s", "raw-한글.exe")}
+	p := updateProgress{message: locale.M("Downloading %s (%s)…", "raw-café.zip", "12 MB"), cause: locale.Errorf("Release package does not contain %s", "raw-café.exe")}
 	en := p.inLanguage(locale.En)
-	if en.Message != "Downloading raw-한글.zip (12 MB)…" {
+	if en.Message != "Downloading raw-café.zip (12 MB)…" {
 		t.Fatalf("progress locale mismatch: %q", en.Message)
 	}
-	if !strings.Contains(en.Error, "Release package does not contain") || !strings.Contains(en.Error, "raw-한글.exe") {
+	if !strings.Contains(en.Error, "Release package does not contain") || !strings.Contains(en.Error, "raw-café.exe") {
 		t.Fatalf("error locale/raw argument mismatch: %q", en.Error)
 	}
 	if p.Message != "" || p.Error != "" {

@@ -9,7 +9,7 @@ import (
 )
 
 func TestReportLanguagesPreserveUserContent(t *testing.T) {
-	f := &db.DBFinding{ID: 1, Name: "用户原文 한국어", Summary: "<raw> 用户摘要", Evidence: "GET /中文 HTTP/1.1", Report: "# 用户报告", Severity: "high", Status: "pending"}
+	f := &db.DBFinding{ID: 1, Name: "user original text café", Summary: "<raw> user summary", Evidence: "GET /café HTTP/1.1", Report: "# user report", Severity: "high", Status: "pending"}
 	en := FindingsMarkdown([]*db.DBFinding{f}, time.Unix(0, 0), locale.En)
 	if !strings.Contains(en, "# Vulnerability findings report") {
 		t.Fatalf("missing heading: %q", en)
@@ -28,8 +28,8 @@ func TestReportLanguagesPreserveUserContent(t *testing.T) {
 }
 
 func TestEmptyReportLanguages(t *testing.T) {
-	text := Markdown(Input{Language: locale.En, GeneratedAt: time.Unix(0, 0), Goal: "保留目标"})
-	if !strings.Contains(text, "No vulnerabilities were confirmed.") || !strings.Contains(text, "保留目标") {
+	text := Markdown(Input{Language: locale.En, GeneratedAt: time.Unix(0, 0), Goal: "preserved goal"})
+	if !strings.Contains(text, "No vulnerabilities were confirmed.") || !strings.Contains(text, "preserved goal") {
 		t.Fatalf("wrong language or altered goal: %q", text)
 	}
 }

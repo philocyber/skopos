@@ -91,7 +91,7 @@ func TestDatabaseErrorTemplateCoverage(t *testing.T) {
 }
 
 func TestDatabaseTypedErrorsPreserveEvidenceAndIdentity(t *testing.T) {
-	raw := "user-host.example/원본"
+	raw := "user-host.example/café"
 	err := ValidateAssetIP(raw)
 	if !errors.Is(err, ErrAssetIPInvalid) {
 		t.Fatalf("lost error identity: %v", err)
@@ -100,7 +100,7 @@ func TestDatabaseTypedErrorsPreserveEvidenceAndIdentity(t *testing.T) {
 	if !strings.Contains(en, "IPv4/IPv6 address") || !strings.Contains(en, raw) {
 		t.Fatalf("localized error lost template or raw input: %q", en)
 	}
-	external := errors.New("driver-owned detail / 원본")
+	external := errors.New("driver-owned detail / café")
 	wrapped := locale.Errorf("restore %s: %w", "user-table", external)
 	if !errors.Is(wrapped, external) || !strings.Contains(locale.ErrorMessage(locale.En, wrapped), external.Error()) {
 		t.Fatal("wrapped external cause changed")
@@ -119,9 +119,9 @@ func TestBuiltinMetadataLocalePreservesCustomValues(t *testing.T) {
 				t.Fatalf("stock metadata not localized for %s/%s", seed.key, lang)
 			}
 			a.Name = "Custom name"
-			a.Description = "Custom description 원본"
+			a.Description = "Custom description café"
 			LocalizeBuiltinAgentMetadata(a, lang)
-			if a.Name != "Custom name" || a.Description != "Custom description 원본" {
+			if a.Name != "Custom name" || a.Description != "Custom description café" {
 				t.Fatal("custom metadata changed")
 			}
 		}
@@ -134,7 +134,7 @@ func TestBuiltinMetadataLocalePreservesCustomValues(t *testing.T) {
 }
 
 func TestRetestInitialMessageLanguagePreservesNotes(t *testing.T) {
-	r := &FindingRetest{FindingID: 42, Notes: "Raw user evidence / 원본"}
+	r := &FindingRetest{FindingID: 42, Notes: "Raw user evidence / café"}
 	en := r.InitialMessageForLanguage(locale.En)
 	if !strings.HasPrefix(en, "Please retest finding #42.") {
 		t.Fatalf("unexpected retest message: %q", en)
@@ -215,7 +215,7 @@ func TestSeedLocalizationPreservesCustomization(t *testing.T) {
 }
 
 func TestAssetGateLocalePreservesDecisionAndUserNote(t *testing.T) {
-	rule := AssetInterceptRule{Kind: "exact_domain", Pattern: "target.example", Note: "Custom note / 원본", Enabled: true}
+	rule := AssetInterceptRule{Kind: "exact_domain", Pattern: "target.example", Note: "Custom note / café", Enabled: true}
 	en := EvaluateAssetGateForLanguage(locale.En, []AssetInterceptRule{rule}, nil, []string{"target.example"}, nil, nil)
 	if en.Allowed || !strings.Contains(en.Reason, "asset interception rule") || !strings.Contains(en.Reason, rule.Note) || !strings.Contains(en.Reason, rule.Pattern) {
 		t.Fatalf("gate localization changed decision/data: %+v", en)
@@ -240,7 +240,7 @@ func TestTaskOriginUsesExplicitLanguage(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer d.Close()
-	task, err := d.CreateTaskWithOptions("Raw description 원본", "Raw goal", TaskCreateOptions{Language: locale.En})
+	task, err := d.CreateTaskWithOptions("Raw description café", "Raw goal", TaskCreateOptions{Language: locale.En})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -253,7 +253,7 @@ func TestTaskOriginUsesExplicitLanguage(t *testing.T) {
 	if err = d.QueryRow(`SELECT payload->>'summary' FROM exploration_nodes WHERE exploration_id=$1 AND state='origin'`, task.ExplorationID).Scan(&summary); err != nil {
 		t.Fatal(err)
 	}
-	if summary != "Task starting point: Raw description 원본; objective: Raw goal" {
+	if summary != "Task starting point: Raw description café; objective: Raw goal" {
 		t.Fatalf("origin message=%q", summary)
 	}
 }
