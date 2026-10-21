@@ -7,14 +7,15 @@ import (
 )
 
 func TestTruncateBytesKeepsValidUTF8(t *testing.T) {
-	// Valid UTF-8 is essential under WeCom's byte limit. Chinese characters occupy three bytes; naive
-	// slicing splits them. Mixed inputs with differing lengths exercise every possible boundary.
+	// Valid UTF-8 is essential under WeCom's byte limit. € occupies three bytes; naive
+	// slicing splits it, the same way it would split CJK content. Mixed inputs with
+	// differing lengths exercise every possible boundary.
 	inputs := []string{
-		"中文测试内容",
-		"混合 mixed 内容 content",
-		"a中b文c测d试e",
+		"€€€€€€",
+		"mixed € content €",
+		"a€b€c€d€e",
 		"🔴🟠🟡🔵", // Four-byte emoji make boundary errors especially visible.
-		strings.Repeat("漏洞", 100),
+		strings.Repeat("€€", 100),
 	}
 	for _, in := range inputs {
 		for max := 1; max <= len(in)+2; max++ {
@@ -57,8 +58,8 @@ func TestTruncateBytesEllipsisBudget(t *testing.T) {
 
 func TestTruncateRunesCountsCharactersNotBytes(t *testing.T) {
 	// Preserve the distinction from TruncateBytes: Telegram counts characters, and byte counting would cut
-	// Chinese content to one third.
-	s := "一二三四五六七八九十"
+	// three-byte content to one third.
+	s := "€€€€€€€€€€"
 	got := TruncateRunes(s, 5)
 	if n := utf8.RuneCountInString(got); n != 5 {
 		t.Fatalf("Expected 5 characters, got %d (%q)", n, got)
@@ -70,7 +71,7 @@ func TestTruncateRunesCountsCharactersNotBytes(t *testing.T) {
 }
 
 func TestOneLineCollapsesWhitespace(t *testing.T) {
-	got := OneLine("第一行\n\n第二行\t带制表   多空格", 0)
+	got := OneLine("First line\n\nSecond line\thas tabs   many spaces", 0)
 	if strings.ContainsAny(got, "\n\t") {
 		t.Fatalf("All whitespace must collapse, got %q", got)
 	}
@@ -78,7 +79,7 @@ func TestOneLineCollapsesWhitespace(t *testing.T) {
 		t.Fatalf("Consecutive spaces must collapse, got %q", got)
 	}
 	// Truncated output must remain readable and valid.
-	got = OneLine("一二三四五六七八九十", 4)
+	got = OneLine("€€€€€€€€€€", 4)
 	if n := utf8.RuneCountInString(got); n != 4 {
 		t.Fatalf("Expected 4 characters, got %d (%q)", n, got)
 	}
@@ -86,7 +87,7 @@ func TestOneLineCollapsesWhitespace(t *testing.T) {
 
 func TestTruncateHTMLNeverCutsTagInHalf(t *testing.T) {
 	// Naive HTML truncation can leave an incomplete href tag and cause rejection of the whole message.
-	s := `<b>标题</b>正文正文正文<a href="https://example.com/very/long/path">查看详情</a>`
+	s := `<b>title</b>bodybodybody<a href="https://example.com/very/long/path">view details</a>`
 	for max := 1; max <= utf8.RuneCountInString(s)+2; max++ {
 		got := TruncateHTML(s, max)
 		if n := utf8.RuneCountInString(got); max > 0 && n > max {

@@ -140,7 +140,7 @@ func TestWindowsCredentialTemplatePreservesExistingBytes(t *testing.T) {
 	root := t.TempDir()
 	template := filepath.Join(root, "template.json")
 	path := filepath.Join(root, "config.json")
-	original := "{\"password\":\"synthetic-한국어|&\"}\n"
+	original := "{\"password\":\"synthetic-café|&\"}\n"
 	if err := os.WriteFile(template, []byte(original), 0600); err != nil {
 		t.Fatal(err)
 	}

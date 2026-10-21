@@ -162,7 +162,7 @@ func TestConversationBroadcastAndLogPreserveRawText(t *testing.T) {
 	if got.Kind != a.Kind || got.Worker != a.Worker || got.Summary != a.Summary || got.Detail != a.Detail {
 		t.Fatalf("Broadcast altered raw activity: %+v", got)
 	}
-	for _, tc := range []struct{ text, level string }{{"[test] operation failed", "error"}, {"[test] 작업 실패", "error"}, {"[test] retry later", "warn"}, {"[test] 재시도", "warn"}, {"[test] raw transcript", "info"}} {
+	for _, tc := range []struct{ text, level string }{{"[test] operation failed", "error"}, {"[test] 操作失败", "error"}, {"[test] retry later", "warn"}, {"[test] 重试", "warn"}, {"[test] raw transcript", "info"}} {
 		line := parseLog(tc.text)
 		if line.Level != tc.level || line.Text != tc.text || line.Tag != "test" {
 			t.Fatalf("Log language/identity changed: %+v", line)

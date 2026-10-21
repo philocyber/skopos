@@ -18,11 +18,11 @@ import (
 )
 
 func TestValidSkillName(t *testing.T) {
-	ok := []string{"web-recon", "a", "nuclei2", "中文技能", "端口扫描-x", "日本語スキル"}
+	ok := []string{"web-recon", "a", "nuclei2", "café-skill", "port-scan-x", "naïve-skill"}
 	bad := []string{
-		"", "Web-Recon", "-lead", "trail-", "dou--ble", "has space", "中文 技能",
-		"dot.name", "a/b", `a\b`, "..", ".", "中文/技能", "sk\x00ill", "中‮文",
-		strings.Repeat("a", 65), "1abc", "中文技能!",
+		"", "Web-Recon", "-lead", "trail-", "dou--ble", "has space", "café skill",
+		"dot.name", "a/b", `a\b`, "..", ".", "café/skill", "sk\x00ill", "café‮skill",
+		strings.Repeat("a", 65), "1abc", "café-skill!",
 	}
 	for _, n := range ok {
 		if !validSkillName(n) {
@@ -38,12 +38,12 @@ func TestValidSkillName(t *testing.T) {
 
 func TestSkillRelPath(t *testing.T) {
 	ok := map[string]string{
-		"SKILL.md":           "SKILL.md",
-		"scripts/run.py":     "scripts/run.py",
-		"参考/中文说明.md":         "参考/中文说明.md",
-		"references/a b.txt": "references/a b.txt",
-		"./SKILL.md":         "SKILL.md",
-		"assets/图片-1_v2.png": "assets/图片-1_v2.png",
+		"SKILL.md":              "SKILL.md",
+		"scripts/run.py":        "scripts/run.py",
+		"reference/café-doc.md": "reference/café-doc.md",
+		"references/a b.txt":    "references/a b.txt",
+		"./SKILL.md":            "SKILL.md",
+		"assets/café-1_v2.png":  "assets/café-1_v2.png",
 	}
 	for in, want := range ok {
 		got, msg := skillRelPath(in)
@@ -53,7 +53,7 @@ func TestSkillRelPath(t *testing.T) {
 	}
 	bad := []string{
 		"", "../etc/passwd", "a/../../b", "/abs/path", "a//b", `..\..\x`,
-		"%2e%2e/x", "a\x00b", "中文 名.md", "中‮文.md", "a#b.md", "a?b.md",
+		"%2e%2e/x", "a\x00b", "café name.md", "café‮name.md", "a#b.md", "a?b.md",
 		"a:b.md", string([]byte{0xd6, 0xd0}) + ".md", // Raw GBK bytes are not valid UTF-8.
 		strings.Repeat("a", maxSkillPathLen+1),
 	}
