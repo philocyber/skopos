@@ -136,7 +136,7 @@ func TestWindowsPrivateExtendedAndRelativePaths(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, base := range []string{root, `\\?\` + root, relative} {
-		path := filepath.Join(base, "private-유니코드")
+		path := filepath.Join(base, "private-unicode-café")
 		f, err := CreateTruncate(path)
 		if err != nil {
 			t.Fatal(err)
