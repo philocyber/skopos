@@ -5,6 +5,7 @@ import * as React from "react";
 import { BanIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
+import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -249,15 +250,8 @@ export default function AssetInterceptPage() {
   const placeholder = KIND_OPTIONS.find((o) => o.value === form.kind)?.placeholder ?? "";
 
   return (
-    <div className="flex flex-1 flex-col gap-5 p-6">
-      {/* header */}
-      <div className="flex items-center gap-2.5">
-        <BanIcon className="h-5 w-5 shrink-0" />
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m1166")}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{swt("interface.m1167")}</p>
-        </div>
-      </div>
+    <div className="flex flex-1 flex-col gap-5">
+      <PageHeader title={swt("interface.m1166")} description={swt("interface.m1167")} />
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">{swt("interface.m1168")}</p>

@@ -179,7 +179,7 @@ export const DOC_SECTIONS: DocSection[] = [
           [
             "Worker",
             "Tool-calling reliability and throughput. Runs most often and in parallel.",
-            "claude-sonnet-5-5 at medium effort, or glm-5.3 as a lower-cost alternative. Raise effort only if workers stall.",
+            "claude-sonnet-5-5 at medium effort, or glm-5.3 or gpt-6-luna as lower-cost alternatives. Raise effort only if workers stall.",
           ],
           [
             "Main agent (Chat)",
@@ -189,7 +189,7 @@ export const DOC_SECTIONS: DocSection[] = [
           [
             "Interception fallback judge",
             "Low latency and conservative decisions. It cannot authorize the unmatched-command fallback; humans decide that.",
-            "claude-haiku-5-5 at low effort.",
+            "claude-haiku-5-5 or gpt-6-luna at low effort.",
           ],
         ],
       },
@@ -232,10 +232,16 @@ export const DOC_SECTIONS: DocSection[] = [
             "Built-in template (LLM, then New). Text-only, 1M context, 128K output, reasoning must stay on; effort low, high or max. Use the General API endpoint.",
           ],
           [
-            "GPT-5 class",
-            "openai-responses or openai",
+            "gpt-6.1-sol",
+            "openai-responses",
             "Planner or workers",
-            "OpenAI lists GPT-5 at 400K total context but accepts at most 272K input tokens, so declare 272 (not 400) as Context window. Set the output-limit field to max_completion_tokens when using the openai format. Check your account's model access first. No template.",
+            "1.05M context, 128K output; set Context window to 922 (the input share). Effort low to max, default medium (no none or minimal). Chat Completions cannot call functions on this model, so use the Responses format. Template available.",
+          ],
+          [
+            "gpt-6-luna",
+            "openai-responses",
+            "Workers, light agents, interception judge",
+            "OpenAI's most efficient GPT-6 model for high-volume work. 1.05M context (922K max input), 128K output; effort none to max, default medium. Lower effort for short decisions. Template available.",
           ],
         ],
       },
@@ -243,7 +249,7 @@ export const DOC_SECTIONS: DocSection[] = [
         type: "callout",
         tone: "info",
         title: "Fastest way to set a model up",
-        text: "Open LLM, then New, and pick a template under Anthropic Claude or Z.ai GLM. It fills the format, model ID, base URL, context window (1000 for a 1M window), effort, and a profile name. Add your API key, run Test connection, save, then use Set active. If Context window shows 0, Skopos assumes 200K and compresses history early.",
+        text: "Open LLM, then New, and pick a template under Anthropic Claude, OpenAI or Z.ai GLM. It fills the format, model ID, base URL, context window (1000 for a 1M window), effort, and a profile name. Add your API key, run Test connection, save, then use Set active. If Context window shows 0, Skopos assumes 200K and compresses history early.",
       },
       {
         type: "table",
@@ -257,9 +263,13 @@ export const DOC_SECTIONS: DocSection[] = [
           [
             "openai",
             "OpenAI Chat Completions and the many compatible gateways, including the Z.ai GLM-5.3 templates.",
-            "max_tokens is the default; official OpenAI reasoning models (o series / GPT-5) need max_completion_tokens and reject max_tokens.",
+            "max_tokens is the default; official OpenAI reasoning models (o series / GPT-5) need max_completion_tokens and reject max_tokens. Prefer openai-responses for current OpenAI models.",
           ],
-          ["openai-responses", "OpenAI Responses API.", "Output-limit field name is fixed by the format."],
+          [
+            "openai-responses",
+            "OpenAI Responses API. Required for gpt-6.1-sol: it does not support function calling on Chat Completions.",
+            "Output-limit field name is fixed by the format.",
+          ],
         ],
       },
       {

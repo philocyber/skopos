@@ -9,6 +9,12 @@
 //   https://platform.claude.com/docs/en/models/sonnet-5-5/overview
 //   https://platform.claude.com/docs/en/models/haiku-5-5/overview
 //
+// OpenAI model pages (gpt-6.1-sol, gpt-6-luna) as indexed on 2026-10-21: 1,050,000 context, 128,000 max
+// output, so max input is 922,000 and that is the window declared here. GPT-6.1 Sol does not support function
+// calling on Chat Completions, so both OpenAI presets use the Responses format.
+//   https://developers.openai.com/api/docs/models/gpt-6.1-sol
+//   https://developers.openai.com/api/docs/models/gpt-6-luna
+//
 // Claude presets leave thinking.type empty on purpose: these models use adaptive thinking, Opus 5.5 and
 // Fable 5.1 cannot turn it off, and effort is the control. Effort is each model's documented default.
 export const LLM_PROFILE_PRESET_IDS = [
@@ -18,6 +24,8 @@ export const LLM_PROFILE_PRESET_IDS = [
   "claude-opus-5-5",
   "claude-sonnet-5-5",
   "claude-haiku-5-5",
+  "openai-gpt-6-1-sol",
+  "openai-gpt-6-luna",
 ] as const;
 export type LLMProfilePresetId = (typeof LLM_PROFILE_PRESET_IDS)[number];
 
@@ -29,10 +37,12 @@ export const LLM_PROFILE_PRESET_NAMES: Record<LLMProfilePresetId, string> = {
   "claude-opus-5-5": "Claude Opus 5.5",
   "claude-sonnet-5-5": "Claude Sonnet 5.5",
   "claude-haiku-5-5": "Claude Haiku 5.5",
+  "openai-gpt-6-1-sol": "GPT-6.1 Sol",
+  "openai-gpt-6-luna": "GPT-6 Luna",
 };
 
 export interface LLMProfilePresetFields {
-  format: "openai" | "anthropic";
+  format: "openai" | "anthropic" | "openai-responses";
   model: string;
   base_url: string;
   thinking_type: "enabled" | "";
@@ -52,6 +62,8 @@ const PRESETS: Record<LLMProfilePresetId, LLMProfilePresetFields> = {
   "claude-opus-5-5": claude("claude-opus-5-5", "medium"),
   "claude-sonnet-5-5": claude("claude-sonnet-5-5", "high"),
   "claude-haiku-5-5": claude("claude-haiku-5-5", "medium"),
+  "openai-gpt-6-1-sol": openaiResponses("gpt-6.1-sol", "medium"),
+  "openai-gpt-6-luna": openaiResponses("gpt-6-luna", "medium"),
 };
 
 function zai(baseUrl: string): LLMProfilePresetFields {
@@ -77,6 +89,21 @@ function claude(model: string, effort: string): LLMProfilePresetFields {
     thinking_type: "",
     reasoning_effort: effort,
     context_window_k: 1000,
+    max_tokens: 0,
+    max_tokens_field: "",
+  };
+}
+
+function openaiResponses(model: string, effort: string): LLMProfilePresetFields {
+  return {
+    format: "openai-responses",
+    model,
+    // Empty uses the official OpenAI endpoint.
+    base_url: "",
+    thinking_type: "",
+    reasoning_effort: effort,
+    // 1,050,000 total minus 128,000 max output.
+    context_window_k: 922,
     max_tokens: 0,
     max_tokens_field: "",
   };

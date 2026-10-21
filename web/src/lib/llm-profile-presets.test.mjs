@@ -38,6 +38,22 @@ test("Claude presets use the documented model IDs, 1M context and an unset think
   }
 });
 
+test("OpenAI presets use the Responses format, the documented model IDs and the input share of the window", () => {
+  for (const [id, model] of [
+    ["openai-gpt-6-1-sol", "gpt-6.1-sol"],
+    ["openai-gpt-6-luna", "gpt-6-luna"],
+  ]) {
+    const preset = getLLMProfilePreset(id);
+    assert.equal(preset.format, "openai-responses", "Chat Completions has no function calling on GPT-6.1 Sol");
+    assert.equal(preset.model, model);
+    assert.equal(preset.base_url, "");
+    assert.equal(preset.context_window_k, 922, "1,050,000 total minus 128,000 output");
+    assert.equal(preset.reasoning_effort, "medium");
+    assert.equal(preset.thinking_type, "");
+    assert.equal(preset.max_tokens_field, "");
+  }
+});
+
 test("presets are independent copies", () => {
   const first = getLLMProfilePreset("claude-opus-5-5");
   const mutable = { ...first, model: "changed" };

@@ -133,4 +133,5 @@ export const en = {
   e214: "Account menu",
   e215: "Toggle details",
   e216: "Edit profile",
+  e217: "Browse, edit and upload the files tasks work with on the server.",
 };
