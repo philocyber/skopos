@@ -160,11 +160,11 @@ function healthOf(p: LLMProfile, m?: LLMPoolMember): Health {
   if (m?.state === "degraded") {
     return {
       label: swt("interface.m1338", { p0: m.fails }),
-      cls: "border-amber-500/50 text-amber-600 dark:text-amber-400",
+      cls: "border-amber-500/50 text-amber-700 dark:text-amber-400",
       hint: m.last_error,
     };
   }
-  return { label: swt("interface.m1339"), cls: "border-emerald-500/50 text-emerald-600 dark:text-emerald-400" };
+  return { label: swt("interface.m1339"), cls: "border-emerald-500/50 text-emerald-700 dark:text-emerald-400" };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -305,7 +305,7 @@ function PoolSheet({
                         </span>
                         <span className="font-medium">{m.name}</span>
                         {m.active && (
-                          <Badge variant="outline" className="border-amber-400/50 text-amber-500">
+                          <Badge variant="outline" className="border-amber-400/50 text-amber-700 dark:text-amber-400">
                             {swt("interface.m1361")}
                           </Badge>
                         )}
@@ -564,7 +564,7 @@ function ProfileSheet({
           <SheetTitle className="flex items-center gap-2">
             {isNew ? swt("interface.m1382") : swt("interface.m1383", { p0: profile?.name })}
             {profile?.is_default && (
-              <Badge variant="outline" className="border-amber-400/50 text-amber-500">
+              <Badge variant="outline" className="border-amber-400/50 text-amber-700 dark:text-amber-400">
                 {swt("interface.m1384")}
               </Badge>
             )}
@@ -1007,7 +1007,7 @@ export default function LLMPage() {
             <Button size="sm" variant="outline" onClick={() => setPoolOpen(true)}>
               <ZapIcon /> {swt("interface.m1424")}{" "}
               {poolOn && (
-                <Badge variant="outline" className="ml-1 border-emerald-500/50 text-emerald-600 dark:text-emerald-400">
+                <Badge variant="outline" className="ml-1 border-emerald-500/50 text-emerald-700 dark:text-emerald-400">
                   {swt("interface.m1425")}
                 </Badge>
               )}
@@ -1052,7 +1052,7 @@ export default function LLMPage() {
                       <StarIcon
                         className={cn(
                           "mt-0.5 size-4 shrink-0",
-                          p.is_default ? "fill-amber-400 text-amber-400" : "text-muted-foreground",
+                          p.is_default ? "fill-amber-400 text-amber-700 dark:text-amber-400" : "text-muted-foreground",
                         )}
                       />
                       <div className="min-w-0 flex-1">

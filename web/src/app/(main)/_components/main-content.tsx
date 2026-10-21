@@ -77,7 +77,7 @@ export function MainContent({ children }: { children: ReactNode }) {
               {entry && !entry.group.pinned && (
                 <>
                   <span className="text-muted-foreground">{entry.group.label}</span>
-                  <ChevronRightIcon className="size-3.5 shrink-0 text-muted-foreground/60" />
+                  <ChevronRightIcon className="size-3.5 shrink-0 text-muted-foreground" />
                 </>
               )}
               <span className="truncate font-medium">{entry?.item.title ?? APP_CONFIG.name}</span>

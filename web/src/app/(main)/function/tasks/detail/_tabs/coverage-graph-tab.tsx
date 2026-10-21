@@ -399,7 +399,7 @@ function AssetSheet({
                   <DetailRow label={swt("interface.m0572")}>
                     {node.in_scope ? (
                       node.tested ? (
-                        <span className="text-emerald-600 dark:text-emerald-400">{swt("interface.m0573")}</span>
+                        <span className="text-emerald-700 dark:text-emerald-400">{swt("interface.m0573")}</span>
                       ) : (
                         <span className="text-neutral-500">{swt("interface.m0574")}</span>
                       )
@@ -712,7 +712,7 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
                 <>
                   {" "}
                   {swt("interface.m0585")}{" "}
-                  <span className="font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{tested}</span>
+                  <span className="font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">{tested}</span>
                 </>
               )}
             </span>
@@ -753,9 +753,7 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
             {swt("interface.m0589")}
           </span>
         </div>
-        <p className="text-muted-foreground/80 border-border/60 border-t pt-2 leading-relaxed">
-          {swt("interface.m0590")}
-        </p>
+        <p className="text-muted-foreground border-border/60 border-t pt-2 leading-relaxed">{swt("interface.m0590")}</p>
       </div>
 
       <AssetSheet node={selectedAsset} taskId={taskId} onOpenChange={(o) => !o && setSelectedAsset(null)} />

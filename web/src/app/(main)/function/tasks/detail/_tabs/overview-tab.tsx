@@ -522,7 +522,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
             <Button size="sm" variant="outline" disabled={goalBusy || !goalText.trim()} onClick={() => void addGoal()}>
               <PlusIcon className="size-3.5" /> {swt("interface.m0611")}
             </Button>
-            {goalErr && <span className="text-xs text-red-500">{goalErr}</span>}
+            {goalErr && <span className="text-xs text-red-600 dark:text-red-400">{goalErr}</span>}
           </div>
           {/* Objective list. */}
           {goals.length > 0 ? (
@@ -559,7 +559,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       disabled={goalBusy || !editText.trim()}
                       onClick={() => void saveEditGoal(g)}
                     >
-                      <CheckIcon className="size-3.5 text-emerald-500" />
+                      <CheckIcon className="size-3.5 text-emerald-700 dark:text-emerald-400" />
                     </Button>
                     <Button
                       size="sm"
@@ -596,7 +596,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       disabled={goalBusy}
                       onClick={() => void removeGoal(g)}
                     >
-                      <Trash2Icon className="size-3.5 text-red-500" />
+                      <Trash2Icon className="size-3.5 text-red-600 dark:text-red-400" />
                     </Button>
                   </div>
                 ),
@@ -611,7 +611,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldAlertIcon className="size-4 text-amber-500" /> {swt("interface.m0613")}
+            <ShieldAlertIcon className="size-4 text-amber-700 dark:text-amber-400" /> {swt("interface.m0613")}
             <span className="text-muted-foreground text-xs font-normal">
               {swt("interface.m0614")} {constraints.length} {swt("interface.m0615")}
             </span>
@@ -646,7 +646,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
             >
               <PlusIcon className="size-3.5" /> {swt("interface.m0611")}
             </Button>
-            {conErr && <span className="text-xs text-red-500">{conErr}</span>}
+            {conErr && <span className="text-xs text-red-600 dark:text-red-400">{conErr}</span>}
           </div>
           {/* Constraint list. */}
           {constraints.length > 0 ? (
@@ -680,7 +680,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       disabled={conBusy || !editConText.trim()}
                       onClick={() => void saveEditConstraint(c)}
                     >
-                      <CheckIcon className="size-3.5 text-emerald-500" />
+                      <CheckIcon className="size-3.5 text-emerald-700 dark:text-emerald-400" />
                     </Button>
                     <Button
                       size="sm"
@@ -697,7 +697,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                     <span
                       className={`shrink-0 rounded px-1.5 py-0.5 text-xs ${
                         c.kind === "allow"
-                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                          ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400"
                           : "bg-red-500/15 text-red-600 dark:text-red-400"
                       }`}
                     >
@@ -720,7 +720,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       disabled={conBusy}
                       onClick={() => void removeConstraint(c)}
                     >
-                      <Trash2Icon className="size-3.5 text-red-500" />
+                      <Trash2Icon className="size-3.5 text-red-600 dark:text-red-400" />
                     </Button>
                   </div>
                 ),
@@ -736,7 +736,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <TargetIcon className="size-4 text-emerald-500" /> {swt("interface.m0620")}
+              <TargetIcon className="size-4 text-emerald-700 dark:text-emerald-400" /> {swt("interface.m0620")}
               <span className="text-muted-foreground text-xs font-normal">{swt("interface.m0621")}</span>
             </CardTitle>
           </CardHeader>
@@ -769,7 +769,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <CoinsIcon className="size-4 text-amber-500" /> {swt("interface.m0624")}
+            <CoinsIcon className="size-4 text-amber-700 dark:text-amber-400" /> {swt("interface.m0624")}
             <span className="text-muted-foreground text-xs font-normal">
               {swt("interface.m0625")} {tokenTotals.calls > 0 ? swt("interface.m0626", { p0: tokenTotals.calls }) : ""}
               ）
@@ -795,7 +795,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                 </span>
                 <span className="tabular-nums">
                   <span className="text-muted-foreground">{swt("interface.m0177")}</span>
-                  <span className="font-semibold text-emerald-500">
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
                     {cacheHitRate(tokenTotals.cacheRead, tokenTotals.input)}
                   </span>
                 </span>
@@ -823,7 +823,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                         <td className="py-1.5 pr-3 text-right tabular-nums">{fmtTokens(m.input_tokens)}</td>
                         <td className="py-1.5 pr-3 text-right tabular-nums">{fmtTokens(m.output_tokens)}</td>
                         <td className="py-1.5 pr-3 text-right tabular-nums">{fmtTokens(m.cache_read_tokens)}</td>
-                        <td className="py-1.5 text-right tabular-nums text-emerald-500">
+                        <td className="py-1.5 text-right tabular-nums text-emerald-700 dark:text-emerald-400">
                           {cacheHitRate(m.cache_read_tokens, m.input_tokens)}
                         </td>
                       </tr>
@@ -841,7 +841,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldCheckIcon className="size-4 text-emerald-500" /> {swt("interface.m0631")}
+            <ShieldCheckIcon className="size-4 text-emerald-700 dark:text-emerald-400" /> {swt("interface.m0631")}
             <span className="text-muted-foreground text-xs font-normal">
               {swt("interface.m0632")} {scope.length} {swt("interface.m0416")}
             </span>
@@ -892,7 +892,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
             >
               <PlusIcon className="size-3.5" /> {swt("interface.m0611")}
             </Button>
-            {scopeErr && <span className="text-xs text-red-500">{scopeErr}</span>}
+            {scopeErr && <span className="text-xs text-red-600 dark:text-red-400">{scopeErr}</span>}
           </div>
           {/* Scope list. */}
           {scope.length > 0 ? (
@@ -927,7 +927,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       className="h-6 shrink-0 px-1.5"
                       onClick={() => void removeScope(row)}
                     >
-                      <Trash2Icon className="size-3.5 text-red-500" />
+                      <Trash2Icon className="size-3.5 text-red-600 dark:text-red-400" />
                     </Button>
                   ) : (
                     <span className="text-muted-foreground shrink-0 text-xs">{swt("interface.m0638")}</span>
@@ -944,7 +944,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ActivityIcon className="size-4 text-blue-500" /> {swt("interface.m0640")}
+            <ActivityIcon className="size-4 text-blue-600 dark:text-blue-400" /> {swt("interface.m0640")}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -1008,7 +1008,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <AlertTriangleIcon className="size-4 text-amber-500" /> {swt("interface.m0646")}
+              <AlertTriangleIcon className="size-4 text-amber-700 dark:text-amber-400" /> {swt("interface.m0646")}
             </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3 text-sm">
@@ -1034,7 +1034,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <BugIcon className="size-4 text-red-500" /> {swt("interface.m0651")}
+              <BugIcon className="size-4 text-red-600 dark:text-red-400" /> {swt("interface.m0651")}
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
@@ -1054,7 +1054,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         <Card className="border-red-500/30">
           <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
             <CardTitle className="flex items-center gap-2 text-sm">
-              <AlertTriangleIcon className="size-4 text-red-500" /> {swt("interface.m0652")}
+              <AlertTriangleIcon className="size-4 text-red-600 dark:text-red-400" /> {swt("interface.m0652")}
               <span className="text-xs font-normal text-muted-foreground">
                 {swt("interface.m0653")} {blocked.length} {swt("interface.m0654")}
               </span>
@@ -1278,7 +1278,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <ShieldCheckIcon className="size-4 text-sky-500" /> {swt("interface.m0671")}
+          <ShieldCheckIcon className="size-4 text-sky-700 dark:text-sky-400" /> {swt("interface.m0671")}
           <span className="text-muted-foreground text-xs font-normal">
             {swt("interface.m0672")} {rules.length} {swt("interface.m0416")}
           </span>
@@ -1318,7 +1318,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
           <Button size="sm" variant="outline" disabled={busy || !newPattern.trim()} onClick={() => void add()}>
             <PlusIcon className="size-3.5" /> {swt("interface.m0611")}
           </Button>
-          {err && <span className="text-xs text-red-500">{err}</span>}
+          {err && <span className="text-xs text-red-600 dark:text-red-400">{err}</span>}
         </div>
         {/* Rule list. */}
         {rules.length > 0 ? (
@@ -1370,7 +1370,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
                     disabled={busy || !editPattern.trim()}
                     onClick={() => void saveEdit(r)}
                   >
-                    <CheckIcon className="size-3.5 text-emerald-500" />
+                    <CheckIcon className="size-3.5 text-emerald-700 dark:text-emerald-400" />
                   </Button>
                   <Button
                     size="sm"
@@ -1387,7 +1387,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
                   <span
                     className={`shrink-0 rounded px-1.5 py-0.5 text-xs ${
                       r.action === "allow"
-                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                        ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400"
                         : "bg-red-500/15 text-red-600 dark:text-red-400"
                     }`}
                   >
@@ -1415,7 +1415,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
                     disabled={busy}
                     onClick={() => void remove(r)}
                   >
-                    <Trash2Icon className="size-3.5 text-red-500" />
+                    <Trash2Icon className="size-3.5 text-red-600 dark:text-red-400" />
                   </Button>
                 </div>
               ),

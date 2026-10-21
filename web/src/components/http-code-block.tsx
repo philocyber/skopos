@@ -11,10 +11,10 @@ import { translate as swt } from "@/i18n/runtime";
 import { cn, copyText } from "@/lib/utils";
 
 function statusTone(status: number) {
-  if (status >= 500) return "text-red-500";
-  if (status >= 400) return "text-amber-500";
-  if (status >= 300) return "text-blue-500";
-  if (status >= 200) return "text-emerald-500";
+  if (status >= 500) return "text-red-600 dark:text-red-400";
+  if (status >= 400) return "text-amber-700 dark:text-amber-400";
+  if (status >= 300) return "text-blue-600 dark:text-blue-400";
+  if (status >= 200) return "text-emerald-700 dark:text-emerald-400";
   return "text-muted-foreground";
 }
 
@@ -218,7 +218,7 @@ export function HttpCodeBlock({ raw }: { raw: string }) {
           <div
             key={`${index}-${line}`}
             data-line={index + 1}
-            className="grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] leading-relaxed before:sticky before:left-0 before:self-stretch before:border-r before:bg-muted/20 before:px-1 before:text-right before:text-muted-foreground/60 before:content-[attr(data-line)]"
+            className="grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] leading-relaxed before:sticky before:left-0 before:self-stretch before:border-r before:bg-muted/20 before:px-1 before:text-right before:text-muted-foreground before:content-[attr(data-line)]"
           >
             <code
               className={cn(

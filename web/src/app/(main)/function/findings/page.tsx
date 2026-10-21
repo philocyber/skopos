@@ -759,10 +759,25 @@ export default function FindingsPage() {
 
   const statCards = [
     { label: swt("interface.m0383"), value: stats.total, icon: BugIcon },
-    { label: swt("interface.m0384"), value: stats.pending, tone: "text-amber-500", icon: ClockIcon },
+    {
+      label: swt("interface.m0384"),
+      value: stats.pending,
+      tone: "text-amber-700 dark:text-amber-400",
+      icon: ClockIcon,
+    },
     { label: swt("interface.m0154"), value: stats.critical, tone: "text-rose-600", icon: ShieldAlertIcon },
-    { label: swt("interface.m0155"), value: stats.high, tone: "text-red-500", icon: TriangleAlertIcon },
-    { label: swt("interface.m0156"), value: stats.medium, tone: "text-amber-500", icon: TriangleAlertIcon },
+    {
+      label: swt("interface.m0155"),
+      value: stats.high,
+      tone: "text-red-600 dark:text-red-400",
+      icon: TriangleAlertIcon,
+    },
+    {
+      label: swt("interface.m0156"),
+      value: stats.medium,
+      tone: "text-amber-700 dark:text-amber-400",
+      icon: TriangleAlertIcon,
+    },
     { label: swt("interface.m0157"), value: stats.low, tone: "text-slate-500", icon: InfoIcon },
   ];
 

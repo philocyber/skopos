@@ -112,7 +112,11 @@ function CopyButton({ text }: { text: string }) {
       title={copied ? swt("interface.m0424") : swt("interface.m0425")}
       onClick={copy}
     >
-      {copied ? <CheckIcon className="size-3 text-emerald-600" /> : <CopyIcon className="size-3" />}
+      {copied ? (
+        <CheckIcon className="size-3 text-emerald-700 dark:text-emerald-400" />
+      ) : (
+        <CopyIcon className="size-3" />
+      )}
     </Button>
   );
 }
@@ -447,7 +451,7 @@ export default function LLMRecordsPage() {
                         <span className="text-xs font-mono">{rec.model || "-"}</span>
                       </TableCell>
                       <TableCell>
-                        <span className={cn("text-xs", rec.latency_ms > 30000 && "text-amber-500")}>
+                        <span className={cn("text-xs", rec.latency_ms > 30000 && "text-amber-700 dark:text-amber-400")}>
                           {fmtLatency(rec.latency_ms)}
                         </span>
                       </TableCell>
@@ -458,7 +462,7 @@ export default function LLMRecordsPage() {
                       </TableCell>
                       <TableCell>
                         {rec.status === "ok" ? (
-                          <Badge variant="secondary" className="text-xs text-emerald-600">
+                          <Badge variant="secondary" className="text-xs text-emerald-700 dark:text-emerald-400">
                             {swt("english.e062")}
                           </Badge>
                         ) : (
@@ -496,11 +500,11 @@ export default function LLMRecordsPage() {
                 </Badge>
               )}
               <span className="text-xs text-muted-foreground">{fmtTime(selected.ts)}</span>
-              <span className={cn("text-xs", selected.latency_ms > 30000 && "text-amber-500")}>
+              <span className={cn("text-xs", selected.latency_ms > 30000 && "text-amber-700 dark:text-amber-400")}>
                 {fmtLatency(selected.latency_ms)}
               </span>
               {selected.status === "ok" ? (
-                <Badge variant="secondary" className="text-xs text-emerald-600">
+                <Badge variant="secondary" className="text-xs text-emerald-700 dark:text-emerald-400">
                   {swt("english.e062")}
                 </Badge>
               ) : (

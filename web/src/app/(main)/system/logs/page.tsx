@@ -68,7 +68,7 @@ const MOCK_LOGS: LogLine[] = [
 
 const levelTone: Record<LogLine["level"], string> = {
   info: "text-foreground/80",
-  warn: "text-amber-600 dark:text-amber-400",
+  warn: "text-amber-700 dark:text-amber-400",
   error: "text-red-600 dark:text-red-400",
 };
 const levelDot: Record<LogLine["level"], string> = {
@@ -230,7 +230,7 @@ export default function LogsPage() {
           </Button>
           <span className="ml-auto text-xs text-muted-foreground">
             {counts.total} {swt("interface.m1441")}{" "}
-            <span className="text-amber-600 dark:text-amber-400">
+            <span className="text-amber-700 dark:text-amber-400">
               {counts.warn} {swt("interface.m1442")}
             </span>{" "}
             ·{" "}

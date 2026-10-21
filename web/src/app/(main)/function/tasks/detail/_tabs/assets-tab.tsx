@@ -50,12 +50,12 @@ const PAGE_SIZES = [25, 50, 100, 200];
 
 const METHOD_COLOR: Record<string, string> = {
   DELETE: "bg-red-100 text-red-700",
-  GET: "bg-emerald-100 text-emerald-700",
+  GET: "bg-emerald-100 text-emerald-800",
   HEAD: "bg-purple-100 text-purple-700",
   OPTIONS: "bg-slate-100 text-slate-600",
   PATCH: "bg-orange-100 text-orange-700",
   POST: "bg-blue-100 text-blue-700",
-  PUT: "bg-amber-100 text-amber-700",
+  PUT: "bg-amber-100 text-amber-800",
 };
 
 const TABS: { key: NewAssetType; label: string; icon: LucideIcon }[] = [
@@ -138,10 +138,10 @@ function MethodBadge({ method }: { method: string }) {
 }
 
 function statusTone(code: number) {
-  if (code >= 500) return "text-red-500";
-  if (code >= 400) return "text-amber-500";
-  if (code >= 300) return "text-blue-500";
-  if (code >= 200) return "text-emerald-500";
+  if (code >= 500) return "text-red-600 dark:text-red-400";
+  if (code >= 400) return "text-amber-700 dark:text-amber-400";
+  if (code >= 300) return "text-blue-600 dark:text-blue-400";
+  if (code >= 200) return "text-emerald-700 dark:text-emerald-400";
   return "text-muted-foreground";
 }
 

@@ -322,7 +322,7 @@ function LLMProfileRow({
   return (
     <div className="flex min-w-0 shrink-0 items-center gap-1 px-1 pt-0.5 pb-1">
       <ZapIcon className="text-muted-foreground/50 size-3 shrink-0" />
-      <span className="truncate text-muted-foreground/70 text-xs" title={label}>
+      <span className="truncate text-muted-foreground text-xs" title={label}>
         {label}
       </span>
       <Popover open={open} onOpenChange={disabled ? undefined : setOpen}>
@@ -867,7 +867,7 @@ function ChatView({
           ) : (
             <>
               {hasMore && (
-                <div className="text-muted-foreground/70 pb-2 text-center text-[11px]">{swt("interface.m0089")}</div>
+                <div className="text-muted-foreground pb-2 text-center text-[11px]">{swt("interface.m0089")}</div>
               )}
               <Transcript
                 activity={messages}

@@ -65,7 +65,7 @@ const KIND_META: Record<string, KindMeta> = {
     },
     icon: TargetIcon,
     dot: "bg-emerald-500",
-    chip: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+    chip: "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400",
   },
   intent: {
     get label() {
@@ -81,7 +81,7 @@ const KIND_META: Record<string, KindMeta> = {
     },
     icon: FlaskConicalIcon,
     dot: "bg-amber-500",
-    chip: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+    chip: "bg-amber-500/15 text-amber-800 dark:text-amber-400",
   },
   finding: {
     get label() {
@@ -105,7 +105,7 @@ const KIND_META: Record<string, KindMeta> = {
     },
     icon: LayersIcon,
     dot: "bg-teal-500",
-    chip: "bg-teal-500/15 text-teal-600 dark:text-teal-400",
+    chip: "bg-teal-500/15 text-teal-700 dark:text-teal-400",
   },
 };
 
