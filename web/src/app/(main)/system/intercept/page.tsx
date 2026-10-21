@@ -634,7 +634,9 @@ export default function InterceptPage() {
                         <TableCell>
                           <span className="font-mono text-xs tabular-nums">{rule.priority}</span>
                         </TableCell>
-                        <TableCell className="font-medium text-sm">{rule.name}</TableCell>
+                        <TableCell className="max-w-56 truncate font-medium text-sm" title={rule.name}>
+                          {rule.name}
+                        </TableCell>
                         <TableCell>
                           <span className="text-xs text-muted-foreground">
                             {rule.match_target === "tool_name" ? swt("interface.m1246") : swt("interface.m1247")}
