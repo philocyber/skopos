@@ -42,7 +42,7 @@ export class SkoposClient {
     // Share a single login when an agent calls multiple read tools concurrently.
     if (!this.login) {
       this.login = this.request("/api/auth/login", {
-        method: "POST", body: { username: "ARTEX", password: this.config.password }, auth: false, signal,
+        method: "POST", body: { username: "SKOPOS", password: this.config.password }, auth: false, signal,
       }).then((result) => {
         if (typeof result.token !== "string" || !result.token) throw new Error("Skopos login did not return a token.");
         this.token = result.token;

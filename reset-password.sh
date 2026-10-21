@@ -27,7 +27,7 @@ die() { echo "$(msg "Error: $*" "오류: $*")" >&2; exit 1; }
 info() { echo "· $*" >&2; }
 
 usage() {
-  echo "$(msg 'Reset Skopos administrator password (legacy username ARTEX).' 'Skopos 관리자 비밀번호 재설정 (기존 사용자 이름 ARTEX).')"
+  echo "$(msg 'Reset the Skopos administrator password (username SKOPOS).' 'Skopos 관리자 비밀번호 재설정 (사용자 이름 SKOPOS).')"
   echo "$(msg 'Usage: ./reset-password.sh [options]; prompts for a password when omitted.' '사용법: ./reset-password.sh [옵션]; 비밀번호 생략 시 입력을 요청합니다.')"
   echo '-m/--mode local|docker; --dsn DSN; --config PATH; --sslmode MODE; --backend PATH'
   echo '-H/--host HOST; -P/--port PORT; -U/--user USER; -W/--db-password PASSWORD'
@@ -119,7 +119,7 @@ info "$(msg "Deployment mode: $MODE" "배포 방식: $MODE")"
 
 # Collect and confirm the new password.
 if [[ -z "$NEWPASS" ]]; then
-  read -r -s -p "$(msg "New password (legacy username ARTEX): " "새 비밀번호 (기존 사용자 이름 ARTEX): ")" NEWPASS; echo >&2
+  read -r -s -p "$(msg "New password (username SKOPOS): " "새 비밀번호 (사용자 이름 SKOPOS): ")" NEWPASS; echo >&2
   [[ -n "$NEWPASS" ]] || die "$(msg "Password cannot be empty" "비밀번호는 비어 있을 수 없습니다")"
   read -r -s -p "$(msg "Confirm password: " "비밀번호 확인: ")" NEWPASS2; echo >&2
   [[ "$NEWPASS" == "$NEWPASS2" ]] || die "$(msg "Passwords do not match" "비밀번호가 일치하지 않습니다")"
@@ -229,4 +229,4 @@ else
 fi
 
 unset SKOPOS_RESET_NEWPASS
-echo "$(msg "Administrator password reset. Earlier sessions are invalidated on their next request. Sign in as ARTEX with the new password; no restart needed." "관리자 비밀번호를 재설정했습니다. 이전 세션의 다음 요청은 거부됩니다. ARTEX와 새 비밀번호로 로그인하세요. 재시작은 필요하지 않습니다.")"
+echo "$(msg "Administrator password reset. Earlier sessions are invalidated on their next request. Sign in as SKOPOS with the new password; no restart needed." "관리자 비밀번호를 재설정했습니다. 이전 세션의 다음 요청은 거부됩니다. SKOPOS와 새 비밀번호로 로그인하세요. 재시작은 필요하지 않습니다.")"
