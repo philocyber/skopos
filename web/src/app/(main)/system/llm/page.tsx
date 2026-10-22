@@ -36,10 +36,45 @@ import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useI18n } from "@/i18n";
+import { type MessageKey, useI18n } from "@/i18n";
 import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
-import { applyLLMProfilePreset, LLM_PROFILE_PRESET_NAMES, type LLMProfilePresetId } from "@/lib/llm-profile-presets";
+import { llmEndpointWarnings } from "@/lib/llm-endpoint-checks";
+import {
+  applyLLMProfilePreset,
+  BEDROCK_REGIONS,
+  bedrockBaseUrlForRegion,
+  DEFAULT_BEDROCK_REGION,
+  LLM_PROFILE_PRESET_NAMES,
+  LLM_VENDOR_IDS,
+  LLM_VENDORS,
+  type LLMProfilePresetId,
+  type LLMVendorId,
+  vendorOfPreset,
+} from "@/lib/llm-profile-presets";
+
+const VENDOR_LABEL: Record<LLMVendorId, MessageKey> = {
+  anthropic: "providers.vendorAnthropic",
+  openai: "providers.vendorOpenai",
+  zai: "providers.vendorZai",
+  vercel: "providers.vendorVercel",
+  bedrock: "providers.vendorBedrock",
+};
+
+const PRESET_LABEL: Record<LLMProfilePresetId, MessageKey> = {
+  "claude-opus-5-5": "providers.claudeOpus",
+  "claude-fable-5-1": "providers.claudeFable",
+  "claude-sonnet-5-5": "providers.claudeSonnet",
+  "claude-haiku-5-5": "providers.claudeHaiku",
+  "openai-gpt-6-1-sol": "providers.openaiSol",
+  "openai-gpt-6-luna": "providers.openaiLuna",
+  "zai-general": "providers.general",
+  "zai-coding-reference": "providers.coding",
+  "vercel-gateway-chat": "providers.vercelChat",
+  "vercel-gateway-claude": "providers.vercelClaude",
+  "bedrock-claude": "providers.bedrockClaude",
+  "bedrock-open-models": "providers.bedrockOpen",
+};
 import type { LLMPoolMember, LLMPoolStatus, LLMProfile, LLMRetryOverride } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -390,6 +425,8 @@ function ProfileSheet({
 
   const isNew = !profile;
   const [preset, setPreset] = React.useState<LLMProfilePresetId | "">("");
+  const [vendor, setVendor] = React.useState<LLMVendorId | "">("");
+  const [region, setRegion] = React.useState<string>(DEFAULT_BEDROCK_REGION);
   const [name, setName] = React.useState("");
   const [format, setFormat] = React.useState<"anthropic" | "openai" | "openai-responses">("anthropic");
   const [model, setModel] = React.useState("");
@@ -420,6 +457,8 @@ function ProfileSheet({
   React.useEffect(() => {
     if (!open) return;
     setPreset("");
+    setVendor("");
+    setRegion(DEFAULT_BEDROCK_REGION);
     setName(profile?.name ?? "");
     setFormat(profile?.format === "openai" || profile?.format === "openai-responses" ? profile.format : "anthropic");
     setModel(profile?.model ?? "");
@@ -443,14 +482,30 @@ function ProfileSheet({
     setModelsOpen(false);
   }, [open, profile]);
 
-  function applyPreset(id: string) {
+  // Picking a vendor applies its first template at once, so one click fills the whole form.
+  function applyVendor(v: string) {
+    const id = v as LLMVendorId;
+    setVendor(id);
+    applyPreset(LLM_VENDORS[id].presets[0], id === "bedrock" ? region : undefined);
+  }
+
+  function applyRegion(r: string) {
+    setRegion(r);
+    setBaseUrl((u) => bedrockBaseUrlForRegion(u, r));
+  }
+
+  function applyPreset(id: string, bedrockRegion?: string) {
     if (!isNew) return;
     const next = applyLLMProfilePreset({ name, api_key: apiKey, proxy, session_header_key: sessionHeaderKey }, id);
     setPreset(id as LLMProfilePresetId);
-    if (!name.trim()) setName(LLM_PROFILE_PRESET_NAMES[id as LLMProfilePresetId]);
+    // Replace a name that a previous template suggested; never one the user typed.
+    if (!name.trim() || Object.values(LLM_PROFILE_PRESET_NAMES).includes(name)) {
+      setName(LLM_PROFILE_PRESET_NAMES[id as LLMProfilePresetId]);
+    }
     setFormat(next.format);
     setModel(next.model);
-    setBaseUrl(next.base_url);
+    // Bedrock templates keep the Region already chosen instead of resetting to the default.
+    setBaseUrl(vendorOfPreset(id) === "bedrock" ? bedrockBaseUrlForRegion(next.base_url, bedrockRegion ?? region) : next.base_url);
     setThinkingType(fromStore(next.thinking_type));
     setEffort(fromStore(next.reasoning_effort));
     setCw(String(next.context_window_k));
@@ -461,6 +516,7 @@ function ProfileSheet({
   }
 
   const profileId = profile ? Number(profile.id) : undefined;
+  const endpointWarnings = llmEndpointWarnings(format, baseUrl, model);
 
   async function loadModels() {
     if (loadingModels) return;
@@ -576,31 +632,62 @@ function ProfileSheet({
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4">
           {isNew && (
             <div className="grid gap-2 rounded-md border bg-muted/20 p-3">
-              <Label htmlFor="p-preset">{swt("providers.template")}</Label>
-              <Select value={preset} onValueChange={applyPreset}>
-                <SelectTrigger id="p-preset" className="w-full min-w-0">
-                  <SelectValue placeholder={swt("providers.chooseTemplate")} />
+              <Label htmlFor="p-vendor">{swt("providers.vendor")}</Label>
+              <Select value={vendor} onValueChange={applyVendor}>
+                <SelectTrigger id="p-vendor" className="w-full min-w-0">
+                  <SelectValue placeholder={swt("providers.chooseVendor")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>{swt("providers.claudeGroup")}</SelectLabel>
-                    <SelectItem value="claude-opus-5-5">{swt("providers.claudeOpus")}</SelectItem>
-                    <SelectItem value="claude-fable-5-1">{swt("providers.claudeFable")}</SelectItem>
-                    <SelectItem value="claude-sonnet-5-5">{swt("providers.claudeSonnet")}</SelectItem>
-                    <SelectItem value="claude-haiku-5-5">{swt("providers.claudeHaiku")}</SelectItem>
-                  </SelectGroup>
-                  <SelectGroup>
-                    <SelectLabel>{swt("providers.openaiGroup")}</SelectLabel>
-                    <SelectItem value="openai-gpt-6-1-sol">{swt("providers.openaiSol")}</SelectItem>
-                    <SelectItem value="openai-gpt-6-luna">{swt("providers.openaiLuna")}</SelectItem>
-                  </SelectGroup>
-                  <SelectGroup>
-                    <SelectLabel>{swt("providers.zaiGroup")}</SelectLabel>
-                    <SelectItem value="zai-general">{swt("providers.general")}</SelectItem>
-                    <SelectItem value="zai-coding-reference">{swt("providers.coding")}</SelectItem>
-                  </SelectGroup>
+                  {LLM_VENDOR_IDS.map((v) => (
+                    <SelectItem key={v} value={v}>
+                      {swt(VENDOR_LABEL[v])}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              {vendor && (
+                <>
+                  <Label htmlFor="p-preset">{swt("providers.template")}</Label>
+                  <Select value={preset} onValueChange={applyPreset}>
+                    <SelectTrigger id="p-preset" className="w-full min-w-0">
+                      <SelectValue placeholder={swt("providers.chooseTemplate")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LLM_VENDORS[vendor].presets.map((id) => (
+                        <SelectItem key={id} value={id}>
+                          {swt(PRESET_LABEL[id])}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {vendor === "bedrock" && (
+                    <>
+                      <Label htmlFor="p-region">{swt("providers.region")}</Label>
+                      <Select value={region} onValueChange={applyRegion}>
+                        <SelectTrigger id="p-region" className="w-full min-w-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BEDROCK_REGIONS.map((r) => (
+                            <SelectItem key={r} value={r}>
+                              {r}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">{swt("providers.regionHelp")}</p>
+                    </>
+                  )}
+                  <a
+                    className="w-fit text-xs underline underline-offset-4"
+                    href={LLM_VENDORS[vendor].keyUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {swt("providers.getKey", { p0: swt(VENDOR_LABEL[vendor]) })}
+                  </a>
+                </>
+              )}
               <p className="text-xs text-muted-foreground">{swt("providers.introduction")}</p>
               {preset?.startsWith("claude-") && (
                 <>
@@ -628,6 +715,33 @@ function ProfileSheet({
                       rel="noreferrer"
                     >
                       {swt("providers.openaiOfficial")}
+                    </a>
+                  </div>
+                </>
+              )}
+              {(preset?.startsWith("vercel-") || preset?.startsWith("bedrock-")) && (
+                <>
+                  <p className="text-xs text-muted-foreground">
+                    {swt(
+                      preset.startsWith("vercel-")
+                        ? "providers.vercelHelp"
+                        : preset === "bedrock-claude"
+                          ? "providers.bedrockClaudeHelp"
+                          : "providers.bedrockOpenHelp",
+                    )}
+                  </p>
+                  <div className="flex flex-wrap gap-3 text-xs">
+                    <a
+                      className="underline underline-offset-4"
+                      href={
+                        preset.startsWith("vercel-")
+                          ? "https://vercel.com/docs/ai-gateway/authentication-and-byok"
+                          : "https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html"
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {swt(preset.startsWith("vercel-") ? "providers.vercelDocs" : "providers.bedrockDocs")}
                     </a>
                   </div>
                 </>
@@ -746,6 +860,11 @@ function ProfileSheet({
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
             />
+            {endpointWarnings.map((w) => (
+              <p key={w} role="alert" className="text-xs text-amber-700 dark:text-amber-400">
+                {swt(`providers.${w}`)}
+              </p>
+            ))}
           </div>
 
           <div className="grid gap-2">
@@ -781,7 +900,11 @@ function ProfileSheet({
             <Input
               id="p-api-key"
               type="password"
-              placeholder={keyHint ? swt("interface.m1399", { p0: keyHint }) : "sk-…"}
+              placeholder={keyHint ? swt("interface.m1399", { p0: keyHint }) : vendor === "bedrock"
+                    ? swt("providers.keyBedrock")
+                    : vendor === "vercel"
+                      ? swt("providers.keyVercel")
+                      : "sk-…"}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
             />

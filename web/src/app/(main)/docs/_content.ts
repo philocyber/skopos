@@ -249,7 +249,7 @@ export const DOC_SECTIONS: DocSection[] = [
         type: "callout",
         tone: "info",
         title: "Fastest way to set a model up",
-        text: "Open LLM, then New, and pick a template under Anthropic Claude, OpenAI or Z.ai GLM. It fills the format, model ID, base URL, context window (1000 for a 1M window), effort, and a profile name. Add your API key, run Test connection, save, then use Set active. If Context window shows 0, Skopos assumes 200K and compresses history early.",
+        text: "Open LLM, then New, and pick a provider (Anthropic, OpenAI, Z.ai, Vercel AI Gateway or Amazon Bedrock). It applies that provider's first template and links to where you create the key; a second list switches templates, and Bedrock adds a Region list that rewrites the Base URL. It fills the format, model ID, base URL, context window (1000 for a 1M window), effort, and a profile name. Add your API key, run Test connection, save, then use Set active. If Context window shows 0, Skopos assumes 200K and compresses history early.",
       },
       {
         type: "table",
@@ -275,6 +275,36 @@ export const DOC_SECTIONS: DocSection[] = [
       {
         type: "p",
         text: "Built-in template: Z.ai GLM-5.3 (LLM, then New, then Configuration template). General API is the recommended entry for API billing. The Coding Plan template is reference only: Z.ai limits that plan to officially supported tools and Skopos is not listed, so obtain Z.ai authorization first. GLM-5.3 is text-only with a 1M-token context, requires reasoning to stay enabled, and supports effort low, high and max (the template uses max).",
+      },
+      {
+        type: "table",
+        head: ["Gateway template", "Format and Base URL", "Model IDs"],
+        rows: [
+          [
+            "Vercel AI Gateway, any model",
+            "openai, https://ai-gateway.vercel.sh/v1",
+            "provider/model, for example anthropic/claude-sonnet-5. Load models lists them. For OpenAI models that need function calling, switch Format to openai-responses on the same URL.",
+          ],
+          [
+            "Vercel AI Gateway, Claude",
+            "anthropic, https://ai-gateway.vercel.sh (no path)",
+            "provider/model, same list.",
+          ],
+          [
+            "Amazon Bedrock, Claude",
+            "anthropic, https://bedrock-runtime.<region>.amazonaws.com/anthropic",
+            "No slash, usually an inference profile such as us.anthropic.claude-sonnet-5. bedrock-runtime has no model list: type the ID.",
+          ],
+          [
+            "Amazon Bedrock, open models",
+            "openai, https://bedrock-mantle.<region>.api.aws/v1",
+            "No slash, for example openai.gpt-oss-120b. Load models lists DeepSeek, Qwen, GLM, Kimi, Mistral and more. A few models use /openai/v1 instead of /v1.",
+          ],
+        ],
+      },
+      {
+        type: "p",
+        text: "Gateways let one key reach many models. Vercel AI Gateway uses an AI Gateway API key from the Vercel dashboard. Amazon Bedrock uses a Bedrock API key: short-term keys last up to 12 hours, and a long-term key works only in the Region it was created in, so the Region in the Base URL must match. Gateway templates leave thinking and effort unset and declare a 200K window; set them for the model you choose. The form warns about wrong paths, region placeholders and model ID styles, and failed tests append a hint naming the likely cause (key type, Region, IAM permission, inference profile or route).",
       },
       {
         type: "callout",

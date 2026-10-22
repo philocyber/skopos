@@ -20,6 +20,7 @@ Go backend · Next.js frontend · PostgreSQL · AGPL-3.0
   MITM recording proxy and bound to the findings it supports — reports are defensible, not just
   narrated.
 - **Bring your own LLM.** Anthropic Claude, OpenAI (Chat Completions or Responses API), Z.ai GLM,
+  Vercel AI Gateway or Amazon Bedrock API keys (one key for Claude, DeepSeek, Qwen, GLM and more),
   or any OpenAI-compatible endpoint, configured per agent with ready-made presets.
 - **Human-in-the-loop safety.** A shell/command interception gate requires approval for risky
   executions by default, with fine-grained allow/deny rules once you trust a workflow.
@@ -148,6 +149,11 @@ The **LLM → New** form includes GLM-5.3 configuration templates for Z.ai's Gen
 separately labeled Coding Plan reference. Add your own API key; template selection does not save,
 activate, or contact a provider. Coding Plan use is restricted to officially supported tools, and
 Skopos is not listed. See [provider setup and support limits](docs/llm-providers.md).
+
+No direct provider key? **LLM → New → Gateways** has templates for the Vercel AI Gateway and Amazon
+Bedrock API keys, which reach many models with one key. The form flags wrong URLs and model IDs
+before you test, and failed tests explain the likely cause. See
+[gateways](docs/llm-providers.md#gateways-one-key-many-models).
 
 > Requires a **PostgreSQL** database. Exploration needs an **LLM** configured
 > (`ANTHROPIC_API_KEY` or `OPENAI_API_KEY`, or set it in the UI).
