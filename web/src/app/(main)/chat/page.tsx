@@ -1,20 +1,16 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
   ArrowUpIcon,
   Bot,
-  HistoryIcon,
-  PanelRightIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  HistoryIcon,
   ListChecksIcon,
   Loader2Icon,
   MoreHorizontalIcon,
+  PanelRightIcon,
   PaperclipIcon,
   PencilIcon,
   PinIcon,
@@ -27,12 +23,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { MentionTextarea } from "@/components/mention-textarea";
-import { SideQuestionButton, SideQuestionWorkspace } from "@/components/side-question-workspace";
-import { TodoPopover } from "@/components/todo-popover";
 import { ApprovalExecutionFocus, useApprovalFocus, useApprovalHistory } from "@/components/approval-execution-focus";
-import { Transcript } from "@/components/transcript";
+import { MentionTextarea } from "@/components/mention-textarea";
+import { PageHeader } from "@/components/page-header";
+import { SideQuestionButton, SideQuestionWorkspace } from "@/components/side-question-workspace";
 import { TaskContextPanel } from "@/components/task-context-panel";
+import { TodoPopover } from "@/components/todo-popover";
+import { Transcript } from "@/components/transcript";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,14 +56,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useSideQuestions } from "@/hooks/use-side-questions";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { mergeActivities } from "@/lib/activity-merge";
 import { api } from "@/lib/api";
 import { shouldSubmitOnKey, useChatSendMode } from "@/lib/chat-send-mode";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 import { isBtwCommand } from "@/lib/side-questions";
+import { latestSpawnedTask } from "@/lib/task-workspace";
 import type { Activity, Agent, ChatAttachment, Conversation, LLMProfile } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { latestSpawnedTask } from "@/lib/task-workspace";
 
 // fmtBytes renders a human file size for attachment chips (mirrors transcript.tsx).
 function fmtBytes(n: number): string {
@@ -323,7 +322,7 @@ function LLMProfileRow({
   return (
     <div className="flex min-w-0 shrink-0 items-center gap-1 px-1 pt-0.5 pb-1">
       <ZapIcon className="text-muted-foreground/50 size-3 shrink-0" />
-      <span className="truncate text-muted-foreground/70 text-xs" title={label}>
+      <span className="truncate text-muted-foreground text-xs" title={label}>
         {label}
       </span>
       <Popover open={open} onOpenChange={disabled ? undefined : setOpen}>
@@ -868,7 +867,7 @@ function ChatView({
           ) : (
             <>
               {hasMore && (
-                <div className="text-muted-foreground/70 pb-2 text-center text-[11px]">{swt("interface.m0089")}</div>
+                <div className="text-muted-foreground pb-2 text-center text-[11px]">{swt("interface.m0089")}</div>
               )}
               <Transcript
                 activity={messages}
@@ -1131,13 +1130,15 @@ export default function ChatPage() {
   const [profiles, setProfiles] = React.useState<LLMProfile[]>([]);
   const [convs, setConvs] = React.useState<Conversation[]>([]);
   const [historyOpen, setHistoryOpen] = React.useState(false);
-  const [contextOpen, setContextOpen] = React.useState(true);
+  // Closed until a task exists: with nothing selected the panel only shows an empty prompt.
+  const [contextOpen, setContextOpen] = React.useState(false);
   const [createdTask, setCreatedTask] = React.useState<{ conversationId: number; id: string } | null>(null);
   const [agentFilter, setAgentFilter] = React.useState<string | null>(null);
   const [selectedId, setSelectedId] = React.useState<number | null>(null);
   const handleTaskCreated = React.useCallback(
     (id: string) => {
       if (selectedId === null) return;
+      setContextOpen(true);
       setCreatedTask((current) =>
         current?.id === id && current.conversationId === selectedId ? current : { conversationId: selectedId, id },
       );
@@ -1467,40 +1468,41 @@ export default function ChatPage() {
     <div
       data-content-padding="false"
       data-design-direction="owner-approved-chat-auto-task-context"
-      className="flex h-[calc(100dvh-3.5rem)] min-h-0 min-w-0 flex-col gap-3 overflow-hidden p-4"
+      className="flex h-[calc(100dvh-3.5rem)] min-h-0 min-w-0 flex-col gap-4 overflow-hidden p-4 md:p-6"
     >
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 className="text-base font-semibold">Chat</h1>
-          <p className="text-xs text-muted-foreground">Natural-language planning, Auto and your task workspace.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant={historyOpen ? "secondary" : "outline"}
-            aria-expanded={historyOpen}
-            aria-controls="chat-history"
-            onClick={() => {
-              setHistoryOpen((open) => !open);
-              setContextOpen(false);
-            }}
-          >
-            <HistoryIcon /> History <span className="text-muted-foreground tabular-nums">{convs.length}</span>
-          </Button>
-          <Button
-            size="sm"
-            variant={contextOpen ? "secondary" : "outline"}
-            aria-expanded={contextOpen}
-            aria-controls="chat-task-panel"
-            onClick={() => {
-              setContextOpen((open) => !open);
-              setHistoryOpen(false);
-            }}
-          >
-            <PanelRightIcon /> Task context
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        className="shrink-0"
+        title="Chat"
+        description="Natural-language planning, Auto and your task workspace."
+        actions={
+          <>
+            <Button
+              size="sm"
+              variant={historyOpen ? "secondary" : "outline"}
+              aria-expanded={historyOpen}
+              aria-controls="chat-history"
+              onClick={() => {
+                setHistoryOpen((open) => !open);
+                setContextOpen(false);
+              }}
+            >
+              <HistoryIcon /> History <span className="text-muted-foreground tabular-nums">{convs.length}</span>
+            </Button>
+            <Button
+              size="sm"
+              variant={contextOpen ? "secondary" : "outline"}
+              aria-expanded={contextOpen}
+              aria-controls="chat-task-panel"
+              onClick={() => {
+                setContextOpen((open) => !open);
+                setHistoryOpen(false);
+              }}
+            >
+              <PanelRightIcon /> Task context
+            </Button>
+          </>
+        }
+      />
       <div
         className={cn(
           "console-chat-grid grid min-h-0 min-w-0 flex-1 gap-4",

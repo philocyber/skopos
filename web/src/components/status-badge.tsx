@@ -1,14 +1,8 @@
 "use client";
 
 import { useI18n } from "@/i18n";
+import { type StatusDomain, statusMeta, type Tone, toneClasses, toneDot } from "@/lib/status";
 import { cn } from "@/lib/utils";
-import {
-  statusMeta,
-  toneClasses,
-  toneDot,
-  type StatusDomain,
-  type Tone,
-} from "@/lib/status";
 
 export function StatusBadge({
   domain,
@@ -32,9 +26,7 @@ export function StatusBadge({
         className,
       )}
     >
-      {dot && (
-        <span className={cn("size-1.5 rounded-full", toneDot[meta.tone])} />
-      )}
+      {dot && <span className={cn("size-1.5 rounded-full", toneDot[meta.tone])} />}
       {meta.label}
     </span>
   );

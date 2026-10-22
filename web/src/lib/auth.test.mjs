@@ -1,6 +1,6 @@
+import { auth } from "./auth.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
-import { auth } from "./auth.ts";
 
 function browser() {
   const storage = new Map();
@@ -13,7 +13,9 @@ function browser() {
     removeItem: (key) => storage.delete(key),
   };
   globalThis.document = {
-    get cookie() { return [...cookies].map(([key, value]) => `${key}=${value}`).join("; "); },
+    get cookie() {
+      return [...cookies].map(([key, value]) => `${key}=${value}`).join("; ");
+    },
     set cookie(value) {
       writes.push(value);
       const [name, entry] = value.split(";")[0].split("=");

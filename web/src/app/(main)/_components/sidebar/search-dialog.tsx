@@ -1,7 +1,4 @@
 "use client";
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
-
 import * as React from "react";
 
 import { useRouter } from "next/navigation";
@@ -19,6 +16,8 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import type { NavMainItem } from "@/navigation/sidebar/sidebar-items";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 
@@ -143,7 +142,8 @@ export function SearchDialog() {
         className="px-0! font-normal text-muted-foreground hover:no-underline"
       >
         <Search data-icon="inline-start" />
-        {swt("english.e045")}<kbd className="inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium text-[10px]">
+        {swt("english.e045")}
+        <kbd className="inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium text-[10px]">
           <span className="text-xs">⌘</span>J
         </kbd>
       </Button>

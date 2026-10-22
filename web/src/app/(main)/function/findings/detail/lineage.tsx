@@ -1,10 +1,10 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { ExplorationGraph } from "@/components/exploration-graph";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { Edge, TaskNode } from "@/lib/types";
 
@@ -38,10 +38,7 @@ export function FindingLineageView({ findingId }: { findingId: string }) {
   }, [findingId]);
 
   if (loaded && nodes.length === 0) {
-    return (
-      <p className="text-muted-foreground p-6 text-sm">
-        {swt("interface.m0349")}</p>
-    );
+    return <p className="text-muted-foreground p-6 text-sm">{swt("interface.m0349")}</p>;
   }
 
   return (

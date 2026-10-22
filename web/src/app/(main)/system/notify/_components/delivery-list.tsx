@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { RefreshCwIcon, RotateCcwIcon } from "lucide-react";
@@ -13,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { statusMeta, toneClasses } from "@/lib/status";
 import type { NotificationChannel, NotificationDelivery } from "@/lib/types";
@@ -99,8 +97,11 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
           </SelectContent>
         </Select>
         <Button size="sm" variant="outline" onClick={load} disabled={loading}>
-          <RefreshCwIcon className={loading ? "animate-spin" : ""} /> {swt("interface.m0225")}</Button>
-        <span className="text-muted-foreground ml-auto text-xs">{swt("interface.m0199")}{" "}{total} {swt("interface.m0328")}</span>
+          <RefreshCwIcon className={loading ? "animate-spin" : ""} /> {swt("interface.m0225")}
+        </Button>
+        <span className="text-muted-foreground ml-auto text-xs">
+          {swt("interface.m0199")} {total} {swt("interface.m0328")}
+        </span>
       </div>
 
       <Card className="py-0">
@@ -137,7 +138,8 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
                       <span className="truncate text-sm">{d.title || swt("interface.m1527")}</span>
                       {d.event_kind === "finding_status_changed" && (
                         <Badge variant="outline" className="shrink-0">
-                          {swt("interface.m1528")}</Badge>
+                          {swt("interface.m1528")}
+                        </Badge>
                       )}
                     </div>
                   </TableCell>
@@ -153,7 +155,8 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
                     {/* Only failed/skipped deliveries can be resent; resending delivered messages would duplicate notifications. */}
                     {(d.state === "failed" || d.state === "skipped") && (
                       <Button size="sm" variant="outline" onClick={() => retry(d.id)}>
-                        <RotateCcwIcon /> {swt("interface.m1529")}</Button>
+                        <RotateCcwIcon /> {swt("interface.m1529")}
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -166,12 +169,14 @@ export function DeliveryList({ channels }: { channels: NotificationChannel[] }) 
       {maxPage > 1 && (
         <div className="flex items-center justify-end gap-2">
           <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            {swt("interface.m0488")}</Button>
+            {swt("interface.m0488")}
+          </Button>
           <span className="text-muted-foreground text-sm">
             {page} / {maxPage}
           </span>
           <Button size="sm" variant="outline" disabled={page >= maxPage} onClick={() => setPage((p) => p + 1)}>
-            {swt("interface.m0491")}</Button>
+            {swt("interface.m0491")}
+          </Button>
         </div>
       )}
     </div>

@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import { useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
@@ -9,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { auth } from "@/lib/auth";
 import { ManagementTransportError } from "@/lib/management-transport";
@@ -26,7 +26,8 @@ export default function SetupPage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    api.authStatus()
+    api
+      .authStatus()
       .then(({ initialized }) => {
         if (initialized) router.replace("/login");
       })
@@ -51,7 +52,9 @@ export default function SetupPage() {
       auth.setToken(token);
       router.replace("/function/tasks");
     } catch (err) {
-      setError(err instanceof ManagementTransportError ? err : err instanceof Error ? err.message : swt("interface.m0043"));
+      setError(
+        err instanceof ManagementTransportError ? err : err instanceof Error ? err.message : swt("interface.m0043"),
+      );
     } finally {
       setLoading(false);
     }
@@ -116,7 +119,11 @@ export default function SetupPage() {
                 autoComplete="new-password"
               />
             </div>
-            {error && <p className="text-sm text-destructive">{error instanceof ManagementTransportError ? swt("common.managementHTTPSRequired") : error}</p>}
+            {error && (
+              <p className="text-sm text-destructive">
+                {error instanceof ManagementTransportError ? swt("common.managementHTTPSRequired") : error}
+              </p>
+            )}
             <Button type="submit" className="h-10 w-full" disabled={loading || !setupToken || !password || !confirm}>
               {loading ? swt("interface.m0050") : swt("interface.m0051")}
             </Button>

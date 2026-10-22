@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
 
 import { useRouter } from "next/navigation";
@@ -13,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { auth } from "@/lib/auth";
 import { ManagementTransportError } from "@/lib/management-transport";
@@ -87,7 +87,8 @@ export default function LoginPage() {
   if (checking) {
     return (
       <div role="status" className="flex min-h-dvh items-center justify-center text-muted-foreground">
-        {swt("interface.m0004")}</div>
+        {swt("interface.m0004")}
+      </div>
     );
   }
 
@@ -136,15 +137,21 @@ export default function LoginPage() {
                 className="mt-0.5"
               />
               <Label htmlFor="agree-terms" className="text-sm font-normal leading-relaxed text-muted-foreground">
-                {swt("interface.m0010")}<button
+                {swt("interface.m0010")}
+                <button
                   type="button"
                   onClick={() => setTermsOpen(true)}
                   className="mx-0.5 font-medium text-primary underline-offset-4 hover:underline"
                 >
-                  {swt("interface.m0011")}</button>
+                  {swt("interface.m0011")}
+                </button>
               </Label>
             </div>
-            {error && <p className="text-sm text-destructive">{error instanceof ManagementTransportError ? swt("common.managementHTTPSRequired") : error}</p>}
+            {error && (
+              <p className="text-sm text-destructive">
+                {error instanceof ManagementTransportError ? swt("common.managementHTTPSRequired") : error}
+              </p>
+            )}
             <Button type="submit" className="h-10 w-full" disabled={loading || !password || !agreed}>
               {loading ? swt("interface.m0012") : swt("interface.m0005")}
             </Button>
@@ -160,8 +167,7 @@ export default function LoginPage() {
             </div>
             <div className="space-y-0.5">
               <DialogTitle className="text-base">{swt("interface.m0013")}</DialogTitle>
-              <p className="text-xs text-muted-foreground">
-                {swt("interface.m0014")}</p>
+              <p className="text-xs text-muted-foreground">{swt("interface.m0014")}</p>
             </div>
           </DialogHeader>
 
@@ -171,9 +177,8 @@ export default function LoginPage() {
             className="max-h-[60vh] space-y-5 overflow-y-auto px-6 py-5 text-sm leading-relaxed text-muted-foreground"
           >
             <p className="rounded-lg border bg-muted/40 p-3 text-foreground/80">
-              {swt("interface.m0015")}<span className="font-medium text-foreground">
-                {" "}
-                {swt("interface.m0016")}</span>
+              {swt("interface.m0015")}
+              <span className="font-medium text-foreground"> {swt("interface.m0016")}</span>
             </p>
 
             <section className="space-y-1.5">
@@ -181,9 +186,9 @@ export default function LoginPage() {
                 <span className="flex size-5 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                   1
                 </span>
-                {swt("interface.m0017")}</h4>
-              <p className="pl-7">
-                {swt("interface.m0018")}</p>
+                {swt("interface.m0017")}
+              </h4>
+              <p className="pl-7">{swt("interface.m0018")}</p>
             </section>
 
             <section className="space-y-1.5">
@@ -191,9 +196,9 @@ export default function LoginPage() {
                 <span className="flex size-5 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                   2
                 </span>
-                {swt("interface.m0019")}</h4>
-              <p className="pl-7">
-                {swt("interface.m0020")}</p>
+                {swt("interface.m0019")}
+              </h4>
+              <p className="pl-7">{swt("interface.m0020")}</p>
             </section>
 
             <section className="space-y-2">
@@ -202,10 +207,10 @@ export default function LoginPage() {
                   3
                 </span>
                 <AlertTriangle className="size-4" />
-                {swt("interface.m0021")}</h4>
+                {swt("interface.m0021")}
+              </h4>
               <ul className="ml-7 list-decimal space-y-1.5 rounded-lg border border-destructive/20 bg-destructive/5 p-3 pl-8 text-foreground/80 marker:text-destructive/70">
-                <li>
-                  {swt("interface.m0022")}</li>
+                <li>{swt("interface.m0022")}</li>
                 <li>{swt("interface.m0023")}</li>
                 <li>{swt("interface.m0024")}</li>
                 <li>{swt("interface.m0025")}</li>
@@ -218,9 +223,9 @@ export default function LoginPage() {
                 <span className="flex size-5 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                   4
                 </span>
-                {swt("interface.m0027")}</h4>
-              <p className="pl-7">
-                {swt("interface.m0028")}</p>
+                {swt("interface.m0027")}
+              </h4>
+              <p className="pl-7">{swt("interface.m0028")}</p>
             </section>
 
             <section className="space-y-1.5">
@@ -228,9 +233,9 @@ export default function LoginPage() {
                 <span className="flex size-5 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                   5
                 </span>
-                {swt("interface.m0029")}</h4>
-              <p className="pl-7">
-                {swt("interface.m0030")}</p>
+                {swt("interface.m0029")}
+              </h4>
+              <p className="pl-7">{swt("interface.m0030")}</p>
             </section>
 
             <section className="space-y-1.5">
@@ -238,11 +243,11 @@ export default function LoginPage() {
                 <span className="flex size-5 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                   6
                 </span>
-                {swt("interface.m0031")}</h4>
+                {swt("interface.m0031")}
+              </h4>
               <p className="pl-7">
-                {swt("interface.m0032")}<span className="font-medium text-foreground">
-                  {" "}
-                  {swt("interface.m0033")}</span>
+                {swt("interface.m0032")}
+                <span className="font-medium text-foreground"> {swt("interface.m0033")}</span>
               </p>
             </section>
 
@@ -251,9 +256,9 @@ export default function LoginPage() {
                 <span className="flex size-5 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                   7
                 </span>
-                {swt("interface.m0034")}</h4>
-              <p className="pl-7">
-                {swt("interface.m0035")}</p>
+                {swt("interface.m0034")}
+              </h4>
+              <p className="pl-7">{swt("interface.m0035")}</p>
             </section>
 
             <section className="space-y-1.5">
@@ -261,9 +266,9 @@ export default function LoginPage() {
                 <span className="flex size-5 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                   8
                 </span>
-                {swt("interface.m0036")}</h4>
-              <p className="pl-7">
-                {swt("interface.m0037")}</p>
+                {swt("interface.m0036")}
+              </h4>
+              <p className="pl-7">{swt("interface.m0037")}</p>
             </section>
           </div>
 
@@ -280,7 +285,8 @@ export default function LoginPage() {
                   setError("");
                 }}
               >
-                {swt("interface.m0040")}</Button>
+                {swt("interface.m0040")}
+              </Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

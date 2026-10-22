@@ -1,9 +1,10 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
+
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { Activity, InterceptExecution } from "@/lib/types";
 
@@ -131,10 +132,12 @@ export function ApprovalExecutionFocus({
       <div className="flex gap-2">
         {error ? (
           <Button size="sm" variant="outline" onClick={focus.retry}>
-            {swt("interface.m2042")}</Button>
+            {swt("interface.m2042")}
+          </Button>
         ) : null}
         <Button size="sm" variant="ghost" onClick={focus.close}>
-          {swt("interface.m2043")}</Button>
+          {swt("interface.m2043")}
+        </Button>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import { useI18n } from "@/i18n";
 import Link from "next/link";
 
 import { useShallow } from "zustand/react/shallow";
@@ -16,13 +15,13 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useI18n } from "@/i18n";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import { SidebarSupportCard } from "./sidebar-support-card";
-
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   "use no memo";
@@ -58,10 +57,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarItems} />
-        {/* <NavDocuments items={data.documents} /> */}
-        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
+        <NavMain items={sidebarItems.filter((g) => !g.pinned)} />
       </SidebarContent>
+      <div className="border-t">
+        <NavMain items={sidebarItems.filter((g) => g.pinned).map((g) => ({ ...g, label: undefined }))} />
+      </div>
       <SidebarFooter>
         <NavUser user={currentUser} />
       </SidebarFooter>

@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { ArrowDownIcon, ArrowUpIcon, XIcon } from "lucide-react";
@@ -20,6 +18,8 @@ import {
   ComboboxValue,
 } from "@/components/ui/combobox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import type { LLMProfile } from "@/lib/types";
 
 interface TaskLLMProfileChainProps {
@@ -41,10 +41,15 @@ function ProfileRoleBadge({ index, currentIndex }: { index: number; currentIndex
   if (index < currentIndex) {
     return (
       <Badge variant="outline" title={swt("interface.m2322")}>
-        {swt("interface.m2323")}</Badge>
+        {swt("interface.m2323")}
+      </Badge>
     );
   }
-  return <Badge variant="secondary">{swt("interface.m2324")}{" "}{index - currentIndex}</Badge>;
+  return (
+    <Badge variant="secondary">
+      {swt("interface.m2324")} {index - currentIndex}
+    </Badge>
+  );
 }
 
 export function TaskLLMProfileChain({
@@ -60,7 +65,10 @@ export function TaskLLMProfileChain({
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
 
-  const profilesByID = React.useMemo(() => new Map(profiles.map((profile) => [profile.id, profile])), [swLocale, profiles]);
+  const profilesByID = React.useMemo(
+    () => new Map(profiles.map((profile) => [profile.id, profile])),
+    [swLocale, profiles],
+  );
   const itemIDs = React.useMemo(() => profiles.map((profile) => profile.id), [swLocale, profiles]);
   const profilesUnavailable = profiles.length === 0;
   const currentProfileID = activeProfileId && value.includes(activeProfileId) ? activeProfileId : value[0];

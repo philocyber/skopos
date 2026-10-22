@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import { CheckIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -9,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import type { NotificationFilter } from "@/lib/types";
 
 // asText/inputType are rendering helpers kept here rather than in channel-fields.
@@ -125,7 +125,8 @@ export function ConfigField({
   const hint = masked ? (
     <p className="text-muted-foreground flex items-center gap-1 text-xs">
       <CheckIcon className="size-3" />
-      {swt("interface.m0377")}{" "}{maskedTail ? swt("interface.m1513", { p0: maskedTail }) : ""} {swt("interface.m1514")}</p>
+      {swt("interface.m0377")} {maskedTail ? swt("interface.m1513", { p0: maskedTail }) : ""} {swt("interface.m1514")}
+    </p>
   ) : (
     def.help && <p className="text-muted-foreground text-xs">{def.help}</p>
   );

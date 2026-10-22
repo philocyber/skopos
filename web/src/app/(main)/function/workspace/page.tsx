@@ -1,9 +1,6 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
+
 import {
   DownloadIcon,
   FileIcon,
@@ -17,35 +14,19 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { WorkspaceEntry, WorkspaceFile } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 function fmtSize(n: number): string {
   if (n < 1024) return `${n} B`;
@@ -136,7 +117,16 @@ export default function WorkspacePage() {
   };
 
   const del = (e: WorkspaceEntry) => {
-    if (!window.confirm(swt("interface.m1115", { p0: e.dir ? swt("interface.m1116") : swt("interface.m1117"), p1: e.name, p2: e.dir ? swt("interface.m1118") : "" }))) return;
+    if (
+      !window.confirm(
+        swt("interface.m1115", {
+          p0: e.dir ? swt("interface.m1116") : swt("interface.m1117"),
+          p1: e.name,
+          p2: e.dir ? swt("interface.m1118") : "",
+        }),
+      )
+    )
+      return;
     api
       .workspaceDelete(e.path)
       .then(() => {
@@ -177,7 +167,8 @@ export default function WorkspacePage() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Header breadcrumbs and actions. */}
+      <PageHeader title={swt("interface.m1113")} description={swt("english.e217")} />
+      {/* Path breadcrumbs and actions. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-1 text-sm">
           <HardDriveIcon className="text-muted-foreground mr-1 size-4 shrink-0" />
@@ -199,19 +190,21 @@ export default function WorkspacePage() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setMkdirOpen(true)}>
-            <FolderPlusIcon /> {swt("interface.m1121")}</Button>
+            <FolderPlusIcon /> {swt("interface.m1121")}
+          </Button>
           <Button variant="outline" size="sm" onClick={() => uploadRef.current?.click()}>
-            <UploadIcon /> {swt("interface.m1122")}</Button>
-          <Button variant="ghost" size="icon" className="size-8" onClick={() => load(path)} title={swt("interface.m0225")}>
+            <UploadIcon /> {swt("interface.m1122")}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            onClick={() => load(path)}
+            title={swt("interface.m0225")}
+          >
             <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} />
           </Button>
-          <input
-            ref={uploadRef}
-            type="file"
-            multiple
-            className="hidden"
-            onChange={(e) => doUpload(e.target.files)}
-          />
+          <input ref={uploadRef} type="file" multiple className="hidden" onChange={(e) => doUpload(e.target.files)} />
         </div>
       </div>
 
@@ -243,7 +236,7 @@ export default function WorkspacePage() {
                       className="flex items-center gap-2 text-left hover:underline"
                     >
                       {e.dir ? (
-                        <FolderIcon className="size-4 shrink-0 text-blue-500" />
+                        <FolderIcon className="size-4 shrink-0 text-blue-600 dark:text-blue-400" />
                       ) : (
                         <FileIcon className="text-muted-foreground size-4 shrink-0" />
                       )}
@@ -262,7 +255,11 @@ export default function WorkspacePage() {
                           size="icon"
                           className="size-7"
                           title={swt("interface.m1126")}
-                          onClick={() => api.workspaceDownload(e.path).catch((err) => toast.error(swt("interface.m1127", { p0: (err as Error).message })))}
+                          onClick={() =>
+                            api
+                              .workspaceDownload(e.path)
+                              .catch((err) => toast.error(swt("interface.m1127", { p0: (err as Error).message })))
+                          }
                         >
                           <DownloadIcon className="size-3.5" />
                         </Button>
@@ -306,7 +303,8 @@ export default function WorkspacePage() {
                     {edit.file.too_large ? swt("interface.m1128") : swt("interface.m1129")}
                   </p>
                   <Button variant="outline" onClick={() => api.workspaceDownload(edit.file.path)}>
-                    <DownloadIcon /> {swt("interface.m1130")}</Button>
+                    <DownloadIcon /> {swt("interface.m1130")}
+                  </Button>
                 </div>
               ) : (
                 <>
@@ -319,13 +317,13 @@ export default function WorkspacePage() {
                     />
                   </div>
                   <SheetFooter className="flex-row items-center justify-between border-t p-3">
-                    <span className="text-muted-foreground text-xs">{edit.dirty ? swt("interface.m1131") : swt("interface.m1132")}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {edit.dirty ? swt("interface.m1131") : swt("interface.m1132")}
+                    </span>
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => api.workspaceDownload(edit.file.path)}
-                      >
-                        <DownloadIcon /> {swt("interface.m1126")}</Button>
+                      <Button variant="outline" onClick={() => api.workspaceDownload(edit.file.path)}>
+                        <DownloadIcon /> {swt("interface.m1126")}
+                      </Button>
                       <Button onClick={saveFile} disabled={!edit.dirty || edit.saving}>
                         <SaveIcon /> {edit.saving ? swt("interface.m0272") : swt("interface.m0273")}
                       </Button>
@@ -353,9 +351,11 @@ export default function WorkspacePage() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setMkdirOpen(false)}>
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
             <Button onClick={doMkdir} disabled={!mkdirName.trim()}>
-              {swt("interface.m0995")}</Button>
+              {swt("interface.m0995")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

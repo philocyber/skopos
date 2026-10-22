@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { toast } from "sonner";
@@ -13,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { FindingTrafficDetail, TrafficDetail } from "@/lib/types";
 
@@ -77,7 +75,10 @@ export function TrafficEvidenceViewer({
     >
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
-          <DialogTitle>{swt("interface.m2372")}{bindingId}</DialogTitle>
+          <DialogTitle>
+            {swt("interface.m2372")}
+            {bindingId}
+          </DialogTitle>
           <DialogDescription className="break-all">
             {detail?.binding.snapshot.url ?? swt("interface.m2373")}
           </DialogDescription>
@@ -96,7 +97,8 @@ export function TrafficEvidenceViewer({
               <TabsContent key={side} value={side}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs text-muted-foreground">
-                    {swt("interface.m1826")}{" "}{detail[side].total.toLocaleString(getIntlLocale())} {swt("interface.m2374")}{" "}{detail[side].truncated ? swt("interface.m2375") : ""}
+                    {swt("interface.m1826")} {detail[side].total.toLocaleString(getIntlLocale())}{" "}
+                    {swt("interface.m2374")} {detail[side].truncated ? swt("interface.m2375") : ""}
                   </span>
                   <Button
                     variant="outline"
@@ -107,14 +109,17 @@ export function TrafficEvidenceViewer({
                         .catch((e: Error) => toast.error(e.message))
                     }
                   >
-                    {swt("interface.m2376")}{" "}{side === "request" ? swt("interface.m2377") : swt("interface.m2378")}{" "}{swt("interface.m1826")}</Button>
+                    {swt("interface.m2376")} {side === "request" ? swt("interface.m2377") : swt("interface.m2378")}{" "}
+                    {swt("interface.m1826")}
+                  </Button>
                 </div>
                 <HttpCodeBlock
                   raw={`${(side === "request" ? detail.binding.snapshot.req_head : detail.binding.snapshot.resp_head)?.trimEnd() ?? ""}\n\n${detail[side].content}`}
                 />
                 {detail[side].truncated && !detail[side].binary ? (
                   <Button variant="outline" size="sm" disabled={busy} onClick={() => void more(side)}>
-                    {swt("interface.m2379")}</Button>
+                    {swt("interface.m2379")}
+                  </Button>
                 ) : null}
               </TabsContent>
             ))}
@@ -160,7 +165,11 @@ export function CapturedTrafficViewer({ id, onClose }: { id: string | null; onCl
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{swt("interface.m2380")}</DialogTitle>
-          <DialogDescription>{swt("interface.m2381")}{id}{swt("interface.m2382")}</DialogDescription>
+          <DialogDescription>
+            {swt("interface.m2381")}
+            {id}
+            {swt("interface.m2382")}
+          </DialogDescription>
         </DialogHeader>
         {error ? (
           <Alert variant="destructive">

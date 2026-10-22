@@ -2,12 +2,12 @@
 // Keys are "<namespace>.<key>". i18n.test.mjs checks placeholder/tag parity
 // against the interpolation fields each message declares.
 
-import * as providers from "./messages/providers.ts";
 import * as app from "./messages/app.ts";
-import * as interfaceMessages from "./messages/interface.ts";
-import * as english from "./messages/english.ts";
-import * as settings from "./messages/settings.ts";
 import * as common from "./messages/common.ts";
+import * as english from "./messages/english.ts";
+import * as interfaceMessages from "./messages/interface.ts";
+import * as providers from "./messages/providers.ts";
+import * as settings from "./messages/settings.ts";
 
 const namespaces = {
   providers,

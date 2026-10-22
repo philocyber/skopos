@@ -1,16 +1,19 @@
-
 import { localizedFetch as fetch } from "@/i18n/request";
-import { localizedUrl } from "@/i18n/runtime";
-import { translate as swt } from "@/i18n/runtime";
+import { localizedUrl, translate as swt } from "@/i18n/runtime";
+
+// Real backend client. /api/* is proxied to the Go backend (next.config rewrites).
+// Returns the domain types in lib/types.ts. Shapes match the backend handlers;
+// a few fields the backend serializes differently (e.g. created_at as a unix int)
+// are passed through and formatted at the call site.
+
 // Real backend client. /api/* is proxied to the Go backend (next.config rewrites).
 // Returns the domain types in lib/types.ts. Shapes match the backend handlers;
 // a few fields the backend serializes differently (e.g. created_at as a unix int)
 // are passed through and formatted at the call site.
 
 import type { ChatMention } from "@/lib/chat-mentions";
-import { MOCK } from "@/lib/mock/enabled";
-import { mockHandle } from "@/lib/mock/handler";
 import { ManagementTransportError, managementTransportAllowed } from "@/lib/management-transport";
+import { MOCK } from "@/lib/mock/enabled";
 import type {
   ActiveFindingRetest,
   Activity,
@@ -75,6 +78,7 @@ import type {
   NotificationMeta,
   PromptVar,
   PromptVersion,
+  ReconToolStatus,
   SessionTokenUsage,
   Settings,
   Severity,
@@ -119,7 +123,13 @@ function getToken(): string | null {
 }
 
 export async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  if (MOCK) return mockHandle<T>(init?.method ?? "GET", path, init?.body ?? null);
+  // Load the demo handler (and its ~8k lines of fixtures) only in the backend-free demo build.
+  // A static import keeps that whole subtree in the production bundle; a dynamic one, gated on the
+  // build-time MOCK constant, lets the bundler split it into a chunk that production never loads.
+  if (MOCK) {
+    const { mockHandle } = await import("@/lib/mock/handler");
+    return mockHandle<T>(init?.method ?? "GET", path, init?.body ?? null);
+  }
   const token = getToken();
   const r = await fetch(`/api${path}`, {
     ...init,
@@ -222,9 +232,13 @@ export const api = {
   // ---- auth ----
   authStatus: () => get<{ initialized: boolean }>("/auth/status"),
   login: (username: string, password: string) => post<{ token: string }>("/auth/login", { username, password }),
-  initPassword: (password: string, setupToken: string) => post<{ token: string }>("/auth/init", { password, setup_token: setupToken }),
+  initPassword: (password: string, setupToken: string) =>
+    post<{ token: string }>("/auth/init", { password, setup_token: setupToken }),
   changePassword: (oldPassword: string, newPassword: string) =>
-    post<{ ok: boolean; token: string }>("/auth/change-password", { old_password: oldPassword, new_password: newPassword }),
+    post<{ ok: boolean; token: string }>("/auth/change-password", {
+      old_password: oldPassword,
+      new_password: newPassword,
+    }),
 
   // ---- tasks ----
   tasks: () =>
@@ -808,8 +822,7 @@ export const api = {
   // Channels are multi-instance resources: multiple bots per type with independent filters,
   // so manage them separately rather than flattening them into settings.
   notifyMeta: () => get<NotificationMeta>(`/notify/meta`),
-  notifyChannels: () =>
-    get<{ channels: NotificationChannel[] }>(`/notify/channels`).then((r) => arr(r.channels)),
+  notifyChannels: () => get<{ channels: NotificationChannel[] }>(`/notify/channels`).then((r) => arr(r.channels)),
   notifyCreateChannel: (payload: {
     name: string;
     kind: string;
@@ -1295,4 +1308,9 @@ export const api = {
   // Return 202 immediately; download in the background and stream progress through /api/update/stream.
   applyUpdate: () => post<{ ok: boolean; target: string }>(`/update/apply`),
   rollbackUpdate: () => post<{ ok: boolean }>(`/update/rollback`),
+
+  // One-click installer for optional recon tools (subfinder/httpx/naabu/dnsx).
+  listReconTools: () => get<{ tools: ReconToolStatus[] }>(`/recontools/status`),
+  // Return 202 immediately; download in the background and stream progress through /api/recontools/stream.
+  installReconTool: (tool: string) => post<{ ok: boolean; tool: string }>(`/recontools/install`, { tool }),
 };

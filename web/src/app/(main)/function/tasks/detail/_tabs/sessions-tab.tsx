@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
@@ -52,7 +48,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useSideQuestions } from "@/hooks/use-side-questions";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api, sseUrl } from "@/lib/api";
 import { shouldSubmitOnKey, useChatSendMode } from "@/lib/chat-send-mode";
 import { MOCK } from "@/lib/mock/enabled";
@@ -171,19 +170,19 @@ function mergeBySeq(current: Activity[], incoming: Activity[]): Activity[] {
 function statusIcon(status: SessionStatus) {
   switch (status) {
     case "running": // Executing.
-      return <Loader2Icon className="size-3.5 animate-spin text-blue-500" />;
+      return <Loader2Icon className="size-3.5 animate-spin text-blue-600 dark:text-blue-400" />;
     case "paused":
-      return <PauseIcon className="size-3.5 text-amber-500" />;
+      return <PauseIcon className="size-3.5 text-amber-700 dark:text-amber-400" />;
     case "pending": // Awaiting claim, open intent.
       return <ClockIcon className="size-3.5 text-muted-foreground" />;
     case "done": // Completed.
-      return <CircleCheckIcon className="size-3.5 text-emerald-500" />;
+      return <CircleCheckIcon className="size-3.5 text-emerald-700 dark:text-emerald-400" />;
     case "stopped": // Canceled or stopped by the planner.
-      return <CircleSlashIcon className="size-3.5 text-amber-500" />;
+      return <CircleSlashIcon className="size-3.5 text-amber-700 dark:text-amber-400" />;
     case "blocked": // Execution error.
-      return <CircleXIcon className="size-3.5 text-red-500" />;
+      return <CircleXIcon className="size-3.5 text-red-600 dark:text-red-400" />;
     case "exhausted": // Step budget exhausted at max_turns.
-      return <ZapOffIcon className="size-3.5 text-violet-500" />;
+      return <ZapOffIcon className="size-3.5 text-violet-600 dark:text-violet-400" />;
     case "deleted": // User soft-deletion.
       return <CircleSlashIcon className="size-3.5 text-muted-foreground" />;
   }
@@ -205,7 +204,10 @@ const TokenMetrics = React.forwardRef<
     labels?: "short" | "long";
   }
 >(({ input, cache, output, labels = "short", className, ...props }, ref) => {
-  const names = labels === "short" ? [swt("interface.m0164"), swt("interface.m0692"), swt("interface.m0693")] : ["input", "cache", "output"];
+  const names =
+    labels === "short"
+      ? [swt("interface.m0164"), swt("interface.m0692"), swt("interface.m0693")]
+      : ["input", "cache", "output"];
   const values = [input, cache, output];
   return (
     <span
@@ -237,10 +239,30 @@ function fmtDuration(ms: number): string {
 }
 
 const roleMeta = {
-  mainagent: { get label() { return swt("interface.m0694"); }, icon: UserIcon },
-  planner: { get label() { return swt("interface.m0695"); }, icon: BrainIcon },
-  worker: { get label() { return swt("english.e076"); }, icon: RadioIcon },
-  system: { get label() { return swt("interface.m0696"); }, icon: HistoryIcon },
+  mainagent: {
+    get label() {
+      return swt("interface.m0694");
+    },
+    icon: UserIcon,
+  },
+  planner: {
+    get label() {
+      return swt("interface.m0695");
+    },
+    icon: BrainIcon,
+  },
+  worker: {
+    get label() {
+      return swt("english.e076");
+    },
+    icon: RadioIcon,
+  },
+  system: {
+    get label() {
+      return swt("interface.m0696");
+    },
+    icon: HistoryIcon,
+  },
 } as const;
 
 // The main-agent session is the interactive entry point of this tab and has no
@@ -272,7 +294,9 @@ const PLANNER_ID = "s-planner";
 const PLANNER_SESSION: Session = {
   id: PLANNER_ID,
   role: "planner",
-  get title() { return swt("interface.m0698"); },
+  get title() {
+    return swt("interface.m0698");
+  },
   status: "running",
   live: true,
   last_activity: "",
@@ -285,7 +309,9 @@ const SYSTEM_ID = "s-system";
 const SYSTEM_SESSION: Session = {
   id: SYSTEM_ID,
   role: "system",
-  get title() { return swt("interface.m0699"); },
+  get title() {
+    return swt("interface.m0699");
+  },
   status: "done",
   live: false,
   last_activity: "",
@@ -368,7 +394,7 @@ function SessionItem({
   ) : s.role === "worker" ? (
     statusIcon(s.status)
   ) : s.live ? (
-    <Loader2Icon className="size-3.5 animate-spin text-blue-500" />
+    <Loader2Icon className="size-3.5 animate-spin text-blue-600 dark:text-blue-400" />
   ) : null;
 
   const cancellable =
@@ -397,7 +423,8 @@ function SessionItem({
         )}
         {s.inherited && s.source_task_id && (
           <Badge variant="outline" className="shrink-0">
-            {swt("interface.m0570")}{s.source_task_id}
+            {swt("interface.m0570")}
+            {s.source_task_id}
           </Badge>
         )}
         <span
@@ -407,9 +434,10 @@ function SessionItem({
         </span>
         {deleted && (
           <Badge variant="outline" className="shrink-0 border-destructive/40 text-destructive">
-            {swt("interface.m0700")}</Badge>
+            {swt("interface.m0700")}
+          </Badge>
         )}
-        {hasPending && <ShieldAlertIcon className="size-3.5 shrink-0 text-amber-500" />}
+        {hasPending && <ShieldAlertIcon className="size-3.5 shrink-0 text-amber-700 dark:text-amber-400" />}
         {!active && unread ? (
           <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-blue-500/15 px-1 text-[10px] font-medium tabular-nums text-blue-600 dark:text-blue-400">
             {unread > 99 ? "99+" : unread}
@@ -418,7 +446,8 @@ function SessionItem({
         {s.live && (
           <span className="inline-flex items-center gap-1 rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
             <span className="size-1 animate-pulse rounded-full bg-blue-500" />
-            {swt("interface.m0068")}</span>
+            {swt("interface.m0068")}
+          </span>
         )}
       </button>
       {cancellable && (
@@ -463,7 +492,10 @@ function WorkerAssetBadge({ assets }: { assets: IntentAsset[] }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Badge variant="outline" className="max-w-60 shrink-0 font-normal" title={firstRawLabel}>
-          <span className="truncate">{swt("interface.m0702")}{firstLabel}</span>
+          <span className="truncate">
+            {swt("interface.m0702")}
+            {firstLabel}
+          </span>
           {displayAssets.length > 1 && <span className="shrink-0 tabular-nums">+{displayAssets.length - 1}</span>}
         </Badge>
       </TooltipTrigger>
@@ -804,10 +836,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // Polling is best-effort; the next interval retries automatically.
         });
     void load();
-    const t = setInterval(load, 5000);
+    const t = pollWhileVisible(load, 5000);
     return () => {
       alive = false;
-      clearInterval(t);
+      t();
     };
   }, [taskId]);
 
@@ -827,10 +859,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         });
     };
     void load();
-    const timer = setInterval(load, 2000);
+    const timer = pollWhileVisible(load, 2000);
     return () => {
       alive = false;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId]);
 
@@ -846,10 +878,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // Polling is best-effort; the next interval retries automatically.
         });
     void load();
-    const timer = setInterval(load, 10_000);
+    const timer = pollWhileVisible(load, 10_000);
     return () => {
       alive = false;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId]);
 
@@ -865,18 +897,18 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // Polling is best-effort; the next interval retries automatically.
         });
     void load();
-    const t = setInterval(load, 5000);
+    const t = pollWhileVisible(load, 5000);
     return () => {
       alive = false;
-      clearInterval(t);
+      t();
     };
   }, [taskId]);
 
   // Re-render on a timer so "streaming" liveness recomputes as activity goes stale.
   const [, setTick] = React.useState(0);
   React.useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 1500);
-    return () => clearInterval(id);
+    const id = pollWhileVisible(() => setTick((t) => t + 1), 1500);
+    return () => id();
   }, []);
 
   // ── first load + single task SSE ────────────────────────────────────────────────
@@ -1066,7 +1098,9 @@ export function SessionsTab({ taskId }: { taskId: string }) {
     const previous = esRef.current;
     if (MOCK || !previous) return;
     previous.close();
-    const stream = new EventSource(sseUrl(`/api/exploration/activity/stream?task=${encodeURIComponent(taskId)}&since=${snapshotRef.current}`));
+    const stream = new EventSource(
+      sseUrl(`/api/exploration/activity/stream?task=${encodeURIComponent(taskId)}&since=${snapshotRef.current}`),
+    );
     stream.onopen = previous.onopen;
     stream.onerror = previous.onerror;
     stream.onmessage = previous.onmessage;
@@ -1085,10 +1119,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // The next poll retries; Worker controls and transcripts remain available.
         });
     void load();
-    const timer = setInterval(load, 5000);
+    const timer = pollWhileVisible(load, 5000);
     return () => {
       active = false;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId]);
 
@@ -1125,10 +1159,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // Polling is best-effort; the next interval retries automatically.
         });
     void load();
-    const t = setInterval(load, 5000);
+    const t = pollWhileVisible(load, 5000);
     return () => {
       active = false;
-      clearInterval(t);
+      t();
     };
   }, [taskId]);
 
@@ -1377,7 +1411,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
       inherited: active.inherited,
     };
     return [intentMsg, ...items];
-  }, [swLocale,
+  }, [
+    swLocale,
     isMain,
     isPlanner,
     isSystem,
@@ -1629,18 +1664,20 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                 <span
                   className={cn(
                     "inline-flex items-center gap-1 text-[10px]",
-                    sseLive ? "text-emerald-500" : "text-amber-500",
+                    sseLive ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400",
                   )}
                   title={sseLive ? swt("interface.m0719") : swt("interface.m0720")}
                 >
                   {sseLive ? (
                     <>
                       <span className="size-1 animate-pulse rounded-full bg-emerald-500" />
-                      {swt("interface.m0068")}</>
+                      {swt("interface.m0068")}
+                    </>
                   ) : (
                     <>
                       <WifiOffIcon className="size-3" />
-                      {swt("interface.m0721")}</>
+                      {swt("interface.m0721")}
+                    </>
                   )}
                 </span>
               )}
@@ -1659,8 +1696,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {swt("interface.m0135")}{" "}{taskTokens.input_tokens.toLocaleString(getIntlLocale())} {swt("interface.m0723")}{" "}{taskTokens.output_tokens.toLocaleString(getIntlLocale())} {swt("interface.m0724")}{" "}{taskTokens.cache_read_tokens.toLocaleString(getIntlLocale())} {swt("interface.m0725")}{" "}
-                  {taskTokens.cache_write_tokens.toLocaleString(getIntlLocale())}
+                  {swt("interface.m0135")} {taskTokens.input_tokens.toLocaleString(getIntlLocale())}{" "}
+                  {swt("interface.m0723")} {taskTokens.output_tokens.toLocaleString(getIntlLocale())}{" "}
+                  {swt("interface.m0724")} {taskTokens.cache_read_tokens.toLocaleString(getIntlLocale())}{" "}
+                  {swt("interface.m0725")} {taskTokens.cache_write_tokens.toLocaleString(getIntlLocale())}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -1697,7 +1736,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                           ) : (
                             <PlusIcon className="size-3.5" />
                           )}
-                          {swt("interface.m0728")}</button>
+                          {swt("interface.m0728")}
+                        </button>
                       )}
                     </div>
                     {items.map((s) => {
@@ -1737,7 +1777,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                         ) : (
                           <RotateCwIcon className="size-3.5" />
                         )}
-                        {swt("interface.m0729")}</button>
+                        {swt("interface.m0729")}
+                      </button>
                     )}
                   </div>
                 );
@@ -1782,7 +1823,9 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       variant="outline"
                       className="max-w-28 shrink-0 font-normal"
                       aria-label={
-                        activeResolution.available ? swt("interface.m0732", { p0: resolutionLabel(activeResolution) }) : swt("interface.m0733")
+                        activeResolution.available
+                          ? swt("interface.m0732", { p0: resolutionLabel(activeResolution) })
+                          : swt("interface.m0733")
                       }
                     >
                       <span className="truncate">
@@ -1799,16 +1842,21 @@ export function SessionsTab({ taskId }: { taskId: string }) {
               )}
               {activeAssets && activeAssets.length > 0 && <WorkerAssetBadge assets={activeAssets} />}
               {active.inherited && active.source_task_id && (
-                <Badge variant="outline">{swt("interface.m0356")}{active.source_task_id} {swt("interface.m0735")}</Badge>
+                <Badge variant="outline">
+                  {swt("interface.m0356")}
+                  {active.source_task_id} {swt("interface.m0735")}
+                </Badge>
               )}
               {active.live && (
                 <span className="inline-flex items-center gap-1 rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
                   <span className="size-1 animate-pulse rounded-full bg-blue-500" />
-                  {swt("interface.m0068")}</span>
+                  {swt("interface.m0068")}
+                </span>
               )}
               {activeState?.hasMore && (
                 <span className="text-[10px] text-muted-foreground" title={swt("interface.m0736")}>
-                  {swt("interface.m0737")}</span>
+                  {swt("interface.m0737")}
+                </span>
               )}
               <div className="ml-auto flex min-w-0 max-w-full items-center justify-end gap-x-3 gap-y-1 text-xs text-muted-foreground max-sm:w-full max-sm:flex-wrap">
                 {tokenTotal.any && (
@@ -1833,10 +1881,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {swt("interface.m0135")}{" "}{activeTokens.input_tokens.toLocaleString(getIntlLocale())} {swt("interface.m0723")}{" "}
-                      {activeTokens.output_tokens.toLocaleString(getIntlLocale())} {swt("interface.m0724")}{" "}
-                      {activeTokens.cache_read_tokens.toLocaleString(getIntlLocale())} {swt("interface.m0725")}{" "}
-                      {activeTokens.cache_write_tokens.toLocaleString(getIntlLocale())}
+                      {swt("interface.m0135")} {activeTokens.input_tokens.toLocaleString(getIntlLocale())}{" "}
+                      {swt("interface.m0723")} {activeTokens.output_tokens.toLocaleString(getIntlLocale())}{" "}
+                      {swt("interface.m0724")} {activeTokens.cache_read_tokens.toLocaleString(getIntlLocale())}{" "}
+                      {swt("interface.m0725")} {activeTokens.cache_write_tokens.toLocaleString(getIntlLocale())}
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -1857,8 +1905,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   <Trash2Icon className="mt-0.5 size-3.5 shrink-0 text-destructive" />
                   <div className="min-w-0">
                     <span className="font-medium text-destructive">{swt("interface.m0740")}</span>
-                    <span className="text-muted-foreground">
-                      {swt("interface.m0741")}</span>
+                    <span className="text-muted-foreground">{swt("interface.m0741")}</span>
                     {dm.deleteReason && (
                       <p className="mt-1 break-words text-foreground">
                         <span className="text-muted-foreground">{swt("interface.m0742")}</span>
@@ -1888,23 +1935,27 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                 {activeState?.loadingMore && (
                   <div className="flex items-center justify-center gap-2 pb-2 text-xs text-muted-foreground">
                     <Loader2Icon className="size-3.5 animate-spin" />
-                    {swt("interface.m0743")}</div>
+                    {swt("interface.m0743")}
+                  </div>
                 )}
                 {showLoader ? (
                   <div className="flex items-center gap-2 pl-9 text-xs text-muted-foreground">
                     <Loader2Icon className="size-3.5 animate-spin" />
-                    {swt("interface.m0744")}</div>
+                    {swt("interface.m0744")}
+                  </div>
                 ) : activeState?.error ? (
-                  <div className="flex items-center gap-2 pl-9 text-xs text-red-500">
+                  <div className="flex items-center gap-2 pl-9 text-xs text-red-600 dark:text-red-400">
                     <CircleXIcon className="size-3.5" />
-                    {swt("interface.m0745")}{activeState.error}
+                    {swt("interface.m0745")}
+                    {activeState.error}
                     <Button
                       size="sm"
                       variant="ghost"
                       className="h-6 px-2 text-xs"
                       onClick={() => loadSession(activeKey)}
                     >
-                      {swt("interface.m0682")}</Button>
+                      {swt("interface.m0682")}
+                    </Button>
                   </div>
                 ) : activity.length ? (
                   <Transcript
@@ -1958,9 +2009,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                     inputGroup
                     rows={1}
                     aria-label={swt("interface.m0748")}
-                    placeholder={
-                      mainBusy ? swt("interface.m0749") : swt("interface.m0750")
-                    }
+                    placeholder={mainBusy ? swt("interface.m0749") : swt("interface.m0750")}
                     value={input}
                     disabled={sending}
                     onValueChange={setInput}
@@ -2127,15 +2176,27 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         >
           <AlertDialogContent className="max-w-[min(32rem,calc(100vw-2rem))]">
             <AlertDialogHeader>
-              <AlertDialogTitle>{swt("interface.m0758")}{cancelIntent?.intent_id}？</AlertDialogTitle>
+              <AlertDialogTitle>
+                {swt("interface.m0758")}
+                {cancelIntent?.intent_id}？
+              </AlertDialogTitle>
               <AlertDialogDescription className="break-words whitespace-normal">
                 {deleteMode === "hard" ? (
                   <>
-                    <strong>{swt("interface.m0759")}</strong>{swt("interface.m0760")}<strong>{swt("interface.m0761")}</strong>
-                    {swt("interface.m0762")}<strong>{swt("interface.m0763")}</strong>{swt("interface.m0764")}</>
+                    <strong>{swt("interface.m0759")}</strong>
+                    {swt("interface.m0760")}
+                    <strong>{swt("interface.m0761")}</strong>
+                    {swt("interface.m0762")}
+                    <strong>{swt("interface.m0763")}</strong>
+                    {swt("interface.m0764")}
+                  </>
                 ) : (
                   <>
-                    <strong>{swt("interface.m0765")}</strong>{swt("interface.m0766")}<strong>{swt("interface.m0767")}</strong>{swt("interface.m0768")}</>
+                    <strong>{swt("interface.m0765")}</strong>
+                    {swt("interface.m0766")}
+                    <strong>{swt("interface.m0767")}</strong>
+                    {swt("interface.m0768")}
+                  </>
                 )}
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -2166,7 +2227,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
               </div>
               <div className="grid gap-2">
                 <label htmlFor="cancel-reason" className="text-sm font-medium">
-                  {swt("interface.m0771")}</label>
+                  {swt("interface.m0771")}
+                </label>
                 <Textarea
                   id="cancel-reason"
                   value={cancelReason}
@@ -2196,7 +2258,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
             <AlertDialogHeader>
               <AlertDialogTitle>{swt("interface.m0775")}</AlertDialogTitle>
               <AlertDialogDescription className="break-words whitespace-normal">
-                {swt("interface.m0776")}</AlertDialogDescription>
+                {swt("interface.m0776")}
+              </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel disabled={creatingMain}>{swt("interface.m0063")}</AlertDialogCancel>

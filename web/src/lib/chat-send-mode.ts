@@ -1,8 +1,8 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
 import * as React from "react";
 
+import { translate as swt } from "@/i18n/runtime";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 
 // Conversation send/newline shortcuts are browser-only localStorage preferences, not database/account settings;
@@ -14,8 +14,18 @@ export const CHAT_SEND_MODE_KEY = "skopos_chat_send_mode";
 export const DEFAULT_CHAT_SEND_MODE: ChatSendMode = "enter";
 
 export const CHAT_SEND_MODE_OPTIONS: { value: ChatSendMode; label: string }[] = [
-  { value: "enter", get label() { return swt("interface.m2421"); } },
-  { value: "ctrl-enter", get label() { return swt("interface.m2422"); } },
+  {
+    value: "enter",
+    get label() {
+      return swt("interface.m2421");
+    },
+  },
+  {
+    value: "ctrl-enter",
+    get label() {
+      return swt("interface.m2422");
+    },
+  },
 ];
 
 function parseMode(raw: string | null): ChatSendMode {

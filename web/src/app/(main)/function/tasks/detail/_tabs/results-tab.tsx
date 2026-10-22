@@ -1,16 +1,19 @@
 "use client";
 
 import * as React from "react";
+
 import Link from "next/link";
+
 import { ArrowLeftIcon, ArrowRightIcon, RefreshCwIcon, SearchIcon, XIcon } from "lucide-react";
-import { api } from "@/lib/api";
-import type { TaskNode, ExplorationNodePage, ExploreKind } from "@/lib/types";
-import { nodeSummary, taskWorkspaceHref } from "@/lib/task-workspace";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { api } from "@/lib/api";
+import { nodeSummary, taskWorkspaceHref } from "@/lib/task-workspace";
+import type { ExplorationNodePage, ExploreKind, TaskNode } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 function recordKind(node: TaskNode) {

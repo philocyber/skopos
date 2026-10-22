@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { EllipsisVertical, KeyRound, LogOut } from "lucide-react";
@@ -16,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { auth } from "@/lib/auth";
 import { getInitials } from "@/lib/utils";
 
@@ -84,11 +84,13 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setPwOpen(true)}>
               <KeyRound />
-              {swt("interface.m0053")}</DropdownMenuItem>
+              {swt("interface.m0053")}
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
               <LogOut />
-              {swt("interface.m0054")}</DropdownMenuItem>
+              {swt("interface.m0054")}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

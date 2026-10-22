@@ -6,12 +6,22 @@ import { translate as swt } from "@/i18n/runtime";
 // Adding a channel requires editing this file, not page orchestration.
 // Channel display names and descriptions belong to frontend presentation only.
 export const KIND_LABEL: Record<string, string> = {
-  get dingtalk() { return swt("interface.m1475"); },
-  get feishu() { return swt("interface.m1476"); },
-  get wecom() { return swt("interface.m1477"); },
-  get webhook() { return swt("interface.m1478"); },
+  get dingtalk() {
+    return swt("interface.m1475");
+  },
+  get feishu() {
+    return swt("interface.m1476");
+  },
+  get wecom() {
+    return swt("interface.m1477");
+  },
+  get webhook() {
+    return swt("interface.m1478");
+  },
   telegram: "Telegram",
-  get email() { return swt("interface.m1479"); },
+  get email() {
+    return swt("interface.m1479");
+  },
 };
 
 // Configuration field definitions per channel.
@@ -35,92 +45,239 @@ export const CHANNEL_FIELDS: Record<string, FieldDef[]> = {
   dingtalk: [
     {
       key: "webhook",
-      get label() { return swt("interface.m1480"); },
+      get label() {
+        return swt("interface.m1480");
+      },
       kind: "text",
       placeholder: "https://oapi.dingtalk.com/robot/send?access_token=...",
     },
     {
       key: "secret",
-      get label() { return swt("interface.m1481"); },
+      get label() {
+        return swt("interface.m1481");
+      },
       kind: "password",
-      get help() { return swt("interface.m1482"); },
+      get help() {
+        return swt("interface.m1482");
+      },
     },
   ],
   feishu: [
     {
       key: "webhook",
-      get label() { return swt("interface.m1480"); },
+      get label() {
+        return swt("interface.m1480");
+      },
       kind: "text",
       placeholder: "https://open.feishu.cn/open-apis/bot/v2/hook/...",
     },
-    { key: "secret", get label() { return swt("interface.m1483"); }, kind: "password", get help() { return swt("interface.m1484"); } },
+    {
+      key: "secret",
+      get label() {
+        return swt("interface.m1483");
+      },
+      kind: "password",
+      get help() {
+        return swt("interface.m1484");
+      },
+    },
   ],
   wecom: [
     {
       key: "webhook",
-      get label() { return swt("interface.m1480"); },
+      get label() {
+        return swt("interface.m1480");
+      },
       kind: "text",
       placeholder: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=...",
     },
   ],
   webhook: [
-    { key: "url", get label() { return swt("interface.m1485"); }, kind: "text", placeholder: "https://your-endpoint.example.com/hook" },
+    {
+      key: "url",
+      get label() {
+        return swt("interface.m1485");
+      },
+      kind: "text",
+      placeholder: "https://your-endpoint.example.com/hook",
+    },
     {
       key: "method",
-      get label() { return swt("interface.m1486"); },
+      get label() {
+        return swt("interface.m1486");
+      },
       kind: "select",
       options: [
-        { value: "POST", get label() { return swt("interface.m1487"); } },
-        { value: "PUT", get label() { return swt("interface.m1488"); } },
-        { value: "PATCH", get label() { return swt("interface.m1489"); } },
-        { value: "GET", get label() { return swt("interface.m1490"); } },
+        {
+          value: "POST",
+          get label() {
+            return swt("interface.m1487");
+          },
+        },
+        {
+          value: "PUT",
+          get label() {
+            return swt("interface.m1488");
+          },
+        },
+        {
+          value: "PATCH",
+          get label() {
+            return swt("interface.m1489");
+          },
+        },
+        {
+          value: "GET",
+          get label() {
+            return swt("interface.m1490");
+          },
+        },
       ],
     },
-    { key: "headers", get label() { return swt("interface.m1491"); }, kind: "kv", get help() { return swt("interface.m1492"); } },
+    {
+      key: "headers",
+      get label() {
+        return swt("interface.m1491");
+      },
+      kind: "kv",
+      get help() {
+        return swt("interface.m1492");
+      },
+    },
     {
       key: "body_template",
-      get label() { return swt("interface.m1493"); },
+      get label() {
+        return swt("interface.m1493");
+      },
       kind: "textarea",
-      help:
-        swt("interface.m1494") +
-        swt("interface.m1495") +
-        swt("interface.m1496"),
+      help: swt("interface.m1494") + swt("interface.m1495") + swt("interface.m1496"),
     },
   ],
   telegram: [
-    { key: "bot_token", get label() { return swt("english.e112"); }, kind: "password", placeholder: "123456:ABC-DEF..." },
-    { key: "chat_id", get label() { return swt("english.e114"); }, kind: "text", placeholder: "-1001234567890" },
+    {
+      key: "bot_token",
+      get label() {
+        return swt("english.e112");
+      },
+      kind: "password",
+      placeholder: "123456:ABC-DEF...",
+    },
+    {
+      key: "chat_id",
+      get label() {
+        return swt("english.e114");
+      },
+      kind: "text",
+      placeholder: "-1001234567890",
+    },
     {
       key: "base_url",
-      get label() { return swt("interface.m1497"); },
+      get label() {
+        return swt("interface.m1497");
+      },
       kind: "text",
       placeholder: "https://api.telegram.org",
-      get help() { return swt("interface.m1498"); },
+      get help() {
+        return swt("interface.m1498");
+      },
     },
   ],
   email: [
-    { key: "host", get label() { return swt("interface.m1499"); }, kind: "text", placeholder: "smtp.example.com" },
+    {
+      key: "host",
+      get label() {
+        return swt("interface.m1499");
+      },
+      kind: "text",
+      placeholder: "smtp.example.com",
+    },
     {
       key: "port",
-      get label() { return swt("interface.m0244"); },
+      get label() {
+        return swt("interface.m0244");
+      },
       kind: "number",
       placeholder: "587",
-      get help() { return swt("interface.m1500"); },
+      get help() {
+        return swt("interface.m1500");
+      },
     },
-    { key: "username", get label() { return swt("interface.m1501"); }, kind: "text" },
-    { key: "password", get label() { return swt("interface.m1502"); }, kind: "password" },
-    { key: "from", get label() { return swt("interface.m1503"); }, kind: "text", placeholder: "skopos@example.com" },
-    { key: "to", get label() { return swt("interface.m1504"); }, kind: "list", get help() { return swt("interface.m1505"); } },
-    { key: "tls", get label() { return swt("interface.m1506"); }, kind: "switch", get help() { return swt("interface.m1507"); } },
+    {
+      key: "username",
+      get label() {
+        return swt("interface.m1501");
+      },
+      kind: "text",
+    },
+    {
+      key: "password",
+      get label() {
+        return swt("interface.m1502");
+      },
+      kind: "password",
+    },
+    {
+      key: "from",
+      get label() {
+        return swt("interface.m1503");
+      },
+      kind: "text",
+      placeholder: "skopos@example.com",
+    },
+    {
+      key: "to",
+      get label() {
+        return swt("interface.m1504");
+      },
+      kind: "list",
+      get help() {
+        return swt("interface.m1505");
+      },
+    },
+    {
+      key: "tls",
+      get label() {
+        return swt("interface.m1506");
+      },
+      kind: "switch",
+      get help() {
+        return swt("interface.m1507");
+      },
+    },
   ],
 };
 
 export const SEVERITY_OPTIONS = [
-  { value: "", get label() { return swt("interface.m1508"); } },
-  { value: "low", get label() { return swt("interface.m1509"); } },
-  { value: "medium", get label() { return swt("interface.m1510"); } },
-  { value: "high", get label() { return swt("interface.m1511"); } },
-  { value: "critical", get label() { return swt("interface.m1512"); } },
+  {
+    value: "",
+    get label() {
+      return swt("interface.m1508");
+    },
+  },
+  {
+    value: "low",
+    get label() {
+      return swt("interface.m1509");
+    },
+  },
+  {
+    value: "medium",
+    get label() {
+      return swt("interface.m1510");
+    },
+  },
+  {
+    value: "high",
+    get label() {
+      return swt("interface.m1511");
+    },
+  },
+  {
+    value: "critical",
+    get label() {
+      return swt("interface.m1512");
+    },
+  },
 ];
 
 export type ChannelForm = {

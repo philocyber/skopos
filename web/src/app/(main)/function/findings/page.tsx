@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import Link from "next/link";
@@ -20,6 +18,7 @@ import {
 import { toast } from "sonner";
 
 import { FindingRetestDialog } from "@/components/finding-retest-dialog";
+import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { TablePagination } from "@/components/table-pagination";
 import { Button } from "@/components/ui/button";
@@ -40,6 +39,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { pollWhileVisible } from "@/hooks/use-polling";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 import { statusMeta } from "@/lib/status";
@@ -552,8 +554,8 @@ export default function FindingsPage() {
     };
     refresh();
     if (view === "asset") return;
-    const timer = setInterval(refresh, 5000);
-    return () => clearInterval(timer);
+    const timer = pollWhileVisible(refresh, 5000);
+    return () => timer();
   }, [activeRetestFingerprint, loadFlat, loadGroup, preferencesHydrated, refreshGroups, view]);
 
   React.useEffect(() => {
@@ -585,10 +587,10 @@ export default function FindingsPage() {
         });
     };
     load();
-    const t = setInterval(load, 5000);
+    const t = pollWhileVisible(load, 5000);
     return () => {
       alive = false;
-      clearInterval(t);
+      t();
     };
   }, []);
 
@@ -758,10 +760,25 @@ export default function FindingsPage() {
 
   const statCards = [
     { label: swt("interface.m0383"), value: stats.total, icon: BugIcon },
-    { label: swt("interface.m0384"), value: stats.pending, tone: "text-amber-500", icon: ClockIcon },
+    {
+      label: swt("interface.m0384"),
+      value: stats.pending,
+      tone: "text-amber-700 dark:text-amber-400",
+      icon: ClockIcon,
+    },
     { label: swt("interface.m0154"), value: stats.critical, tone: "text-rose-600", icon: ShieldAlertIcon },
-    { label: swt("interface.m0155"), value: stats.high, tone: "text-red-500", icon: TriangleAlertIcon },
-    { label: swt("interface.m0156"), value: stats.medium, tone: "text-amber-500", icon: TriangleAlertIcon },
+    {
+      label: swt("interface.m0155"),
+      value: stats.high,
+      tone: "text-red-600 dark:text-red-400",
+      icon: TriangleAlertIcon,
+    },
+    {
+      label: swt("interface.m0156"),
+      value: stats.medium,
+      tone: "text-amber-700 dark:text-amber-400",
+      icon: TriangleAlertIcon,
+    },
     { label: swt("interface.m0157"), value: stats.low, tone: "text-slate-500", icon: InfoIcon },
   ];
 
@@ -821,19 +838,35 @@ export default function FindingsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m0188")}</h1>
-          <p className="text-muted-foreground text-sm">{swt("interface.m0385")}</p>
-        </div>
-        <Tabs value={view} onValueChange={(v) => setView(v as FindingView)}>
-          <TabsList>
-            <TabsTrigger value="flat">{swt("interface.m0386")}</TabsTrigger>
-            <TabsTrigger value="grouped">{swt("interface.m0387")}</TabsTrigger>
-            <TabsTrigger value="asset">{swt("interface.m0388")}</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      <PageHeader
+        title={swt("interface.m0188")}
+        description={swt("interface.m0385")}
+        actions={
+          <>
+            {selectedIds.size > 0 && (
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {swt("interface.m0398")} {selectedIds.size} {swt("interface.m0328")}
+              </span>
+            )}
+            <Button size="sm" variant="outline" onClick={openExport}>
+              <DownloadIcon /> {swt("interface.m0399")}
+            </Button>
+            <Tabs value={view} onValueChange={(v) => setView(v as FindingView)}>
+              <TabsList>
+                <TabsTrigger value="flat" aria-controls={undefined}>
+                  {swt("interface.m0386")}
+                </TabsTrigger>
+                <TabsTrigger value="grouped" aria-controls={undefined}>
+                  {swt("interface.m0387")}
+                </TabsTrigger>
+                <TabsTrigger value="asset" aria-controls={undefined}>
+                  {swt("interface.m0388")}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </>
+        }
+      />
       <div className="flex flex-1 flex-col gap-4 md:gap-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {statCards.map((stat) => {
@@ -853,7 +886,7 @@ export default function FindingsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <InputGroup className="w-full sm:w-72">
+          <InputGroup className="w-full sm:w-60">
             <InputGroupInput
               type="search"
               value={search}
@@ -904,7 +937,7 @@ export default function FindingsPage() {
           </Select>
 
           <Select value={vulnclass} onValueChange={setVulnclass}>
-            <SelectTrigger size="sm" className="w-40">
+            <SelectTrigger size="sm" className="w-36">
               <SelectValue placeholder={swt("interface.m0367")} />
             </SelectTrigger>
             <SelectContent>
@@ -918,7 +951,7 @@ export default function FindingsPage() {
           </Select>
 
           <Select value={task} onValueChange={setTask}>
-            <SelectTrigger size="sm" className="w-48">
+            <SelectTrigger size="sm" className="w-44">
               <SelectValue placeholder={swt("interface.m0190")} />
             </SelectTrigger>
             <SelectContent>
@@ -953,14 +986,6 @@ export default function FindingsPage() {
               <SelectItem value="time">{swt("interface.m0397")}</SelectItem>
             </SelectContent>
           </Select>
-
-          <div className="ml-auto flex items-center gap-3">
-            {selectedIds.size > 0 && (
-              <span className="text-xs text-muted-foreground tabular-nums">{swt("interface.m0398")}{" "}{selectedIds.size} {swt("interface.m0328")}</span>
-            )}
-            <Button size="sm" variant="outline" onClick={openExport}>
-              <DownloadIcon /> {swt("interface.m0399")}</Button>
-          </div>
         </div>
 
         {view === "flat" && flatListCard}
@@ -994,7 +1019,8 @@ export default function FindingsPage() {
                   className={cn("hover:text-foreground", assetScope === null && "font-medium text-foreground")}
                   onClick={() => setAssetScope(null)}
                 >
-                  {swt("interface.m0312")}</button>
+                  {swt("interface.m0312")}
+                </button>
                 {assetPath.map((node) => (
                   <React.Fragment key={node.key}>
                     <ChevronRightIcon className="size-3.5 shrink-0" aria-hidden="true" />
@@ -1011,7 +1037,9 @@ export default function FindingsPage() {
                     </button>
                   </React.Fragment>
                 ))}
-                <span className="ml-auto shrink-0 text-xs tabular-nums">{swt("interface.m0199")}{" "}{flat.total} {swt("interface.m0328")}</span>
+                <span className="ml-auto shrink-0 text-xs tabular-nums">
+                  {swt("interface.m0199")} {flat.total} {swt("interface.m0328")}
+                </span>
               </div>
               {flatListCard}
             </div>
@@ -1113,7 +1141,9 @@ export default function FindingsPage() {
             })}
             {groups.length === 0 && (
               <Card>
-                <CardContent className="py-12 text-center text-sm text-muted-foreground">{swt("interface.m0348")}</CardContent>
+                <CardContent className="py-12 text-center text-sm text-muted-foreground">
+                  {swt("interface.m0348")}
+                </CardContent>
               </Card>
             )}
             <TablePagination
@@ -1164,7 +1194,9 @@ export default function FindingsPage() {
           <DialogHeader>
             <DialogTitle>{swt("interface.m0405")}</DialogTitle>
             <DialogDescription className="break-words">
-              {swt("interface.m0406")}{deepenFinding?.task_id} {swt("interface.m0407")}{deepenFinding?.name || deepenFinding?.vulnclass || deepenFinding?.summary}
+              {swt("interface.m0406")}
+              {deepenFinding?.task_id} {swt("interface.m0407")}
+              {deepenFinding?.name || deepenFinding?.vulnclass || deepenFinding?.summary}
             </DialogDescription>
           </DialogHeader>
           <FieldGroup>
@@ -1193,10 +1225,12 @@ export default function FindingsPage() {
               }}
               disabled={deepening}
             >
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
             <Button onClick={submitDeepen} disabled={deepening || !deepenDescription.trim()}>
               {deepening && <Spinner data-icon="inline-start" />}
-              {swt("interface.m0411")}</Button>
+              {swt("interface.m0411")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1213,16 +1247,19 @@ export default function FindingsPage() {
               <span className="text-xs text-muted-foreground">{swt("interface.m0414")}</span>
               <RadioGroup value={exportScope} onValueChange={(v) => setExportScope(v as typeof exportScope)}>
                 <label htmlFor="export-scope-filtered" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-scope-filtered" value="filtered" /> {swt("interface.m0415")}{" "}{filteredTotal}{" "}
-                  {swt("interface.m0416")}</label>
+                  <RadioGroupItem id="export-scope-filtered" value="filtered" /> {swt("interface.m0415")}{" "}
+                  {filteredTotal} {swt("interface.m0416")}
+                </label>
                 <label htmlFor="export-scope-all" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-scope-all" value="all" /> {swt("interface.m0417")}</label>
+                  <RadioGroupItem id="export-scope-all" value="all" /> {swt("interface.m0417")}
+                </label>
                 <label
                   htmlFor="export-scope-selected"
                   className={cn("flex items-center gap-2 text-sm", selectedIds.size === 0 && "text-muted-foreground")}
                 >
                   <RadioGroupItem id="export-scope-selected" value="selected" disabled={selectedIds.size === 0} />
-                  {swt("interface.m0418")}{" "}{selectedIds.size} {swt("interface.m0328")}</label>
+                  {swt("interface.m0418")} {selectedIds.size} {swt("interface.m0328")}
+                </label>
               </RadioGroup>
             </div>
 
@@ -1230,11 +1267,14 @@ export default function FindingsPage() {
               <span className="text-xs text-muted-foreground">{swt("interface.m0419")}</span>
               <RadioGroup value={exportFormat} onValueChange={(v) => setExportFormat(v as typeof exportFormat)}>
                 <label htmlFor="export-format-md-single" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-format-md-single" value="md-single" /> {swt("interface.m0420")}</label>
+                  <RadioGroupItem id="export-format-md-single" value="md-single" /> {swt("interface.m0420")}
+                </label>
                 <label htmlFor="export-format-md-zip" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-format-md-zip" value="md-zip" /> {swt("interface.m0421")}</label>
+                  <RadioGroupItem id="export-format-md-zip" value="md-zip" /> {swt("interface.m0421")}
+                </label>
                 <label htmlFor="export-format-csv" className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem id="export-format-csv" value="csv" /> {swt("interface.m0422")}</label>
+                  <RadioGroupItem id="export-format-csv" value="csv" /> {swt("interface.m0422")}
+                </label>
                 <label htmlFor="export-format-json" className="flex items-center gap-2 text-sm">
                   <RadioGroupItem id="export-format-json" value="json" /> JSON（.json）
                 </label>
@@ -1244,7 +1284,8 @@ export default function FindingsPage() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setExportOpen(false)} disabled={exporting}>
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
             <Button onClick={doExport} disabled={exporting || (exportScope === "selected" && selectedIds.size === 0)}>
               <DownloadIcon /> {exporting ? swt("interface.m0423") : swt("interface.m0399")}
             </Button>

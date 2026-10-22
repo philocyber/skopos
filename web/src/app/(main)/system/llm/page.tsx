@@ -1,11 +1,10 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
   Loader2Icon,
+  PencilIcon,
   PlugZapIcon,
   PlusIcon,
   RefreshCwIcon,
@@ -17,19 +16,30 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { applyLLMProfilePreset, type LLMProfilePresetId } from "@/lib/llm-profile-presets";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
+import { applyLLMProfilePreset, LLM_PROFILE_PRESET_NAMES, type LLMProfilePresetId } from "@/lib/llm-profile-presets";
 import type { LLMPoolMember, LLMPoolStatus, LLMProfile, LLMRetryOverride } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -43,28 +53,84 @@ const NONE = "none";
 const fromStore = (v?: string) => (v ? v : NONE);
 const toStore = (v: string) => (v === NONE ? "" : v);
 const THINKING_TYPES: { value: string; label: string }[] = [
-  { value: NONE, get label() { return swt("interface.m1329"); } },
-  { value: "disabled", get label() { return swt("interface.m0211"); } },
-  { value: "enabled", get label() { return swt("interface.m0210"); } },
+  {
+    value: NONE,
+    get label() {
+      return swt("interface.m1329");
+    },
+  },
+  {
+    value: "disabled",
+    get label() {
+      return swt("interface.m0211");
+    },
+  },
+  {
+    value: "enabled",
+    get label() {
+      return swt("interface.m0210");
+    },
+  },
 ];
 // Output-limit request key matters only for OpenAI format; reuse NONE/empty-string conversion.
 const MAX_TOKENS_FIELDS: { value: string; label: string }[] = [
-  { value: NONE, get label() { return swt("interface.m1330"); } },
+  {
+    value: NONE,
+    get label() {
+      return swt("interface.m1330");
+    },
+  },
   { value: "max_completion_tokens", label: "max_completion_tokens" },
 ];
 // The other formats have fixed field names; explain that this selection does not affect them.
 const MAX_TOKENS_FIELD_HINTS: Record<string, string> = {
-  get openai() { return swt("interface.m1331"); },
-  get anthropic() { return swt("interface.m1332"); },
-  get "openai-responses"() { return swt("interface.m1333"); },
+  get openai() {
+    return swt("interface.m1331");
+  },
+  get anthropic() {
+    return swt("interface.m1332");
+  },
+  get "openai-responses"() {
+    return swt("interface.m1333");
+  },
 };
 const EFFORT_LEVELS: { value: string; label: string }[] = [
-  { value: NONE, get label() { return swt("interface.m1329"); } },
-  { value: "low", get label() { return swt("english.e089"); } },
-  { value: "medium", get label() { return swt("english.e090"); } },
-  { value: "high", get label() { return swt("english.e091"); } },
-  { value: "xhigh", get label() { return swt("english.e092"); } },
-  { value: "max", get label() { return swt("english.e093"); } },
+  {
+    value: NONE,
+    get label() {
+      return swt("interface.m1329");
+    },
+  },
+  {
+    value: "low",
+    get label() {
+      return swt("english.e089");
+    },
+  },
+  {
+    value: "medium",
+    get label() {
+      return swt("english.e090");
+    },
+  },
+  {
+    value: "high",
+    get label() {
+      return swt("english.e091");
+    },
+  },
+  {
+    value: "xhigh",
+    get label() {
+      return swt("english.e092");
+    },
+  },
+  {
+    value: "max",
+    get label() {
+      return swt("english.e093");
+    },
+  },
 ];
 
 function cooldownText(secs: number) {
@@ -86,7 +152,8 @@ function healthOf(p: LLMProfile, m?: LLMPoolMember): Health {
   }
   if (m?.state === "tripped") {
     return {
-      label: m.cooldown_secs > 0 ? swt("interface.m1336", { p0: cooldownText(m.cooldown_secs) }) : swt("interface.m1337"),
+      label:
+        m.cooldown_secs > 0 ? swt("interface.m1336", { p0: cooldownText(m.cooldown_secs) }) : swt("interface.m1337"),
       cls: "border-destructive/50 text-destructive",
       hint: m.last_error,
     };
@@ -94,11 +161,11 @@ function healthOf(p: LLMProfile, m?: LLMPoolMember): Health {
   if (m?.state === "degraded") {
     return {
       label: swt("interface.m1338", { p0: m.fails }),
-      cls: "border-amber-500/50 text-amber-600 dark:text-amber-400",
+      cls: "border-amber-500/50 text-amber-700 dark:text-amber-400",
       hint: m.last_error,
     };
   }
-  return { label: swt("interface.m1339"), cls: "border-emerald-500/50 text-emerald-600 dark:text-emerald-400" };
+  return { label: swt("interface.m1339"), cls: "border-emerald-500/50 text-emerald-700 dark:text-emerald-400" };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -167,9 +234,13 @@ function PoolSheet({
       <SheetContent side="right" className="flex flex-col gap-0 p-0 data-[side=right]:sm:max-w-lg">
         <SheetHeader className="px-4">
           <SheetTitle className="flex items-center gap-2">
-            <ZapIcon className="size-4" /> {swt("interface.m1347")}</SheetTitle>
+            <ZapIcon className="size-4" /> {swt("interface.m1347")}
+          </SheetTitle>
           <SheetDescription>
-            {swt("interface.m1348")}<b>{swt("interface.m1349")}</b>{swt("interface.m1350")}</SheetDescription>
+            {swt("interface.m1348")}
+            <b>{swt("interface.m1349")}</b>
+            {swt("interface.m1350")}
+          </SheetDescription>
         </SheetHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-6">
@@ -191,8 +262,7 @@ function PoolSheet({
               <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
                 <div className="grid gap-0.5">
                   <Label className="text-sm">{swt("interface.m1354")}</Label>
-                  <p className="text-muted-foreground text-xs">
-                    {swt("interface.m1355")}</p>
+                  <p className="text-muted-foreground text-xs">{swt("interface.m1355")}</p>
                 </div>
                 <Switch
                   checked={pool?.bind_fallback ?? false}
@@ -209,12 +279,14 @@ function PoolSheet({
                   <Label className="text-sm">{swt("interface.m1357")}</Label>
                   {tripped.length > 0 && (
                     <Button size="sm" variant="ghost" onClick={() => void recover()}>
-                      <RotateCcwIcon /> {swt("interface.m1358")}</Button>
+                      <RotateCcwIcon /> {swt("interface.m1358")}
+                    </Button>
                   )}
                 </div>
                 {inChain.length < 2 && (
                   <p className="text-muted-foreground text-xs">
-                    {swt("interface.m1359")}{" "}{inChain.length} {swt("interface.m1360")}</p>
+                    {swt("interface.m1359")} {inChain.length} {swt("interface.m1360")}
+                  </p>
                 )}
                 {chain.map((m) => {
                   const excluded = m.excluded && !m.active;
@@ -234,16 +306,21 @@ function PoolSheet({
                         </span>
                         <span className="font-medium">{m.name}</span>
                         {m.active && (
-                          <Badge variant="outline" className="border-amber-400/50 text-amber-500">
-                            {swt("interface.m1361")}</Badge>
+                          <Badge variant="outline" className="border-amber-400/50 text-amber-700 dark:text-amber-400">
+                            {swt("interface.m1361")}
+                          </Badge>
                         )}
                         {excluded && <Badge variant="outline">{swt("interface.m1362")}</Badge>}
                         <div className="ml-auto flex items-center gap-2">
                           {m.state === "tripped" && m.cooldown_secs > 0 && (
-                            <span className="text-muted-foreground text-xs">{swt("interface.m1363")}{" "}{cooldownText(m.cooldown_secs)}</span>
+                            <span className="text-muted-foreground text-xs">
+                              {swt("interface.m1363")} {cooldownText(m.cooldown_secs)}
+                            </span>
                           )}
                           {m.state === "degraded" && (
-                            <span className="text-muted-foreground text-xs">{swt("interface.m1364")}{" "}{m.fails} {swt("interface.m1365")}</span>
+                            <span className="text-muted-foreground text-xs">
+                              {swt("interface.m1364")} {m.fails} {swt("interface.m1365")}
+                            </span>
                           )}
                           {m.state !== "ok" && (
                             <Button
@@ -261,7 +338,11 @@ function PoolSheet({
                       </div>
                       <div className="flex flex-wrap items-center gap-x-3 pl-7 text-muted-foreground text-xs">
                         <code className="truncate font-mono">{m.model}</code>
-                        {!m.active && <span>{swt("interface.m1243")}{" "}{m.priority}</span>}
+                        {!m.active && (
+                          <span>
+                            {swt("interface.m1243")} {m.priority}
+                          </span>
+                        )}
                       </div>
                       {m.last_error && (
                         <p className="truncate pl-7 font-mono text-muted-foreground text-xs" title={m.last_error}>
@@ -273,12 +354,14 @@ function PoolSheet({
                 })}
                 {chain.length === 0 && (
                   <div className="rounded-lg border border-dashed p-4 text-center text-muted-foreground text-sm">
-                    {swt("interface.m1368")}</div>
+                    {swt("interface.m1368")}
+                  </div>
                 )}
               </div>
 
               <div className="rounded-lg border border-dashed p-3 text-muted-foreground text-xs leading-relaxed">
-                {swt("interface.m1369")}</div>
+                {swt("interface.m1369")}
+              </div>
             </>
           )}
         </div>
@@ -364,11 +447,12 @@ function ProfileSheet({
     if (!isNew) return;
     const next = applyLLMProfilePreset({ name, api_key: apiKey, proxy, session_header_key: sessionHeaderKey }, id);
     setPreset(id as LLMProfilePresetId);
+    if (!name.trim()) setName(LLM_PROFILE_PRESET_NAMES[id as LLMProfilePresetId]);
     setFormat(next.format);
     setModel(next.model);
     setBaseUrl(next.base_url);
-    setThinkingType(next.thinking_type);
-    setEffort(next.reasoning_effort);
+    setThinkingType(fromStore(next.thinking_type));
+    setEffort(fromStore(next.reasoning_effort));
     setCw(String(next.context_window_k));
     setMaxTokens(String(next.max_tokens));
     setMaxTokensField(fromStore(next.max_tokens_field));
@@ -481,15 +565,12 @@ function ProfileSheet({
           <SheetTitle className="flex items-center gap-2">
             {isNew ? swt("interface.m1382") : swt("interface.m1383", { p0: profile?.name })}
             {profile?.is_default && (
-              <Badge variant="outline" className="border-amber-400/50 text-amber-500">
-                {swt("interface.m1384")}</Badge>
+              <Badge variant="outline" className="border-amber-400/50 text-amber-700 dark:text-amber-400">
+                {swt("interface.m1384")}
+              </Badge>
             )}
           </SheetTitle>
-          <SheetDescription>
-            {isNew
-              ? swt("interface.m1385")
-              : swt("interface.m1386")}
-          </SheetDescription>
+          <SheetDescription>{isNew ? swt("interface.m1385") : swt("interface.m1386")}</SheetDescription>
         </SheetHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4">
@@ -501,20 +582,85 @@ function ProfileSheet({
                   <SelectValue placeholder={swt("providers.chooseTemplate")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="zai-general">{swt("providers.general")}</SelectItem>
-                  <SelectItem value="zai-coding-reference">{swt("providers.coding")}</SelectItem>
+                  <SelectGroup>
+                    <SelectLabel>{swt("providers.claudeGroup")}</SelectLabel>
+                    <SelectItem value="claude-opus-5-5">{swt("providers.claudeOpus")}</SelectItem>
+                    <SelectItem value="claude-fable-5-1">{swt("providers.claudeFable")}</SelectItem>
+                    <SelectItem value="claude-sonnet-5-5">{swt("providers.claudeSonnet")}</SelectItem>
+                    <SelectItem value="claude-haiku-5-5">{swt("providers.claudeHaiku")}</SelectItem>
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>{swt("providers.openaiGroup")}</SelectLabel>
+                    <SelectItem value="openai-gpt-6-1-sol">{swt("providers.openaiSol")}</SelectItem>
+                    <SelectItem value="openai-gpt-6-luna">{swt("providers.openaiLuna")}</SelectItem>
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>{swt("providers.zaiGroup")}</SelectLabel>
+                    <SelectItem value="zai-general">{swt("providers.general")}</SelectItem>
+                    <SelectItem value="zai-coding-reference">{swt("providers.coding")}</SelectItem>
+                  </SelectGroup>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">{swt("providers.introduction")}</p>
-              {preset && (
+              {preset?.startsWith("claude-") && (
                 <>
-                  <p className={preset === "zai-coding-reference" ? "text-xs text-amber-700 dark:text-amber-400" : "text-xs text-muted-foreground"}>
+                  <p className="text-xs text-muted-foreground">{swt("providers.claudeHelp")}</p>
+                  <div className="flex flex-wrap gap-3 text-xs">
+                    <a
+                      className="underline underline-offset-4"
+                      href={`https://platform.claude.com/docs/en/models/${preset.replace("claude-", "")}/overview`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {swt("providers.claudeOfficial")}
+                    </a>
+                  </div>
+                </>
+              )}
+              {preset?.startsWith("openai-") && (
+                <>
+                  <p className="text-xs text-muted-foreground">{swt("providers.openaiHelp")}</p>
+                  <div className="flex flex-wrap gap-3 text-xs">
+                    <a
+                      className="underline underline-offset-4"
+                      href={`https://developers.openai.com/api/docs/models/${preset === "openai-gpt-6-1-sol" ? "gpt-6.1-sol" : "gpt-6-luna"}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {swt("providers.openaiOfficial")}
+                    </a>
+                  </div>
+                </>
+              )}
+              {preset?.startsWith("zai-") && (
+                <>
+                  <p
+                    className={
+                      preset === "zai-coding-reference"
+                        ? "text-xs text-amber-700 dark:text-amber-400"
+                        : "text-xs text-muted-foreground"
+                    }
+                  >
                     {swt(preset === "zai-coding-reference" ? "providers.codingHelp" : "providers.generalHelp")}
                   </p>
                   <p className="text-xs text-muted-foreground">{swt("providers.modelHelp")}</p>
                   <div className="flex flex-wrap gap-3 text-xs">
-                    <a className="underline underline-offset-4" href="https://docs.z.ai/guides/llm/glm-5.3" target="_blank" rel="noreferrer">{swt("providers.officialModel")}</a>
-                    <a className="underline underline-offset-4" href="https://docs.z.ai/devpack/usage-policy" target="_blank" rel="noreferrer">{swt("providers.officialPolicy")}</a>
+                    <a
+                      className="underline underline-offset-4"
+                      href="https://docs.z.ai/guides/llm/glm-5.3"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {swt("providers.officialModel")}
+                    </a>
+                    <a
+                      className="underline underline-offset-4"
+                      href="https://docs.z.ai/devpack/usage-policy"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {swt("providers.officialPolicy")}
+                    </a>
                   </div>
                 </>
               )}
@@ -551,7 +697,7 @@ function ProfileSheet({
               <Input
                 id="p-model"
                 className="font-mono"
-                placeholder="claude-opus-4-8"
+                placeholder="claude-opus-5-5"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
               />
@@ -596,7 +742,7 @@ function ProfileSheet({
             <Input
               id="p-base-url"
               className="font-mono"
-              placeholder="https://api.openai.com/v1"
+              placeholder={format === "anthropic" ? "https://api.anthropic.com" : "https://api.openai.com/v1"}
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
             />
@@ -611,8 +757,7 @@ function ProfileSheet({
               value={proxy}
               onChange={(e) => setProxy(e.target.value)}
             />
-            <p className="text-muted-foreground text-xs">
-              {swt("interface.m1393")}</p>
+            <p className="text-muted-foreground text-xs">{swt("interface.m1393")}</p>
           </div>
 
           <div className="grid gap-2">
@@ -625,7 +770,10 @@ function ProfileSheet({
               onChange={(e) => setSessionHeaderKey(e.target.value)}
             />
             <p className="text-muted-foreground text-xs">
-              {swt("interface.m1396")}<b>{swt("interface.m1397")}</b>{swt("interface.m1398")}</p>
+              {swt("interface.m1396")}
+              <b>{swt("interface.m1397")}</b>
+              {swt("interface.m1398")}
+            </p>
           </div>
 
           <div className="grid gap-2">
@@ -661,16 +809,18 @@ function ProfileSheet({
               />
             </div>
           </div>
-          <p className="-mt-2 text-muted-foreground text-xs">
-            {swt("interface.m1403")}</p>
+          <p className="-mt-2 text-muted-foreground text-xs">{swt("interface.m1403")}</p>
+          {(Number(cw) || 0) === 0 && (
+            <p className="-mt-2 text-amber-700 text-xs dark:text-amber-400">{swt("providers.cwUnset")}</p>
+          )}
 
           <div className="grid gap-3 rounded-lg border p-3">
             <div className="flex items-center justify-between gap-4">
               <div className="grid gap-0.5">
                 <Label htmlFor="p-priority" className="text-sm">
-                  {swt("interface.m1404")}</Label>
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1405")}</p>
+                  {swt("interface.m1404")}
+                </Label>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1405")}</p>
               </div>
               <Input
                 id="p-priority"
@@ -683,16 +833,14 @@ function ProfileSheet({
             <div className="flex items-center justify-between gap-4 border-t pt-3">
               <div className="grid gap-0.5">
                 <Label className="text-sm">{swt("interface.m1362")}</Label>
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1406")}</p>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1406")}</p>
               </div>
               <Switch checked={poolExclude} onCheckedChange={setPoolExclude} aria-label={swt("interface.m1362")} />
             </div>
             <div className="flex items-center justify-between gap-4 border-t pt-3">
               <div className="grid gap-0.5">
                 <Label className="text-sm">{swt("interface.m1407")}</Label>
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1408")}</p>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1408")}</p>
               </div>
               <Switch checked={streaming} onCheckedChange={setStreaming} aria-label={swt("interface.m1409")} />
             </div>
@@ -702,9 +850,9 @@ function ProfileSheet({
             <div className="flex items-center justify-between gap-4">
               <div className="grid gap-0.5">
                 <Label htmlFor="p-max-tokens" className="text-sm">
-                  {swt("interface.m1410")}</Label>
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1411")}</p>
+                  {swt("interface.m1410")}
+                </Label>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1411")}</p>
               </div>
               <Input
                 id="p-max-tokens"
@@ -744,8 +892,7 @@ function ProfileSheet({
             <div className="flex items-center justify-between gap-4">
               <div className="grid gap-0.5">
                 <Label className="text-sm">{swt("interface.m1413")}</Label>
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1414")}</p>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1414")}</p>
               </div>
               <Select value={thinkingType} onValueChange={setThinkingType}>
                 <SelectTrigger className="w-32 shrink-0">
@@ -763,8 +910,7 @@ function ProfileSheet({
             <div className="flex items-center justify-between gap-4 border-t pt-3">
               <div className="grid gap-0.5">
                 <Label className="text-sm">{swt("interface.m1415")}</Label>
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1416")}</p>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1416")}</p>
               </div>
               <Select value={effort} onValueChange={setEffort}>
                 <SelectTrigger className="w-32 shrink-0">
@@ -874,23 +1020,25 @@ export default function LLMPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="font-semibold text-xl tracking-tight">LLM</h1>
-          <p className="text-muted-foreground text-sm">
-            {swt("interface.m1423")}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => setPoolOpen(true)}>
-            <ZapIcon /> {swt("interface.m1424")}{" "}{poolOn && (
-              <Badge variant="outline" className="ml-1 border-emerald-500/50 text-emerald-600 dark:text-emerald-400">
-                {swt("interface.m1425")}</Badge>
-            )}
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => openEditor(null)}>
-            <PlusIcon /> {swt("interface.m0728")}</Button>
-        </div>
-      </div>
+      <PageHeader
+        title="LLM"
+        description={swt("interface.m1423")}
+        actions={
+          <>
+            <Button size="sm" variant="outline" onClick={() => setPoolOpen(true)}>
+              <ZapIcon /> {swt("interface.m1424")}{" "}
+              {poolOn && (
+                <Badge variant="outline" className="ml-1 border-emerald-500/50 text-emerald-700 dark:text-emerald-400">
+                  {swt("interface.m1425")}
+                </Badge>
+              )}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => openEditor(null)}>
+              <PlusIcon /> {swt("interface.m0728")}
+            </Button>
+          </>
+        }
+      />
 
       <Tabs defaultValue="profiles" className="flex-1">
         <TabsList>
@@ -903,18 +1051,11 @@ export default function LLMPage() {
             {profiles.map((p) => {
               const h = healthOf(p, health.get(p.id));
               return (
-                // biome-ignore lint/a11y/useSemanticElements: cards contain action buttons; a native button would create invalid nesting
+                // Mouse users can click anywhere on the card; keyboard users get the Edit button below, so
+                // the card itself is not an interactive role and does not nest controls.
                 <Card
                   key={p.id}
-                  role="button"
-                  tabIndex={0}
                   onClick={() => openEditor(p)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      openEditor(p);
-                    }
-                  }}
                   className={cn(
                     "cursor-pointer gap-0 py-4 outline-none transition-colors hover:border-foreground/30",
                     p.is_default && "border-amber-400/50 bg-amber-400/5",
@@ -925,7 +1066,7 @@ export default function LLMPage() {
                       <StarIcon
                         className={cn(
                           "mt-0.5 size-4 shrink-0",
-                          p.is_default ? "fill-amber-400 text-amber-400" : "text-muted-foreground",
+                          p.is_default ? "fill-amber-400 text-amber-700 dark:text-amber-400" : "text-muted-foreground",
                         )}
                       />
                       <div className="min-w-0 flex-1">
@@ -945,15 +1086,32 @@ export default function LLMPage() {
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 pl-6 text-muted-foreground text-xs">
                       {p.api_key_hint && <span>{p.api_key_hint}</span>}
                       <span>
-                        {p.rate_per_second}{swt("english.e102")}{p.rate_per_minute}{swt("english.e103")}</span>
-                      {p.proxy && <span className="truncate">{swt("interface.m1427")}{" "}{p.proxy}</span>}
+                        {p.rate_per_second}
+                        {swt("english.e102")}
+                        {p.rate_per_minute}
+                        {swt("english.e103")}
+                      </span>
+                      {p.proxy && (
+                        <span className="truncate">
+                          {swt("interface.m1427")} {p.proxy}
+                        </span>
+                      )}
                       {p.reasoning_effort && (
-                        <span>{swt("interface.m1428")}{" "}{p.reasoning_effort === "off" ? swt("interface.m1429") : p.reasoning_effort}</span>
+                        <span>
+                          {swt("interface.m1428")}{" "}
+                          {p.reasoning_effort === "off" ? swt("interface.m1429") : p.reasoning_effort}
+                        </span>
                       )}
                       {/* Show rotation fields only while rotation is enabled. */}
                       {poolOn &&
                         !p.is_default &&
-                        (p.pool_exclude ? <span>{swt("interface.m1362")}</span> : <span>{swt("interface.m1243")}{" "}{p.priority ?? 0}</span>)}
+                        (p.pool_exclude ? (
+                          <span>{swt("interface.m1362")}</span>
+                        ) : (
+                          <span>
+                            {swt("interface.m1243")} {p.priority ?? 0}
+                          </span>
+                        ))}
                     </div>
 
                     <div className="mt-1 flex gap-2">
@@ -972,6 +1130,17 @@ export default function LLMPage() {
                       <Button
                         size="icon"
                         variant="outline"
+                        aria-label={swt("english.e216")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditor(p);
+                        }}
+                      >
+                        <PencilIcon />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
                         aria-label={swt("interface.m1432")}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -985,9 +1154,19 @@ export default function LLMPage() {
                 </Card>
               );
             })}
-            {profiles.length === 0 && (
+            {profiles.length === 0 ? (
               <div className="col-span-full rounded-lg border border-dashed p-10 text-center text-muted-foreground text-sm">
-                {swt("interface.m1433")}</div>
+                {swt("interface.m1433")}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openEditor(null)}
+                className="flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-muted-foreground text-sm outline-none transition-colors hover:border-foreground/30 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <PlusIcon className="size-5" />
+                {swt("english.e213")}
+              </button>
             )}
           </div>
         </TabsContent>

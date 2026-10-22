@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
@@ -44,6 +40,8 @@ import { SortableHead } from "@/components/ui/sortable-head";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { useStoredSortPreference } from "@/lib/sort-preference";
 import type { TrafficDetail, TrafficExchange, TrafficHost, TrafficResp } from "@/lib/types";
@@ -70,10 +68,10 @@ function fmtBytes(n: number) {
 }
 
 function statusTone(status: number) {
-  if (status >= 500) return "text-red-500";
-  if (status >= 400) return "text-amber-500";
-  if (status >= 300) return "text-blue-500";
-  if (status >= 200) return "text-emerald-500";
+  if (status >= 500) return "text-red-600 dark:text-red-400";
+  if (status >= 400) return "text-amber-700 dark:text-amber-400";
+  if (status >= 300) return "text-blue-600 dark:text-blue-400";
+  if (status >= 200) return "text-emerald-700 dark:text-emerald-400";
   return "text-muted-foreground";
 }
 
@@ -358,7 +356,7 @@ export default function TrafficPage() {
             className={cn(
               "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium",
               traffic?.enabled
-                ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400"
                 : "border-transparent bg-muted text-muted-foreground",
             )}
           >
@@ -367,7 +365,9 @@ export default function TrafficPage() {
           </span>
           {traffic?.proxy && <span className="font-mono text-xs text-muted-foreground">{traffic.proxy}</span>}
           <span className="text-xs text-muted-foreground">
-            {swt("interface.m0199")}<span className="tabular-nums">{traffic?.count ?? 0}</span> {swt("interface.m0328")}</span>
+            {swt("interface.m0199")} <span className="tabular-nums">{traffic?.count ?? 0}</span>{" "}
+            {swt("interface.m0328")}
+          </span>
         </div>
       </div>
 
@@ -395,16 +395,15 @@ export default function TrafficPage() {
                         variant="ghost"
                         size="icon-xs"
                         onClick={() => setHostCountSortDirection((current) => (current === "desc" ? "asc" : "desc"))}
-                        aria-label={
-                          hostCountSortDirection === "desc"
-                            ? swt("interface.m1073")
-                            : swt("interface.m1074")
-                        }
+                        aria-label={hostCountSortDirection === "desc" ? swt("interface.m1073") : swt("interface.m1074")}
                       >
                         {hostCountSortDirection === "desc" ? <ArrowDownWideNarrowIcon /> : <ArrowUpNarrowWideIcon />}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{swt("interface.m1075")}{" "}{hostCountSortDirection === "desc" ? swt("interface.m0595") : swt("interface.m0594")}</TooltipContent>
+                    <TooltipContent>
+                      {swt("interface.m1075")}{" "}
+                      {hostCountSortDirection === "desc" ? swt("interface.m0595") : swt("interface.m0594")}
+                    </TooltipContent>
                   </Tooltip>
                 )}
                 {hosts.length > 0 && (
@@ -455,13 +454,19 @@ export default function TrafficPage() {
                   setPickerOpen(false);
                 }}
               >
-                {swt("interface.m1079")}{selectedHosts.length}）
+                {swt("interface.m1079")}
+                {selectedHosts.length}）
               </Button>
             </div>
           </PopoverContent>
         </Popover>
         <div className="relative w-48">
-          <Input placeholder={swt("english.e078")} value={host} onChange={(e) => setHost(e.target.value)} className="h-8" />
+          <Input
+            placeholder={swt("english.e078")}
+            value={host}
+            onChange={(e) => setHost(e.target.value)}
+            className="h-8"
+          />
         </div>
         <Button
           variant="destructive"
@@ -472,7 +477,8 @@ export default function TrafficPage() {
           onClick={() => setDeleteMode("filter")}
         >
           <Trash2Icon className="size-3.5" />
-          {swt("interface.m1081")}</Button>
+          {swt("interface.m1081")}
+        </Button>
         {/* Use an outline rather than another destructive button: this ignores all filters and must look distinct from Delete this target. */}
         <Button
           variant="outline"
@@ -483,7 +489,8 @@ export default function TrafficPage() {
           onClick={() => setDeleteMode("all")}
         >
           <EraserIcon className="size-3.5" />
-          {swt("interface.m1084")}</Button>
+          {swt("interface.m1084")}
+        </Button>
         <div className="relative max-w-sm flex-1">
           <SearchIcon className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -513,7 +520,8 @@ export default function TrafficPage() {
           <SelectContent>
             {PAGE_SIZES.map((n) => (
               <SelectItem key={n} value={String(n)}>
-                {n} {swt("interface.m0261")}</SelectItem>
+                {n} {swt("interface.m0261")}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -601,17 +609,22 @@ export default function TrafficPage() {
         {hasAdvancedFilter ? (
           <Button variant="ghost" size="sm" className="h-8" onClick={resetAdvancedFilters}>
             <FilterXIcon className="size-3.5" />
-            {swt("interface.m1093")}</Button>
+            {swt("interface.m1093")}
+          </Button>
         ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-muted-foreground">{swt("interface.m0398")}{" "}{selectedFlows.size} {swt("interface.m1094")}</span>
+        <span className="text-sm text-muted-foreground">
+          {swt("interface.m0398")} {selectedFlows.size} {swt("interface.m1094")}
+        </span>
         <Button variant="outline" size="sm" disabled={selectedFlows.size === 0} onClick={() => setLinking(true)}>
-          {swt("interface.m1095")}</Button>
+          {swt("interface.m1095")}
+        </Button>
         {selectedFlows.size > 0 ? (
           <Button variant="ghost" size="sm" onClick={() => setSelectedFlows(new Set())}>
-            {swt("interface.m1096")}</Button>
+            {swt("interface.m1096")}
+          </Button>
         ) : null}
       </div>
       {/* History table */}
@@ -751,7 +764,8 @@ export default function TrafficPage() {
                   {detailLoading ? (
                     <div className="flex items-center gap-2 p-5 text-xs text-muted-foreground">
                       <Loader2Icon className="size-3.5 animate-spin" />
-                      {swt("interface.m1102")}</div>
+                      {swt("interface.m1102")}
+                    </div>
                   ) : (
                     <HttpCodeBlock raw={requestWithHost(detail?.req ?? "", selected)} />
                   )}
@@ -760,7 +774,8 @@ export default function TrafficPage() {
                   {detailLoading ? (
                     <div className="flex items-center gap-2 p-5 text-xs text-muted-foreground">
                       <Loader2Icon className="size-3.5 animate-spin" />
-                      {swt("interface.m1102")}</div>
+                      {swt("interface.m1102")}
+                    </div>
                   ) : (
                     <HttpCodeBlock raw={detail?.resp ?? ""} />
                   )}
@@ -783,24 +798,28 @@ export default function TrafficPage() {
             <AlertDialogDescription>
               {deleteMode === "all" && (
                 <>
-                  {swt("interface.m1103")}<span className="font-semibold tabular-nums">{traffic?.count ?? 0}</span>{" "}
-                  {swt("interface.m1104")}<br />
-                  <span className="text-muted-foreground">
-                    {swt("interface.m1105")}</span>
+                  {swt("interface.m1103")}
+                  <span className="font-semibold tabular-nums">{traffic?.count ?? 0}</span> {swt("interface.m1104")}
+                  <br />
+                  <span className="text-muted-foreground">{swt("interface.m1105")}</span>
                 </>
               )}
               {deleteMode === "selected" && (
                 <>
-                  {swt("interface.m0252")}<span className="font-semibold tabular-nums">{selectedHosts.length}</span> {swt("interface.m1106")}<span className="font-mono">
+                  {swt("interface.m0252")}
+                  <span className="font-semibold tabular-nums">{selectedHosts.length}</span> {swt("interface.m1106")}
+                  <span className="font-mono">
                     {selectedHosts.slice(0, 3).join("、")}
                     {selectedHosts.length > 3 ? "…" : ""}
                   </span>
-                  {swt("interface.m1107")}</>
+                  {swt("interface.m1107")}
+                </>
               )}
               {deleteMode === "filter" && (
                 <>
-                  {swt("interface.m1108")}<span className="font-mono font-semibold">{hostQ}</span>{" "}
-                  {swt("interface.m1109")}</>
+                  {swt("interface.m1108")}
+                  <span className="font-mono font-semibold">{hostQ}</span> {swt("interface.m1109")}
+                </>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -1,12 +1,12 @@
 "use client";
 
-import { localizedFetch as fetch } from "@/i18n/request";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
-import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n";
+import { localizedFetch as fetch } from "@/i18n/request";
+import { translate as swt } from "@/i18n/runtime";
 import { sseUrl } from "@/lib/api";
 import { MOCK } from "@/lib/mock/enabled";
 import type { LogLine } from "@/lib/types";
@@ -14,17 +14,61 @@ import { cn } from "@/lib/utils";
 
 // Mock mode has no backend SSE; provide example log lines.
 const MOCK_LOGS: LogLine[] = [
-  { seq: 1, ts: "2026-07-26T03:55:00Z", level: "info", tag: "engine", text: "Skopos v0.1.0 backend listening on :8787 (workers=3)" },
-  { seq: 2, ts: "2026-07-26T03:55:01Z", level: "info", tag: "config", text: "LLM configured from DB: anthropic / claude-opus-4-8" },
-  { seq: 3, ts: "2026-07-26T03:56:10Z", level: "info", tag: "planner", get text() { return swt("interface.m1434"); } },
-  { seq: 4, ts: "2026-07-26T03:57:00Z", level: "warn", tag: "guard", get text() { return swt("interface.m1435"); } },
-  { seq: 5, ts: "2026-07-26T03:57:30Z", level: "info", tag: "work#1", get text() { return swt("interface.m1436"); } },
-  { seq: 6, ts: "2026-07-26T03:58:20Z", level: "error", tag: "work#3", get text() { return swt("interface.m1437"); } },
+  {
+    seq: 1,
+    ts: "2026-07-26T03:55:00Z",
+    level: "info",
+    tag: "engine",
+    text: "Skopos v0.1.0 backend listening on :8787 (workers=3)",
+  },
+  {
+    seq: 2,
+    ts: "2026-07-26T03:55:01Z",
+    level: "info",
+    tag: "config",
+    text: "LLM configured from DB: anthropic / claude-opus-4-8",
+  },
+  {
+    seq: 3,
+    ts: "2026-07-26T03:56:10Z",
+    level: "info",
+    tag: "planner",
+    get text() {
+      return swt("interface.m1434");
+    },
+  },
+  {
+    seq: 4,
+    ts: "2026-07-26T03:57:00Z",
+    level: "warn",
+    tag: "guard",
+    get text() {
+      return swt("interface.m1435");
+    },
+  },
+  {
+    seq: 5,
+    ts: "2026-07-26T03:57:30Z",
+    level: "info",
+    tag: "work#1",
+    get text() {
+      return swt("interface.m1436");
+    },
+  },
+  {
+    seq: 6,
+    ts: "2026-07-26T03:58:20Z",
+    level: "error",
+    tag: "work#3",
+    get text() {
+      return swt("interface.m1437");
+    },
+  },
 ];
 
 const levelTone: Record<LogLine["level"], string> = {
   info: "text-foreground/80",
-  warn: "text-amber-600 dark:text-amber-400",
+  warn: "text-amber-700 dark:text-amber-400",
   error: "text-red-600 dark:text-red-400",
 };
 const levelDot: Record<LogLine["level"], string> = {
@@ -96,7 +140,7 @@ export default function LogsPage() {
       const params = minDbId > 0 ? `?before=${minDbId}&limit=200` : `?limit=200`;
       const res = await fetch(`/api/logs/history${params}`);
       if (!res.ok) return;
-      const data = await res.json() as { items: LogLine[]; has_more: boolean };
+      const data = (await res.json()) as { items: LogLine[]; has_more: boolean };
       if (data.items?.length) {
         // Assign synthetic seq numbers below current minimum to keep dedup working.
         setLines((prev) => {
@@ -182,11 +226,17 @@ export default function LogsPage() {
             {paused ? swt("interface.m0564") : swt("interface.m0151")}
           </Button>
           <Button size="sm" variant="outline" className="h-8" onClick={() => setLines([])}>
-            {swt("interface.m1059")}</Button>
+            {swt("interface.m1059")}
+          </Button>
           <span className="ml-auto text-xs text-muted-foreground">
             {counts.total} {swt("interface.m1441")}{" "}
-            <span className="text-amber-600 dark:text-amber-400">{counts.warn} {swt("interface.m1442")}</span> ·{" "}
-            <span className="text-red-600 dark:text-red-400">{counts.error} {swt("interface.m1443")}</span>
+            <span className="text-amber-700 dark:text-amber-400">
+              {counts.warn} {swt("interface.m1442")}
+            </span>{" "}
+            ·{" "}
+            <span className="text-red-600 dark:text-red-400">
+              {counts.error} {swt("interface.m1443")}
+            </span>
           </span>
         </div>
 
@@ -215,9 +265,7 @@ export default function LogsPage() {
           ) : (
             filtered.map((l) => {
               const body =
-                l.tag && l.text.startsWith("[" + l.tag + "]")
-                  ? l.text.slice(l.tag.length + 2).trimStart()
-                  : l.text;
+                l.tag && l.text.startsWith("[" + l.tag + "]") ? l.text.slice(l.tag.length + 2).trimStart() : l.text;
               return (
                 <div key={l.seq} className="flex items-start gap-2 px-1 py-0.5 hover:bg-muted/40">
                   <span className={cn("mt-1.5 size-1.5 shrink-0 rounded-full", levelDot[l.level])} />

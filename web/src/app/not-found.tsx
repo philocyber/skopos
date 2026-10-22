@@ -1,10 +1,9 @@
 "use client";
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
-
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 
 export default function NotFound() {
   "use no memo";

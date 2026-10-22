@@ -47,7 +47,9 @@ export function initializeLocale() {
 
 // Rendering starts in English, matching the static-export hydration snapshot.
 // The provider initializes persisted preferences after hydration.
-export function getLocale(): Locale { return current; }
+export function getLocale(): Locale {
+  return current;
+}
 
 function persist(locale: Locale) {
   if (typeof window === "undefined") return;
@@ -106,4 +108,6 @@ export function __resetLocaleForTests() {
   listeners.clear();
 }
 
-export function getIntlLocale(): string { return intlLocale(getLocale()); }
+export function getIntlLocale(): string {
+  return intlLocale(getLocale());
+}

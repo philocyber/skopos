@@ -1,8 +1,8 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 
 export function StatTile({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: string }) {
   "use no memo";
