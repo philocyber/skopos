@@ -1,10 +1,9 @@
 "use client";
-import { useI18n } from "@/i18n";
-
 import type * as React from "react";
 
 import type { SimpleIcon as SimpleIconType } from "simple-icons";
 
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 type SimpleIconProps = {

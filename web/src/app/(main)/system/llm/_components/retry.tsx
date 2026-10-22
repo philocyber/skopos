@@ -1,7 +1,7 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 // Shared LLM retry controls: count and interval for each of five layers.
 //
 // Inside out: connection (SDK), empty response (SDK), same-provider safe window, rotation breaker, intent rerun.
@@ -54,59 +54,139 @@ type LayerMeta = {
 
 export const RETRY_LAYERS = {
   connect: {
-    get title() { return swt("interface.m1275"); },
-    get where() { return swt("interface.m1276"); },
-    get trigger() { return swt("interface.m1277"); },
-    get skips() { return swt("interface.m1278"); },
-    get desc() { return swt("interface.m1279"); },
-    get attemptsLabel() { return swt("interface.m1280"); },
+    get title() {
+      return swt("interface.m1275");
+    },
+    get where() {
+      return swt("interface.m1276");
+    },
+    get trigger() {
+      return swt("interface.m1277");
+    },
+    get skips() {
+      return swt("interface.m1278");
+    },
+    get desc() {
+      return swt("interface.m1279");
+    },
+    get attemptsLabel() {
+      return swt("interface.m1280");
+    },
     defAttempts: 3,
-    get defInterval() { return swt("interface.m1281"); },
-    get offHint() { return swt("interface.m1282"); },
+    get defInterval() {
+      return swt("interface.m1281");
+    },
+    get offHint() {
+      return swt("interface.m1282");
+    },
   },
   empty: {
-    get title() { return swt("interface.m1283"); },
-    get where() { return swt("interface.m1284"); },
-    get trigger() { return swt("interface.m1285"); },
-    get skips() { return swt("interface.m1286"); },
-    get desc() { return swt("interface.m1287"); },
-    get attemptsLabel() { return swt("interface.m1280"); },
+    get title() {
+      return swt("interface.m1283");
+    },
+    get where() {
+      return swt("interface.m1284");
+    },
+    get trigger() {
+      return swt("interface.m1285");
+    },
+    get skips() {
+      return swt("interface.m1286");
+    },
+    get desc() {
+      return swt("interface.m1287");
+    },
+    get attemptsLabel() {
+      return swt("interface.m1280");
+    },
     defAttempts: 2,
-    get defInterval() { return swt("interface.m1281"); },
-    get offHint() { return swt("interface.m1288"); },
+    get defInterval() {
+      return swt("interface.m1281");
+    },
+    get offHint() {
+      return swt("interface.m1288");
+    },
   },
   stream: {
-    get title() { return swt("interface.m1289"); },
-    get where() { return swt("interface.m1290"); },
-    get trigger() { return swt("interface.m1291"); },
-    get skips() { return swt("interface.m1292"); },
-    get desc() { return swt("interface.m1293"); },
-    get attemptsLabel() { return swt("interface.m1280"); },
+    get title() {
+      return swt("interface.m1289");
+    },
+    get where() {
+      return swt("interface.m1290");
+    },
+    get trigger() {
+      return swt("interface.m1291");
+    },
+    get skips() {
+      return swt("interface.m1292");
+    },
+    get desc() {
+      return swt("interface.m1293");
+    },
+    get attemptsLabel() {
+      return swt("interface.m1280");
+    },
     defAttempts: 2,
-    get defInterval() { return swt("interface.m1294"); },
-    get offHint() { return swt("interface.m1295"); },
+    get defInterval() {
+      return swt("interface.m1294");
+    },
+    get offHint() {
+      return swt("interface.m1295");
+    },
   },
   breaker: {
-    get title() { return swt("interface.m1296"); },
-    get where() { return swt("interface.m1297"); },
-    get trigger() { return swt("interface.m1298"); },
-    get skips() { return swt("interface.m1299"); },
-    get desc() { return swt("interface.m1300"); },
-    get attemptsLabel() { return swt("interface.m1301"); },
+    get title() {
+      return swt("interface.m1296");
+    },
+    get where() {
+      return swt("interface.m1297");
+    },
+    get trigger() {
+      return swt("interface.m1298");
+    },
+    get skips() {
+      return swt("interface.m1299");
+    },
+    get desc() {
+      return swt("interface.m1300");
+    },
+    get attemptsLabel() {
+      return swt("interface.m1301");
+    },
     defAttempts: 3,
-    get defInterval() { return swt("interface.m1302"); },
-    get offHint() { return swt("interface.m1303"); },
+    get defInterval() {
+      return swt("interface.m1302");
+    },
+    get offHint() {
+      return swt("interface.m1303");
+    },
   },
   intent: {
-    get title() { return swt("interface.m1304"); },
-    get where() { return swt("interface.m1297"); },
-    get trigger() { return swt("interface.m1305"); },
-    get skips() { return swt("interface.m1306"); },
-    get desc() { return swt("interface.m1307"); },
-    get attemptsLabel() { return swt("interface.m1308"); },
+    get title() {
+      return swt("interface.m1304");
+    },
+    get where() {
+      return swt("interface.m1297");
+    },
+    get trigger() {
+      return swt("interface.m1305");
+    },
+    get skips() {
+      return swt("interface.m1306");
+    },
+    get desc() {
+      return swt("interface.m1307");
+    },
+    get attemptsLabel() {
+      return swt("interface.m1308");
+    },
     defAttempts: 2,
-    get defInterval() { return swt("interface.m1309"); },
-    get offHint() { return swt("interface.m1310"); },
+    get defInterval() {
+      return swt("interface.m1309");
+    },
+    get offHint() {
+      return swt("interface.m1310");
+    },
   },
 } satisfies Record<string, LayerMeta>;
 
@@ -214,7 +294,8 @@ export function RetryRuleFields({
         </div>
         <div className="flex items-center gap-2">
           <Label htmlFor={`${idPrefix}-${layer}-ms`} className="text-muted-foreground text-xs">
-            {swt("interface.m1314")}</Label>
+            {swt("interface.m1314")}
+          </Label>
           <NumField
             id={`${idPrefix}-${layer}-ms`}
             min={0}
@@ -222,10 +303,17 @@ export function RetryRuleFields({
             placeholder={swt("interface.m1315")}
             onChange={(n) => onChange({ ...value, interval_ms: n })}
           />
-          <span className="text-muted-foreground text-xs">{human ? swt("interface.m1316", { p0: human }) : meta.defInterval}</span>
+          <span className="text-muted-foreground text-xs">
+            {human ? swt("interface.m1316", { p0: human }) : meta.defInterval}
+          </span>
         </div>
       </div>
-      {!compact && <p className="text-muted-foreground text-xs">{swt("interface.m1317")}{meta.offHint}。</p>}
+      {!compact && (
+        <p className="text-muted-foreground text-xs">
+          {swt("interface.m1317")}
+          {meta.offHint}。
+        </p>
+      )}
     </div>
   );
 }
@@ -245,8 +333,7 @@ export function ProfileRetryFields({
     <div className="grid gap-3 rounded-lg border p-3">
       <div className="grid gap-0.5">
         <Label className="text-sm">{swt("interface.m1318")}</Label>
-        <p className="text-muted-foreground text-xs">
-          {swt("interface.m1319")}</p>
+        <p className="text-muted-foreground text-xs">{swt("interface.m1319")}</p>
       </div>
       {(["connect", "empty", "stream"] as const).map((k) => (
         <div key={k} className="border-t pt-3 first:border-t-0 first:pt-0">
@@ -308,16 +395,20 @@ export function RetryPolicyPanel() {
   if (loading) {
     return (
       <div className="flex items-center gap-2 rounded-lg border border-dashed p-10 text-muted-foreground text-sm">
-        <Loader2Icon className="size-4 animate-spin" /> {swt("interface.m1322")}</div>
+        <Loader2Icon className="size-4 animate-spin" /> {swt("interface.m1322")}
+      </div>
     );
   }
 
   return (
     <div className="grid gap-4">
       <div className="rounded-lg border bg-muted/30 p-3 text-muted-foreground text-xs leading-relaxed">
-        {swt("interface.m1323")}<span className="text-foreground"> {swt("interface.m1324")}</span>
-        {swt("interface.m1325")}<span className="text-foreground">{swt("interface.m1326")}</span>
-        {swt("interface.m1327")}</div>
+        {swt("interface.m1323")}
+        <span className="text-foreground"> {swt("interface.m1324")}</span>
+        {swt("interface.m1325")}
+        <span className="text-foreground">{swt("interface.m1326")}</span>
+        {swt("interface.m1327")}
+      </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {(Object.keys(RETRY_LAYERS) as LayerKey[]).map((k) => (
@@ -328,9 +419,11 @@ export function RetryPolicyPanel() {
       <div className="flex gap-2">
         <Button onClick={save} disabled={saving}>
           {saving ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}
-          {swt("interface.m0273")}</Button>
+          {swt("interface.m0273")}
+        </Button>
         <Button variant="outline" onClick={() => setPolicy(ZERO_POLICY)} disabled={saving}>
-          {swt("interface.m1328")}</Button>
+          {swt("interface.m1328")}
+        </Button>
       </div>
     </div>
   );

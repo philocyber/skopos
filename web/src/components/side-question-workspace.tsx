@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { ArrowUpIcon, MessageCircleQuestionIcon, SquareIcon, Trash2Icon, XIcon } from "lucide-react";
@@ -28,16 +24,28 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { SideQuestions } from "@/hooks/use-side-questions";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { cn } from "@/lib/utils";
 
 type ComposerLayout = "inline" | "stacked";
 
 const preparationLabels = {
-  get preparing() { return swt("interface.m2290"); },
-  get summarizing_history() { return swt("interface.m2291"); },
-  get compressing_snapshot() { return swt("interface.m2292"); },
-  get retrying() { return swt("interface.m2293"); },
-  get answering() { return swt("interface.m2294"); },
+  get preparing() {
+    return swt("interface.m2290");
+  },
+  get summarizing_history() {
+    return swt("interface.m2291");
+  },
+  get compressing_snapshot() {
+    return swt("interface.m2292");
+  },
+  get retrying() {
+    return swt("interface.m2293");
+  },
+  get answering() {
+    return swt("interface.m2294");
+  },
 };
 
 export function SideQuestionButton({ side }: { side: SideQuestions }) {
@@ -48,7 +56,8 @@ export function SideQuestionButton({ side }: { side: SideQuestions }) {
   return (
     <Button variant="outline" size="sm" onClick={() => side.setOpen(true)} title={swt("interface.m2295")}>
       <MessageCircleQuestionIcon data-icon="inline-start" />
-      {swt("interface.m2296")}</Button>
+      {swt("interface.m2296")}
+    </Button>
   );
 }
 
@@ -73,13 +82,20 @@ function SidePanel({
   useEffect(() => {
     if (pinned.current && viewport.current) viewport.current.scrollTop = viewport.current.scrollHeight;
   }, [tail?.answer, tail?.id]);
-  const status = { running: swt("interface.m2297"), completed: swt("interface.m0809"), failed: swt("interface.m0294"), cancelled: swt("interface.m2218"), interrupted: swt("interface.m2298") };
+  const status = {
+    running: swt("interface.m2297"),
+    completed: swt("interface.m0809"),
+    failed: swt("interface.m0294"),
+    cancelled: swt("interface.m2218"),
+    interrupted: swt("interface.m2298"),
+  };
   return (
     <section className="flex h-full min-h-0 flex-col bg-background" aria-label={swt("interface.m2299")}>
       <div className="flex items-center gap-2 border-b p-3">
         <div className="min-w-0 flex-1">
           <p className="font-medium">
-            {swt("interface.m2296")}<span className="text-muted-foreground">/btw</span>
+            {swt("interface.m2296")}
+            <span className="text-muted-foreground">/btw</span>
           </p>
           <p className="truncate text-muted-foreground text-xs">{label}</p>
         </div>
@@ -100,7 +116,9 @@ function SidePanel({
         {side.snapshot ? (
           <>
             <p>{side.snapshot.model.model}</p>
-            <p>{swt("interface.m2302")}{" "}{new Date(side.snapshot.captured_at).toLocaleString(getIntlLocale())}</p>
+            <p>
+              {swt("interface.m2302")} {new Date(side.snapshot.captured_at).toLocaleString(getIntlLocale())}
+            </p>
           </>
         ) : (
           swt("interface.m2303")
@@ -116,7 +134,8 @@ function SidePanel({
       >
         {side.nextCursor > 0 && (
           <Button variant="ghost" size="sm" onClick={() => void side.load(side.nextCursor)}>
-            {swt("interface.m2304")}</Button>
+            {swt("interface.m2304")}
+          </Button>
         )}
         {side.loading && <Skeleton className="h-16 w-full" />}
         {!side.loading && side.items.length === 0 && (
@@ -135,12 +154,13 @@ function SidePanel({
                 <Badge variant="secondary">{status[item.status]}</Badge>
                 <span className="truncate">{item.model.model}</span>
                 <time dateTime={item.snapshot_at} title={new Date(item.snapshot_at).toLocaleString(getIntlLocale())}>
-                  {swt("interface.m2307")}{" "}{new Date(item.snapshot_at).toLocaleTimeString(getIntlLocale())}
+                  {swt("interface.m2307")} {new Date(item.snapshot_at).toLocaleTimeString(getIntlLocale())}
                 </time>
               </div>
               {item.context?.estimated_input_tokens != null && (
                 <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1810")}{" "}{item.context.recent_exchanges} {swt("interface.m2308")}{" "}{item.context.history_summarized && swt("interface.m2309")}
+                  {swt("interface.m1810")} {item.context.recent_exchanges} {swt("interface.m2308")}{" "}
+                  {item.context.history_summarized && swt("interface.m2309")}
                   {item.context.snapshot_summarized && swt("interface.m2310")}
                 </p>
               )}
@@ -216,8 +236,7 @@ function SidePanel({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{swt("interface.m2315")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {swt("interface.m2316")}</AlertDialogDescription>
+            <AlertDialogDescription>{swt("interface.m2316")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{swt("interface.m0063")}</AlertDialogCancel>
@@ -263,7 +282,9 @@ export function SideQuestionWorkspace({
         <DrawerContent className="h-[85svh]">
           <DrawerHeader className="sr-only">
             <DrawerTitle>{swt("interface.m2296")}</DrawerTitle>
-            <DrawerDescription>{label} {swt("interface.m2318")}</DrawerDescription>
+            <DrawerDescription>
+              {label} {swt("interface.m2318")}
+            </DrawerDescription>
           </DrawerHeader>
           <SidePanel side={side} label={label} composerLayout={composerLayout} />
         </DrawerContent>

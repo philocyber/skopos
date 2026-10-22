@@ -1,9 +1,5 @@
 "use client";
 
-import { localizedFetch as fetch } from "@/i18n/request";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
@@ -20,6 +16,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useI18n } from "@/i18n";
+import { localizedFetch as fetch } from "@/i18n/request";
+import { translate as swt } from "@/i18n/runtime";
 import { api, sseUrl } from "@/lib/api";
 import type { UpdateCheck, UpdateProgress } from "@/lib/types";
 
@@ -55,23 +54,26 @@ export function UpdateCard() {
 
   // quiet also controls cache bypass. Automatic entry checks use cache already warmed by the header;
   // manual checks force upstream refresh so new releases appear before cache expiry.
-  const check = React.useCallback((quiet = false) => {
-    setChecking(true);
-    api
-      .checkUpdate(!quiet)
-      .then((r) => {
-        setInfo(r);
-        if (!quiet) {
-          if (r.error) toast.error(swt("interface.m1589") + r.error);
-          else if (r.has_update) toast.success(swt("interface.m1590", { p0: r.latest }));
-          else if (r.comparable) toast.success(swt("interface.m1591"));
-        }
-      })
-      .catch((e) => {
-        if (!quiet) toast.error(swt("interface.m1589") + (e as Error).message);
-      })
-      .finally(() => setChecking(false));
-  }, [swLocale]);
+  const check = React.useCallback(
+    (quiet = false) => {
+      setChecking(true);
+      api
+        .checkUpdate(!quiet)
+        .then((r) => {
+          setInfo(r);
+          if (!quiet) {
+            if (r.error) toast.error(swt("interface.m1589") + r.error);
+            else if (r.has_update) toast.success(swt("interface.m1590", { p0: r.latest }));
+            else if (r.comparable) toast.success(swt("interface.m1591"));
+          }
+        })
+        .catch((e) => {
+          if (!quiet) toast.error(swt("interface.m1589") + (e as Error).message);
+        })
+        .finally(() => setChecking(false));
+    },
+    [swLocale],
+  );
 
   React.useEffect(() => {
     check(true);
@@ -81,29 +83,32 @@ export function UpdateCard() {
   //
   // Require a changed version, not merely connectivity: the old version briefly starts during swapping
   // to install skopos.new and exits again. Connectivity alone would falsely report success.
-  const waitForNewVersion = React.useCallback(async (fromVersion: string) => {
-    setRestarting(true);
-    const deadline = Date.now() + RESTART_TIMEOUT_MS;
-    while (Date.now() < deadline) {
-      await sleep(2000);
-      try {
-        const r = await fetch("/api/health", { cache: "no-store" });
-        if (r.ok) {
-          const j = (await r.json()) as { version?: string };
-          if (j.version && j.version !== fromVersion) {
-            toast.success(swt("interface.m1592", { p0: j.version }));
-            await sleep(800);
-            window.location.reload();
-            return;
+  const waitForNewVersion = React.useCallback(
+    async (fromVersion: string) => {
+      setRestarting(true);
+      const deadline = Date.now() + RESTART_TIMEOUT_MS;
+      while (Date.now() < deadline) {
+        await sleep(2000);
+        try {
+          const r = await fetch("/api/health", { cache: "no-store" });
+          if (r.ok) {
+            const j = (await r.json()) as { version?: string };
+            if (j.version && j.version !== fromVersion) {
+              toast.success(swt("interface.m1592", { p0: j.version }));
+              await sleep(800);
+              window.location.reload();
+              return;
+            }
           }
+        } catch {
+          // Connection failure during restart is expected; continue polling.
         }
-      } catch {
-        // Connection failure during restart is expected; continue polling.
       }
-    }
-    setRestarting(false);
-    toast.error(swt("interface.m1593"));
-  }, [swLocale]);
+      setRestarting(false);
+      toast.error(swt("interface.m1593"));
+    },
+    [swLocale],
+  );
 
   // Subscribe to update progress directly; Next /api rewrites buffer SSE events.
   const openStream = React.useCallback(
@@ -154,10 +159,7 @@ export function UpdateCard() {
     const ok = window.confirm(
       swt("interface.m1594", { p0: info.latest }) +
         swt("interface.m1595") +
-        (info.mode === "docker"
-          ? swt("interface.m1596") +
-            swt("interface.m1597")
-          : ""),
+        (info.mode === "docker" ? swt("interface.m1596") + swt("interface.m1597") : ""),
     );
     if (!ok) return;
 
@@ -175,12 +177,7 @@ export function UpdateCard() {
 
   const doRollback = () => {
     if (!info) return;
-    if (
-      !window.confirm(
-        swt("interface.m1600"),
-      )
-    )
-      return;
+    if (!window.confirm(swt("interface.m1600"))) return;
     const from = info.current;
     setBusy(true);
     api
@@ -208,7 +205,8 @@ export function UpdateCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <DownloadIcon className="size-4" />
-          {swt("interface.m1603")}</CardTitle>
+          {swt("interface.m1603")}
+        </CardTitle>
         <CardDescription>{swt("interface.m1604")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -219,9 +217,11 @@ export function UpdateCard() {
           </Badge>
           {info && (
             <>
-              <Badge variant="outline" className="font-mono">
-                {info.os}/{info.arch}
-              </Badge>
+              {info.os && info.arch && (
+                <Badge variant="outline" className="font-mono">
+                  {info.os}/{info.arch}
+                </Badge>
+              )}
               <Badge variant="outline">{info.mode === "docker" ? "Docker" : swt("interface.m1606")}</Badge>
             </>
           )}
@@ -240,13 +240,14 @@ export function UpdateCard() {
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-4 hover:underline"
             >
-              {swt("interface.m1608")}<ExternalLinkIcon className="size-3" />
+              {swt("interface.m1608")}
+              <ExternalLinkIcon className="size-3" />
             </a>
           )}
         </div>
 
         {info?.boot_notice && (
-          <p className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-400">
+          <p className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-800 dark:text-amber-400">
             <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
             {info.boot_notice}
           </p>
@@ -255,8 +256,11 @@ export function UpdateCard() {
         {info?.error && (
           <p className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive">
             <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
-            {swt("interface.m1609")}{info.error}
-            {"　"}{swt("interface.m1610")}</p>
+            {swt("interface.m1609")}
+            {info.error}
+            {"　"}
+            {swt("interface.m1610")}
+          </p>
         )}
 
         {info && !info.comparable && info.reason && <p className="text-xs text-muted-foreground">{info.reason}</p>}
@@ -264,41 +268,48 @@ export function UpdateCard() {
         {info?.has_update && info.asset_available === false && (
           <p className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive">
             <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
-            {info.latest} {swt("interface.m1611")}{" "}{info.os}/{info.arch} {swt("interface.m1612")}{" "}{info.asset}{swt("interface.m1613")}</p>
+            {info.latest} {swt("interface.m1611")} {info.os}/{info.arch} {swt("interface.m1612")} {info.asset}
+            {swt("interface.m1613")}
+          </p>
         )}
 
         {info?.has_update && info.asset_available !== false && (
           <p className="text-xs text-muted-foreground">
-            {swt("interface.m1614")}<span className="font-mono">{info.asset}</span>
-            {info.size ? `（${humanSize(info.size)}）` : ""}{swt("interface.m1615")}</p>
+            {swt("interface.m1614")}
+            <span className="font-mono">{info.asset}</span>
+            {info.size ? `（${humanSize(info.size)}）` : ""}
+            {swt("interface.m1615")}
+          </p>
         )}
 
         {info && !info.has_update && info.comparable && !info.error && (
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
-            <CheckCircle2Icon className="size-3.5 text-emerald-600" />
-            {swt("interface.m1616")}</p>
+            <CheckCircle2Icon className="size-3.5 text-emerald-700 dark:text-emerald-400" />
+            {swt("interface.m1616")}
+          </p>
         )}
 
         {info?.mode === "docker" && info.has_update && (
           <p className="text-xs text-muted-foreground">
-            {swt("interface.m1617")}<span className="font-mono"> docker compose up -d </span>
-            {swt("interface.m1618")}<span className="font-mono"> docker compose pull skopos &amp;&amp; docker compose up -d skopos</span>。
+            {swt("interface.m1617")}
+            <span className="font-mono"> docker compose up -d </span>
+            {swt("interface.m1618")}
+            <span className="font-mono"> docker compose pull skopos &amp;&amp; docker compose up -d skopos</span>。
           </p>
         )}
 
         {showProgress && (
           <div className="space-y-1.5">
             <Progress value={pct} className={downloading ? undefined : "animate-pulse"} />
-            <p className="text-xs text-muted-foreground">
-              {restarting ? swt("interface.m1619") : progress?.message}
-            </p>
+            <p className="text-xs text-muted-foreground">{restarting ? swt("interface.m1619") : progress?.message}</p>
           </div>
         )}
 
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => check(false)} disabled={checking || busy || restarting}>
             <RefreshCwIcon className={checking ? "size-4 animate-spin" : "size-4"} />
-            {swt("interface.m1620")}</Button>
+            {swt("interface.m1620")}
+          </Button>
           <Button
             size="sm"
             onClick={doUpdate}
@@ -310,12 +321,14 @@ export function UpdateCard() {
           {info?.has_backup && (
             <Button variant="ghost" size="sm" onClick={doRollback} disabled={busy || restarting}>
               <RotateCcwIcon className="size-4" />
-              {swt("interface.m1623")}</Button>
+              {swt("interface.m1623")}
+            </Button>
           )}
         </div>
 
         <p className="text-xs text-muted-foreground">
-          {rich("settings.updateLauncher", {}, { code: (text) => <code className="font-mono">{text}</code> })}</p>
+          {rich("settings.updateLauncher", {}, { code: (text) => <code className="font-mono">{text}</code> })}
+        </p>
       </CardContent>
     </Card>
   );

@@ -1,11 +1,12 @@
 "use client";
 
-import { useI18n } from "@/i18n";
-import { translate as swt } from "@/i18n/runtime";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { toast } from "sonner";
 
+import { pollWhileVisible } from "@/hooks/use-polling";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { sseUrl } from "@/lib/api";
 import { isBtwCommand, type SideExchange, type SideHistory, sideAPI } from "@/lib/side-questions";
 
@@ -123,8 +124,8 @@ export function useSideQuestions(parent: string | null) {
   useEffect(() => {
     if (!open || !parent) return;
     void load();
-    const timer = setInterval(() => void load(), 2000);
-    return () => clearInterval(timer);
+    const timer = pollWhileVisible(() => void load(), 2000);
+    return () => timer();
   }, [open, parent, load]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Reconnect after a clear attempt invalidates older callbacks.

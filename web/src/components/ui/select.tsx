@@ -42,6 +42,11 @@ function SelectTrigger({
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
   size?: "sm" | "default"
 }) {
+  // role=combobox does not take its name from content, so a trigger without any label is announced
+  // anonymously. Let it be named by its own text (the current value) unless the caller supplies a
+  // label: an id (Label htmlFor), aria-label or aria-labelledby.
+  const autoId = React.useId()
+  const selfNamed = !props.id && !props["aria-label"] && !props["aria-labelledby"]
 
   return (
     <SelectPrimitive.Trigger
@@ -52,6 +57,7 @@ function SelectTrigger({
         className
       )}
       {...props}
+      {...(selfNamed ? { id: autoId, "aria-labelledby": autoId } : {})}
     >
       {children}
       <SelectPrimitive.Icon asChild>

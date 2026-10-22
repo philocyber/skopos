@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import Link from "next/link";
@@ -39,6 +35,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { statusMeta } from "@/lib/status";
 import type { ActiveFindingRetest, Finding, FindingStatus, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -148,7 +146,7 @@ export function FindingsTable({
 
   return (
     /* Fixed column widths keep expanded content within the table; narrow screens scroll inside it. */
-    <Table className="min-w-[60rem] table-fixed">
+    <Table className="min-w-[56rem] table-fixed">
       <TableHeader>
         <TableRow>
           <TableHead className="w-8">
@@ -161,11 +159,11 @@ export function FindingsTable({
           <TableHead className="w-8" />
           <TableHead className="w-20">{swt("interface.m0321")}</TableHead>
           <TableHead>{swt("interface.m0322")}</TableHead>
-          <TableHead className="w-44">{swt("interface.m0222")}</TableHead>
-          <TableHead className="w-28">{swt("interface.m0191")}</TableHead>
+          <TableHead className="w-28">{swt("interface.m0222")}</TableHead>
+          <TableHead className="w-36">{swt("interface.m0191")}</TableHead>
           <TableHead className="w-32">{swt("interface.m0323")}</TableHead>
-          <TableHead className="w-24">{swt("interface.m0291")}</TableHead>
-          <TableHead className="w-48">{swt("interface.m0228")}</TableHead>
+          <TableHead className="w-28">{swt("interface.m0291")}</TableHead>
+          <TableHead className="w-44 2xl:w-72">{swt("interface.m0228")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -175,18 +173,7 @@ export function FindingsTable({
           const retest = f.finding_id ? activeRetests[f.finding_id] : undefined;
           return (
             <React.Fragment key={rowKey}>
-              <TableRow
-                className="cursor-pointer"
-                role="button"
-                tabIndex={0}
-                aria-expanded={open}
-                onClick={() => onToggleRow(f)}
-                onKeyDown={(event) => {
-                  if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
-                  event.preventDefault();
-                  onToggleRow(f);
-                }}
-              >
+              <TableRow className="cursor-pointer" onClick={() => onToggleRow(f)}>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   {f.finding_id && (
                     <Checkbox
@@ -196,10 +183,18 @@ export function FindingsTable({
                     />
                   )}
                 </TableCell>
-                <TableCell>
-                  <ChevronRightIcon
-                    className={cn("size-4 text-muted-foreground transition-transform", open && "rotate-90")}
-                  />
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    aria-label={swt("english.e215")}
+                    onClick={() => onToggleRow(f)}
+                    className="inline-flex rounded outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <ChevronRightIcon
+                      className={cn("size-4 text-muted-foreground transition-transform", open && "rotate-90")}
+                    />
+                  </button>
                 </TableCell>
                 <TableCell>
                   <StatusBadge domain="severity" value={f.severity} dot />
@@ -219,7 +214,9 @@ export function FindingsTable({
                       <span className="truncate font-medium">{f.name || f.vulnclass || swt("interface.m0326")}</span>
                     )}
                     <span className="truncate text-xs text-muted-foreground">{f.summary}</span>
-                    <Badge variant="outline">{swt("interface.m0327")}{" "}{f.traffic_count ?? 0} {swt("interface.m0328")}</Badge>
+                    <Badge variant="outline">
+                      {swt("interface.m0327")} {f.traffic_count ?? 0} {swt("interface.m0328")}
+                    </Badge>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -282,18 +279,27 @@ export function FindingsTable({
                       <Button asChild size="sm" variant="ghost">
                         <Link href={`/chat?c=${retest.conversation_id}`} title={swt("interface.m0329")}>
                           <Spinner data-icon="inline-start" />
-                          {swt("interface.m0330")}</Link>
+                          {swt("interface.m0330")}
+                        </Link>
                       </Button>
                     ) : null}
                     {!retest && f.finding_id && !f.inherited ? (
                       <Button size="sm" variant="ghost" onClick={() => onRetest(f)} title={swt("interface.m0331")}>
                         <RotateCcwIcon data-icon="inline-start" />
-                        {swt("interface.m0332")}</Button>
+                        {swt("interface.m0332")}
+                      </Button>
                     ) : null}
                     {f.finding_id && f.task_id && (
-                      <Button size="sm" variant="ghost" onClick={() => onDeepen(f)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onDeepen(f)}
+                        title={swt("interface.m0333")}
+                        aria-label={swt("interface.m0333")}
+                      >
                         <FlaskConicalIcon data-icon="inline-start" />
-                        {swt("interface.m0333")}</Button>
+                        <span className="hidden 2xl:inline">{swt("interface.m0333")}</span>
+                      </Button>
                     )}
                     {f.finding_id && (
                       <AlertDialog>
@@ -315,7 +321,8 @@ export function FindingsTable({
                               <span className="break-all">
                                 {f.name || f.vulnclass || f.summary || `#${f.finding_id}`}
                               </span>
-                              {swt("interface.m0336")}</AlertDialogDescription>
+                              {swt("interface.m0336")}
+                            </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>{swt("interface.m0063")}</AlertDialogCancel>
@@ -376,15 +383,18 @@ export function FindingsTable({
                       )}
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         <ShieldAlertIcon className="size-3.5" />
-                        {swt("interface.m0341")}{" "}{f.vulnclass && (
+                        {swt("interface.m0341")}{" "}
+                        {f.vulnclass && (
                           <span>
-                            {swt("interface.m0342")}<code className="rounded bg-muted px-1.5 py-0.5 font-mono">{f.vulnclass}</code>
+                            {swt("interface.m0342")}
+                            <code className="rounded bg-muted px-1.5 py-0.5 font-mono">{f.vulnclass}</code>
                           </span>
                         )}
                         {f.param_id && <code className="rounded bg-muted px-1.5 py-0.5 font-mono">{f.param_id}</code>}
                         {f.assets && f.assets.length > 0 && (
                           <span className="flex flex-wrap items-center gap-1">
-                            {swt("interface.m0343")}{f.assets.map((a) => (
+                            {swt("interface.m0343")}
+                            {f.assets.map((a) => (
                               <code key={a.id} className="rounded bg-muted px-1.5 py-0.5 font-mono" title={a.type}>
                                 {a.label}
                               </code>
@@ -402,7 +412,8 @@ export function FindingsTable({
                           <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                             <span className="flex items-center gap-2">
                               <FileTextIcon className="size-3.5" />
-                              {swt("interface.m0344")}</span>
+                              {swt("interface.m0344")}
+                            </span>
                             {reports[rowKey]?.status === "done" && reports[rowKey]?.text.trim() && (
                               <CopyButton
                                 text={reports[rowKey]?.text}
@@ -441,7 +452,8 @@ export function FindingsTable({
         {items.length === 0 && (
           <TableRow>
             <TableCell colSpan={COLUMN_COUNT} className="py-12 text-center text-sm text-muted-foreground">
-              {swt("interface.m0348")}</TableCell>
+              {swt("interface.m0348")}
+            </TableCell>
           </TableRow>
         )}
       </TableBody>

@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { BellIcon, PlusIcon, SendIcon, Trash2Icon } from "lucide-react";
@@ -17,6 +15,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { NotificationChannel, NotificationFilter, NotificationMeta } from "@/lib/types";
 
@@ -265,16 +265,15 @@ export default function NotifyPage() {
   }
 
   const fields = CHANNEL_FIELDS[form.kind] ?? [];
-  const secretKeys = new Set(meta?.kinds.find((k) => k.kind === form.kind)?.secret_keys ?? []);
-  const defaultRate = meta?.kinds.find((k) => k.kind === form.kind)?.default_rate_per_min ?? 0;
+  const secretKeys = new Set(meta?.kinds?.find((k) => k.kind === form.kind)?.secret_keys ?? []);
+  const defaultRate = meta?.kinds?.find((k) => k.kind === form.kind)?.default_rate_per_min ?? 0;
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m1541")}</h1>
-          <p className="text-muted-foreground text-sm">
-            {swt("interface.m1542")}</p>
+          <p className="text-muted-foreground text-sm">{swt("interface.m1542")}</p>
         </div>
         {meta && (
           // Use div rather than label because Switch has its own aria-label; an outer label
@@ -293,10 +292,18 @@ export default function NotifyPage() {
 
       {meta && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          <StatTile label={swt("interface.m1524")} value={`${meta.stats.channels_on} / ${meta.stats.channels}`} hint={swt("interface.m1545")} />
+          <StatTile
+            label={swt("interface.m1524")}
+            value={`${meta.stats.channels_on} / ${meta.stats.channels}`}
+            hint={swt("interface.m1545")}
+          />
           <StatTile label={swt("interface.m1546")} value={String(meta.stats.sent_today)} />
           <StatTile label={swt("interface.m1547")} value={String(meta.stats.pending)} />
-          <StatTile label={swt("interface.m0294")} value={String(meta.stats.failed)} tone={meta.stats.failed > 0 ? "red" : undefined} />
+          <StatTile
+            label={swt("interface.m0294")}
+            value={String(meta.stats.failed)}
+            tone={meta.stats.failed > 0 ? "red" : undefined}
+          />
           <StatTile
             label={swt("interface.m1548")}
             value={formatBacklog(meta.stats.backlog_age_ms)}
@@ -337,7 +344,8 @@ export default function NotifyPage() {
           </div>
           <div className="sm:col-span-2">
             <Button onClick={saveGlobal} disabled={globalSaving}>
-              {swt("interface.m1555")}</Button>
+              {swt("interface.m1555")}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -396,7 +404,9 @@ export default function NotifyPage() {
                 <CardContent className="grid gap-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline">{KIND_LABEL[ch.kind] ?? ch.kind}</Badge>
-                    <Badge variant="outline">{ch.mode === "digest" ? swt("interface.m1558") : swt("interface.m0068")}</Badge>
+                    <Badge variant="outline">
+                      {ch.mode === "digest" ? swt("interface.m1558") : swt("interface.m0068")}
+                    </Badge>
                     {!ch.enabled && <Badge variant="outline">{swt("interface.m1069")}</Badge>}
                   </div>
                   <FilterSummary filter={ch.filter} />
@@ -444,10 +454,7 @@ export default function NotifyPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                {editing && (
-                  <p className="text-muted-foreground text-xs">
-                    {swt("interface.m1563")}</p>
-                )}
+                {editing && <p className="text-muted-foreground text-xs">{swt("interface.m1563")}</p>}
               </div>
 
               <div className="grid gap-2">
@@ -461,8 +468,7 @@ export default function NotifyPage() {
               </div>
 
               {fields.length === 0 ? (
-                <p className="text-muted-foreground text-sm">
-                  {swt("interface.m1566")}</p>
+                <p className="text-muted-foreground text-sm">{swt("interface.m1566")}</p>
               ) : (
                 fields.map((d) => (
                   <ConfigField
@@ -486,8 +492,7 @@ export default function NotifyPage() {
                     <SelectItem value="digest">{swt("interface.m1569")}</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1570")}</p>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1570")}</p>
               </div>
 
               <div className="grid gap-2">
@@ -500,8 +505,7 @@ export default function NotifyPage() {
                   value={form.ratePerMin}
                   onChange={(e) => setF({ ratePerMin: e.target.value })}
                 />
-                <p className="text-muted-foreground text-xs">
-                  {swt("interface.m1573")}</p>
+                <p className="text-muted-foreground text-xs">{swt("interface.m1573")}</p>
               </div>
 
               <div className="border-t pt-4">
@@ -533,8 +537,7 @@ export default function NotifyPage() {
                       value={form.includeText}
                       onChange={(e) => setF({ includeText: e.target.value })}
                     />
-                    <p className="text-muted-foreground text-xs">
-                      {swt("interface.m1578")}</p>
+                    <p className="text-muted-foreground text-xs">{swt("interface.m1578")}</p>
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="n-exc">{swt("interface.m1579")}</Label>
@@ -571,13 +574,19 @@ export default function NotifyPage() {
                       onCheckedChange={(v) => setF({ onStatusChange: v })}
                       aria-label={swt("interface.m1585")}
                     />
-                    {swt("interface.m1586")}</div>
+                    {swt("interface.m1586")}
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 text-sm">
-                <Switch checked={form.enabled} onCheckedChange={(v) => setF({ enabled: v })} aria-label={swt("interface.m1174")} />
-                {swt("interface.m1587")}</div>
+                <Switch
+                  checked={form.enabled}
+                  onCheckedChange={(v) => setF({ enabled: v })}
+                  aria-label={swt("interface.m1174")}
+                />
+                {swt("interface.m1587")}
+              </div>
             </div>
 
             <div className="flex gap-2 pt-2 pb-6">
@@ -586,7 +595,8 @@ export default function NotifyPage() {
               </Button>
               {editing && (
                 <Button variant="outline" onClick={testChannel} disabled={testing}>
-                  <SendIcon /> {swt("interface.m1588")}</Button>
+                  <SendIcon /> {swt("interface.m1588")}
+                </Button>
               )}
             </div>
           </div>

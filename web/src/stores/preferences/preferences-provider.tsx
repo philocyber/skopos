@@ -1,10 +1,9 @@
 "use client";
-import { useI18n } from "@/i18n";
-
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 import { type StoreApi, useStore } from "zustand";
 
+import { useI18n } from "@/i18n";
 import { type FontKey, fontRegistry } from "@/lib/fonts/registry";
 import {
   CONTENT_LAYOUT_VALUES,

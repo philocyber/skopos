@@ -1,11 +1,12 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
+
 import { ListTodo } from "lucide-react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { cn } from "@/lib/utils";
 
 // TodoPopover shows the latest TodoWrite state of a session (chat conversation or
@@ -59,14 +60,15 @@ export function TodoPopover({
           type="button"
           disabled={disabled}
           title={disabled ? swt("interface.m2368") : swt("interface.m2369")}
-          className="text-muted-foreground/70 hover:text-primary flex items-center gap-0.5 text-xs disabled:pointer-events-none disabled:opacity-40"
+          className="text-muted-foreground hover:text-primary flex items-center gap-0.5 text-xs disabled:pointer-events-none disabled:opacity-40"
         >
           <ListTodo className="size-3" />
-          {swt("english.e150")}</button>
+          {swt("english.e150")}
+        </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="max-h-80 w-80 overflow-auto p-2">
         <p className="text-muted-foreground px-1 pb-1 text-[11px] font-medium">
-          {swt("interface.m2370")}{" "}{loading ? swt("interface.m2371") : ""}
+          {swt("interface.m2370")} {loading ? swt("interface.m2371") : ""}
         </p>
         {err && <p className="text-destructive px-1 text-xs">{err}</p>}
         {todos && todos.length === 0 && !loading && (
@@ -76,7 +78,10 @@ export function TodoPopover({
           {(todos ?? []).map((t, i) => (
             <li
               key={`${i}:${t.content}`}
-              className={cn("flex gap-1.5 px-1 text-xs", t.status === "completed" && "text-muted-foreground line-through")}
+              className={cn(
+                "flex gap-1.5 px-1 text-xs",
+                t.status === "completed" && "text-muted-foreground line-through",
+              )}
             >
               <span className="shrink-0">{MARK[t.status] ?? "☐"}</span>
               <span className="break-words">{t.content}</span>

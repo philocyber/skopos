@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { toast } from "sonner";
@@ -17,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { auth } from "@/lib/auth";
 
@@ -73,7 +73,10 @@ export function ChangePasswordDialog({
           <DialogHeader>
             <DialogTitle>{swt("interface.m0053")}</DialogTitle>
             <DialogDescription>
-              {swt("interface.m0059")}<b>SKOPOS</b>{swt("interface.m0060")}</DialogDescription>
+              {swt("interface.m0059")}
+              <b>SKOPOS</b>
+              {swt("interface.m0060")}
+            </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-4">
             <div className="flex flex-col gap-1.5">
@@ -112,7 +115,8 @@ export function ChangePasswordDialog({
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
             <Button type="submit" disabled={saving}>
               {saving ? swt("interface.m0064") : swt("interface.m0065")}
             </Button>

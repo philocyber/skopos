@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import Link from "next/link";
@@ -48,6 +44,7 @@ import {
 import { toast } from "sonner";
 
 import { AssetInterceptRulesEditor } from "@/components/asset-intercept-rules-editor";
+import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { TablePagination } from "@/components/table-pagination";
 import { TaskLLMProfileChain } from "@/components/task-llm-profile-chain";
@@ -121,6 +118,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { pollWhileVisible } from "@/hooks/use-polling";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 import { type SortDirection, useStoredSortPreference } from "@/lib/sort-preference";
@@ -232,13 +232,48 @@ function fmtDateTime(unix?: number): string {
 }
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
-  { value: "created", get label() { return swt("interface.m0826"); } },
-  { value: "queued", get label() { return swt("interface.m0827"); } },
-  { value: "running", get label() { return swt("interface.m0096"); } },
-  { value: "paused", get label() { return swt("interface.m0564"); } },
-  { value: "done", get label() { return swt("interface.m0809"); } },
-  { value: "failed", get label() { return swt("interface.m0294"); } },
-  { value: "timeout", get label() { return swt("interface.m0828"); } },
+  {
+    value: "created",
+    get label() {
+      return swt("interface.m0826");
+    },
+  },
+  {
+    value: "queued",
+    get label() {
+      return swt("interface.m0827");
+    },
+  },
+  {
+    value: "running",
+    get label() {
+      return swt("interface.m0096");
+    },
+  },
+  {
+    value: "paused",
+    get label() {
+      return swt("interface.m0564");
+    },
+  },
+  {
+    value: "done",
+    get label() {
+      return swt("interface.m0809");
+    },
+  },
+  {
+    value: "failed",
+    get label() {
+      return swt("interface.m0294");
+    },
+  },
+  {
+    value: "timeout",
+    get label() {
+      return swt("interface.m0828");
+    },
+  },
 ];
 
 // Select rejects empty values. Use this shared uncategorized sentinel in filters, creation, and bulk move,
@@ -489,8 +524,8 @@ export default function TasksPage() {
   React.useEffect(() => {
     load();
     loadCategories();
-    const i = setInterval(load, POLL_MS);
-    return () => clearInterval(i);
+    const i = pollWhileVisible(load, POLL_MS);
+    return () => i();
   }, [load, loadCategories]);
 
   const refreshCategoriesAndTasks = React.useCallback(() => {
@@ -527,8 +562,8 @@ export default function TasksPage() {
   React.useEffect(() => {
     if (!hasRunning) return;
     setNowSec(Math.floor(Date.now() / 1000));
-    const i = setInterval(() => setNowSec(Math.floor(Date.now() / 1000)), 1000);
-    return () => clearInterval(i);
+    const i = pollWhileVisible(() => setNowSec(Math.floor(Date.now() / 1000)), 1000);
+    return () => i();
   }, [hasRunning]);
 
   const deleteTask = React.useCallback(
@@ -557,10 +592,17 @@ export default function TasksPage() {
       try {
         const result = await api.controlTask(id, action);
         toast.success(
-          action === "pause" ? swt("interface.m0830", { p0: id }) : swt("interface.m0831", { p0: id, p1: result.queued ? swt("interface.m0832") : "" }),
+          action === "pause"
+            ? swt("interface.m0830", { p0: id })
+            : swt("interface.m0831", { p0: id, p1: result.queued ? swt("interface.m0832") : "" }),
         );
       } catch (e) {
-        toast.error(swt("interface.m0116", { p0: action === "pause" ? swt("interface.m0151") : swt("interface.m0833"), p1: (e as Error).message }));
+        toast.error(
+          swt("interface.m0116", {
+            p0: action === "pause" ? swt("interface.m0151") : swt("interface.m0833"),
+            p1: (e as Error).message,
+          }),
+        );
       } finally {
         // Refresh on success or failure; failures often mean state changed and controls need reconciliation.
         lastRef.current = "";
@@ -594,7 +636,12 @@ export default function TasksPage() {
         lastRef.current = "";
         load();
       } catch (error) {
-        toast.error(swt("interface.m0116", { p0: pinned ? swt("interface.m0099") : swt("interface.m0100"), p1: (error as Error).message }));
+        toast.error(
+          swt("interface.m0116", {
+            p0: pinned ? swt("interface.m0099") : swt("interface.m0100"),
+            p1: (error as Error).message,
+          }),
+        );
         throw error;
       }
     },
@@ -657,7 +704,8 @@ export default function TasksPage() {
           return next;
         });
         const details = deleteDetails(total);
-        const summary = swt("interface.m0839", { p0: deleted.length }) + (details.length > 0 ? `（${details.join("，")}）` : "");
+        const summary =
+          swt("interface.m0839", { p0: deleted.length }) + (details.length > 0 ? `（${details.join("，")}）` : "");
         if (warnings.length > 0) {
           toast.warning(swt("interface.m0829", { p0: summary, p1: warnings.join("；") }));
         } else {
@@ -669,14 +717,19 @@ export default function TasksPage() {
           .slice(0, 3)
           .map((f) => `#${f.id}（${f.message}）`)
           .join("；");
-        toast.error(swt("interface.m0840", { p0: failed.length, p1: head, p2: failed.length > 3 ? swt("interface.m0114") : "" }));
+        toast.error(
+          swt("interface.m0840", { p0: failed.length, p1: head, p2: failed.length > 3 ? swt("interface.m0114") : "" }),
+        );
       }
       load();
     },
     [swLocale, load],
   );
 
-  const selectedTasks = React.useMemo(() => tasks.filter((task) => selectedIds.has(task.id)), [swLocale, tasks, selectedIds]);
+  const selectedTasks = React.useMemo(
+    () => tasks.filter((task) => selectedIds.has(task.id)),
+    [swLocale, tasks, selectedIds],
+  );
   const pausableTaskIDs = React.useMemo(
     () => selectedTasks.filter((task) => taskControlAction(task.status) === "pause").map((task) => task.id),
     [swLocale, selectedTasks],
@@ -698,10 +751,13 @@ export default function TasksPage() {
     if (succeeded.length > 0) toast.success(swt("interface.m0841", { p0: succeeded.length }));
     if (failed.length > 0) {
       toast.error(
-        swt("interface.m0842", { p0: failed.length, p1: failed
-          .slice(0, 3)
-          .map((item) => `#${item.id}（${item.error || swt("interface.m0843")}）`)
-          .join("；") }),
+        swt("interface.m0842", {
+          p0: failed.length,
+          p1: failed
+            .slice(0, 3)
+            .map((item) => `#${item.id}（${item.error || swt("interface.m0843")}）`)
+            .join("；"),
+        }),
       );
     }
     setSelectedIds(new Set());
@@ -726,7 +782,10 @@ export default function TasksPage() {
           toast.success(
             action === "pause"
               ? swt("interface.m0845", { p0: succeeded.length })
-              : swt("interface.m0846", { p0: succeeded.length, p1: succeeded.some((item) => item.queued) ? swt("interface.m0847") : "" }),
+              : swt("interface.m0846", {
+                  p0: succeeded.length,
+                  p1: succeeded.some((item) => item.queued) ? swt("interface.m0847") : "",
+                }),
           );
         }
         if (failed.length > 0) {
@@ -734,12 +793,23 @@ export default function TasksPage() {
             .slice(0, 3)
             .map((item) => `#${item.id}（${item.error || swt("interface.m0843")}）`)
             .join("；");
-          toast.error(swt("interface.m0848", { p0: failed.length, p1: details, p2: failed.length > 3 ? swt("interface.m0114") : "" }));
+          toast.error(
+            swt("interface.m0848", {
+              p0: failed.length,
+              p1: details,
+              p2: failed.length > 3 ? swt("interface.m0114") : "",
+            }),
+          );
         }
         lastRef.current = "";
         load();
       } catch (error) {
-        toast.error(swt("interface.m0116", { p0: action === "pause" ? swt("interface.m0849") : swt("interface.m0850"), p1: (error as Error).message }));
+        toast.error(
+          swt("interface.m0116", {
+            p0: action === "pause" ? swt("interface.m0849") : swt("interface.m0850"),
+            p1: (error as Error).message,
+          }),
+        );
       } finally {
         setBatchControlling(null);
       }
@@ -771,7 +841,13 @@ export default function TasksPage() {
             .slice(0, 3)
             .map((item) => `#${item.id}（${item.error || swt("interface.m0853")}）`)
             .join("；");
-          toast.error(swt("interface.m0854", { p0: failed.length, p1: details, p2: failed.length > 3 ? swt("interface.m0114") : "" }));
+          toast.error(
+            swt("interface.m0854", {
+              p0: failed.length,
+              p1: details,
+              p2: failed.length > 3 ? swt("interface.m0114") : "",
+            }),
+          );
         }
         refreshCategoriesAndTasks();
       } catch (error) {
@@ -784,123 +860,13 @@ export default function TasksPage() {
   );
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-4">
-      <TabsList className="mx-4 lg:mx-6">
-        <TabsTrigger value="current">{swt("interface.m0856")}</TabsTrigger>
-        <TabsTrigger value="archived">{swt("interface.m0857")}</TabsTrigger>
-      </TabsList>
-      <TabsContent value="current">
-        <Card>
-          <CardContent className="flex flex-col gap-4 px-0 pt-6">
-            <div className="flex flex-wrap items-center gap-2 px-4 lg:px-6">
-              <div className="relative w-full sm:max-w-xs">
-                <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-                <Input
-                  placeholder={swt("interface.m0858")}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="pl-8"
-                />
-                {query && (
-                  <button
-                    type="button"
-                    onClick={() => setQuery("")}
-                    aria-label={swt("interface.m0859")}
-                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                  >
-                    <XIcon className="size-4" />
-                  </button>
-                )}
-              </div>
-              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as TaskStatus | "all")}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder={swt("interface.m0191")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="all">{swt("interface.m0391")}</SelectItem>
-                    {STATUS_OPTIONS.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>
-                        {s.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder={swt("interface.m0860")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="all">{swt("interface.m0861")}</SelectItem>
-                    <SelectItem value={UNCATEGORIZED_VALUE}>{swt("interface.m0326")}</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={String(category.id)}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <span className="text-muted-foreground text-xs tabular-nums">
-                {filtered.length}/{tasks.length} {swt("interface.m0328")}</span>
-              {selectedIds.size > 0 && (
-                <>
-                  <span className="text-xs tabular-nums">{swt("interface.m0398")}{" "}{selectedIds.size} {swt("interface.m0862")}</span>
-                  <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>
-                    {swt("interface.m0863")}</Button>
-                  {pausableTaskIDs.length > 0 && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={batchControlling !== null}
-                      onClick={() => void controlSelectedTasks("pause", pausableTaskIDs)}
-                    >
-                      {batchControlling === "pause" ? (
-                        <Spinner data-icon="inline-start" />
-                      ) : (
-                        <PauseIcon data-icon="inline-start" />
-                      )}
-                      {swt("interface.m0151")}{" "}{pausableTaskIDs.length}
-                    </Button>
-                  )}
-                  {resumableTaskIDs.length > 0 && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={batchControlling !== null}
-                      onClick={() => void controlSelectedTasks("resume", resumableTaskIDs)}
-                    >
-                      {batchControlling === "resume" ? (
-                        <Spinner data-icon="inline-start" />
-                      ) : (
-                        <PlayIcon data-icon="inline-start" />
-                      )}
-                      {swt("interface.m0833")}{" "}{resumableTaskIDs.length}
-                    </Button>
-                  )}
-                  {archivableTaskIDs.length > 0 && (
-                    <ArchiveConfirmDialog
-                      count={archivableTaskIDs.length}
-                      onConfirm={archiveSelectedTasks}
-                      trigger={
-                        <Button size="sm" variant="outline">
-                          <ArchiveIcon data-icon="inline-start" />
-                          {swt("interface.m0864")}{" "}{archivableTaskIDs.length}
-                        </Button>
-                      }
-                    />
-                  )}
-                  <MoveTasksCategoryDialog
-                    categories={categories}
-                    count={selectedIds.size}
-                    moving={movingCategory}
-                    onMove={moveSelectedTasksCategory}
-                  />
-                  <BulkDeleteTasksDialog ids={[...selectedIds]} onDelete={deleteTasks} />
-                </>
-              )}
+    <div className="flex flex-col gap-4">
+      <PageHeader
+        title={swt("interface.m0190")}
+        description={swt("english.e201")}
+        actions={
+          activeTab === "current" && (
+            <>
               <ConcurrencySettingsDialog />
               <CategoryManagementSheet
                 categories={categories}
@@ -914,106 +880,242 @@ export default function TasksPage() {
                 onCreated={refreshCategoriesAndTasks}
                 onCategoriesChanged={refreshCategoriesAndTasks}
               />
-            </div>
-
-            {tasks.length === 0 ? (
-              <div className="text-muted-foreground mx-4 flex items-center justify-center rounded-lg border border-dashed py-20 text-sm lg:mx-6">
-                {swt("interface.m0865")}</div>
-            ) : filtered.length === 0 ? (
-              <div className="text-muted-foreground mx-4 flex items-center justify-center rounded-lg border border-dashed py-20 text-sm lg:mx-6">
-                {swt("interface.m0866")}</div>
-            ) : (
-              <Table className="**:data-[slot='table-cell']:px-3 **:data-[slot='table-head']:px-3">
-                <TableHeader className="[&_tr]:border-t">
-                  <TableRow>
-                    <TableHead className="w-10">
-                      <Checkbox
-                        checked={headerChecked}
-                        onCheckedChange={(checked) => toggleSelectedPage(checked === true)}
-                        aria-label={swt("interface.m0867")}
+            </>
+          )
+        }
+      />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-4">
+        <TabsList>
+          <TabsTrigger value="current">{swt("interface.m0856")}</TabsTrigger>
+          <TabsTrigger value="archived">{swt("interface.m0857")}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="current">
+          <Card>
+            <CardContent className="flex flex-col gap-4 px-0 pt-6">
+              <div className="flex flex-wrap items-center gap-2 px-4 lg:px-6">
+                <div className="relative w-full sm:max-w-xs">
+                  <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+                  <Input
+                    placeholder={swt("interface.m0858")}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="pl-8"
+                  />
+                  {query && (
+                    <button
+                      type="button"
+                      onClick={() => setQuery("")}
+                      aria-label={swt("interface.m0859")}
+                      className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                    >
+                      <XIcon className="size-4" />
+                    </button>
+                  )}
+                </div>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as TaskStatus | "all")}>
+                  <SelectTrigger className="w-36">
+                    <SelectValue placeholder={swt("interface.m0191")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="all">{swt("interface.m0391")}</SelectItem>
+                      {STATUS_OPTIONS.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>
+                          {s.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder={swt("interface.m0860")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="all">{swt("interface.m0861")}</SelectItem>
+                      <SelectItem value={UNCATEGORIZED_VALUE}>{swt("interface.m0326")}</SelectItem>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={String(category.id)}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <span className="text-muted-foreground text-xs tabular-nums">
+                  {filtered.length}/{tasks.length} {swt("interface.m0328")}
+                </span>
+                {selectedIds.size > 0 && (
+                  <>
+                    <span className="text-xs tabular-nums">
+                      {swt("interface.m0398")} {selectedIds.size} {swt("interface.m0862")}
+                    </span>
+                    <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>
+                      {swt("interface.m0863")}
+                    </Button>
+                    {pausableTaskIDs.length > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={batchControlling !== null}
+                        onClick={() => void controlSelectedTasks("pause", pausableTaskIDs)}
+                      >
+                        {batchControlling === "pause" ? (
+                          <Spinner data-icon="inline-start" />
+                        ) : (
+                          <PauseIcon data-icon="inline-start" />
+                        )}
+                        {swt("interface.m0151")} {pausableTaskIDs.length}
+                      </Button>
+                    )}
+                    {resumableTaskIDs.length > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={batchControlling !== null}
+                        onClick={() => void controlSelectedTasks("resume", resumableTaskIDs)}
+                      >
+                        {batchControlling === "resume" ? (
+                          <Spinner data-icon="inline-start" />
+                        ) : (
+                          <PlayIcon data-icon="inline-start" />
+                        )}
+                        {swt("interface.m0833")} {resumableTaskIDs.length}
+                      </Button>
+                    )}
+                    {archivableTaskIDs.length > 0 && (
+                      <ArchiveConfirmDialog
+                        count={archivableTaskIDs.length}
+                        onConfirm={archiveSelectedTasks}
+                        trigger={
+                          <Button size="sm" variant="outline">
+                            <ArchiveIcon data-icon="inline-start" />
+                            {swt("interface.m0864")} {archivableTaskIDs.length}
+                          </Button>
+                        }
                       />
-                    </TableHead>
-                    <SortableTaskHead
-                      field="id"
-                      label="ID"
-                      activeField={sortField}
-                      direction={sortDirection}
-                      className="font-mono"
-                      onSort={sortTasksBy}
+                    )}
+                    <MoveTasksCategoryDialog
+                      categories={categories}
+                      count={selectedIds.size}
+                      moving={movingCategory}
+                      onMove={moveSelectedTasksCategory}
                     />
-                    <TableHead>{swt("interface.m0868")}</TableHead>
-                    <TableHead>{swt("interface.m0605")}</TableHead>
-                    <TableHead>{swt("interface.m0523")}</TableHead>
-                    <SortableTaskHead
-                      field="status"
-                      label={swt("interface.m0191")}
-                      activeField={sortField}
-                      direction={sortDirection}
-                      onSort={sortTasksBy}
-                    />
-                    <TableHead className="text-center">{swt("interface.m0193")}</TableHead>
-                    <TableHead className="text-center" title={swt("interface.m0869")}>
-                      <span className="block">{swt("interface.m0188")}</span><span className="block text-muted-foreground text-[10px] font-normal">{swt("interface.m0870")}</span>
-                    </TableHead>
-                    <TableHead className="text-center">{swt("interface.m0642")}</TableHead>
-                    <SortableTaskHead
-                      field="created"
-                      label={swt("interface.m0871")}
-                      activeField={sortField}
-                      direction={sortDirection}
-                      align="right"
-                      onSort={sortTasksBy}
-                    />
-                    <SortableTaskHead
-                      field="duration"
-                      label={swt("interface.m0872")}
-                      activeField={sortField}
-                      direction={sortDirection}
-                      align="right"
-                      onSort={sortTasksBy}
-                    />
-                    <TableHead className="text-right">{swt("english.e077")}</TableHead>
-                    <TableHead className="sticky right-0 z-10 bg-card text-right shadow-[-1px_0_0_0_hsl(var(--border))]">
-                      {swt("interface.m0228")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginated.map((task) => (
-                    <TaskRow
-                      key={task.id}
-                      task={task}
-                      // Only running rows receive nowSec; others get 0 so stable props let memo avoid
-                      // whole-table per-second rerenders while active rows update duration.
-                      nowSec={task.status === "running" ? nowSec : 0}
-                      onDelete={deleteTask}
-                      onControl={controlTask}
-                      onRename={renameTask}
-                      onTogglePinned={toggleTaskPinned}
-                      onArchive={queueTaskArchive}
-                      selected={selectedIds.has(task.id)}
-                      onSelectedChange={toggleSelected}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-            <TablePagination
-              page={page}
-              pageSize={pageSize}
-              total={filtered.length}
-              onPageChange={setPage}
-              onPageSizeChange={(nextPageSize) => {
-                setPageSize(nextPageSize);
-                setPage(1);
-              }}
-            />
-          </CardContent>
-        </Card>
-      </TabsContent>
-      <TabsContent value="archived">
-        <TaskArchivesPanel onChanged={load} />
-      </TabsContent>
-    </Tabs>
+                    <BulkDeleteTasksDialog ids={[...selectedIds]} onDelete={deleteTasks} />
+                  </>
+                )}
+              </div>
+
+              {tasks.length === 0 ? (
+                <div className="text-muted-foreground mx-4 flex items-center justify-center rounded-lg border border-dashed py-20 text-sm lg:mx-6">
+                  {swt("interface.m0865")}
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="text-muted-foreground mx-4 flex items-center justify-center rounded-lg border border-dashed py-20 text-sm lg:mx-6">
+                  {swt("interface.m0866")}
+                </div>
+              ) : (
+                <Table className="**:data-[slot='table-cell']:px-2 **:data-[slot='table-head']:px-2">
+                  <TableHeader className="[&_tr]:border-t">
+                    <TableRow>
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={headerChecked}
+                          onCheckedChange={(checked) => toggleSelectedPage(checked === true)}
+                          aria-label={swt("interface.m0867")}
+                        />
+                      </TableHead>
+                      <SortableTaskHead
+                        field="id"
+                        label="ID"
+                        activeField={sortField}
+                        direction={sortDirection}
+                        className="font-mono"
+                        onSort={sortTasksBy}
+                      />
+                      <TableHead>{swt("interface.m0868")}</TableHead>
+                      <TableHead>{swt("interface.m0605")}</TableHead>
+                      <TableHead className="hidden min-[1440px]:table-cell">{swt("interface.m0523")}</TableHead>
+                      <SortableTaskHead
+                        field="status"
+                        label={swt("interface.m0191")}
+                        activeField={sortField}
+                        direction={sortDirection}
+                        onSort={sortTasksBy}
+                      />
+                      <TableHead className="w-20 whitespace-normal text-center leading-tight">
+                        {swt("interface.m0193")}
+                      </TableHead>
+                      <TableHead className="text-center" title={swt("interface.m0869")}>
+                        <span className="block">{swt("interface.m0188")}</span>
+                        <span className="block text-muted-foreground text-[10px] font-normal">
+                          {swt("interface.m0870")}
+                        </span>
+                      </TableHead>
+                      <TableHead className="hidden text-center 2xl:table-cell">{swt("interface.m0642")}</TableHead>
+                      <SortableTaskHead
+                        field="created"
+                        label={swt("interface.m0871")}
+                        activeField={sortField}
+                        direction={sortDirection}
+                        align="right"
+                        onSort={sortTasksBy}
+                      />
+                      <SortableTaskHead
+                        field="duration"
+                        label={swt("interface.m0872")}
+                        activeField={sortField}
+                        direction={sortDirection}
+                        align="right"
+                        onSort={sortTasksBy}
+                      />
+                      <TableHead className="hidden text-right 2xl:table-cell" title={swt("english.e052")}>
+                        {swt("english.e077")}
+                      </TableHead>
+                      <TableHead className="sticky right-0 z-10 bg-card text-right shadow-[-1px_0_0_0_hsl(var(--border))]">
+                        {swt("interface.m0228")}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginated.map((task) => (
+                      <TaskRow
+                        key={task.id}
+                        task={task}
+                        // Only running rows receive nowSec; others get 0 so stable props let memo avoid
+                        // whole-table per-second rerenders while active rows update duration.
+                        nowSec={task.status === "running" ? nowSec : 0}
+                        onDelete={deleteTask}
+                        onControl={controlTask}
+                        onRename={renameTask}
+                        onTogglePinned={toggleTaskPinned}
+                        onArchive={queueTaskArchive}
+                        selected={selectedIds.has(task.id)}
+                        onSelectedChange={toggleSelected}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+              <TablePagination
+                page={page}
+                pageSize={pageSize}
+                total={filtered.length}
+                onPageChange={setPage}
+                onPageSizeChange={(nextPageSize) => {
+                  setPageSize(nextPageSize);
+                  setPage(1);
+                }}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="archived">
+          <TaskArchivesPanel onChanged={load} />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
 
@@ -1050,7 +1152,11 @@ function SortableTaskHead({
   if (active) ariaSort = direction === "asc" ? "ascending" : "descending";
 
   let actionLabel = swt("interface.m0873", { p0: label });
-  if (active) actionLabel = swt("interface.m0874", { p0: label, p1: direction === "asc" ? swt("interface.m0594") : swt("interface.m0595") });
+  if (active)
+    actionLabel = swt("interface.m0874", {
+      p0: label,
+      p1: direction === "asc" ? swt("interface.m0594") : swt("interface.m0595"),
+    });
 
   return (
     <TableHead className={className} aria-sort={ariaSort}>
@@ -1113,13 +1219,13 @@ function ConcurrencySettingsDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline" className="ml-auto" aria-label={swt("interface.m0877")}>
-          <SlidersHorizontalIcon /> {swt("interface.m0878")}</Button>
+          <SlidersHorizontalIcon /> {swt("interface.m0878")}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{swt("interface.m0879")}</DialogTitle>
-          <DialogDescription>
-            {swt("interface.m0880")}</DialogDescription>
+          <DialogDescription>{swt("interface.m0880")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-5 py-2">
           <div className="flex items-center justify-between gap-4">
@@ -1149,7 +1255,8 @@ function ConcurrencySettingsDialog() {
             <Button variant="outline">{swt("interface.m0063")}</Button>
           </DialogClose>
           <Button onClick={save} disabled={loading || saving}>
-            {saving && <Loader2Icon className="animate-spin" />} {swt("interface.m0273")}</Button>
+            {saving && <Loader2Icon className="animate-spin" />} {swt("interface.m0273")}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1197,13 +1304,15 @@ const TaskRow = React.memo(function TaskRow({
         <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">{task.id}</code>
       </TableCell>
       <TableCell className="font-medium">
-        <div className="flex max-w-xs items-center gap-2">
+        <div className="flex max-w-48 items-center gap-2">
           <TaskNameEditor task={task} onRename={onRename} />
-          {task.active && <StarIcon className="size-4 shrink-0 fill-amber-400 text-amber-400" />}
-          {taskIsPinned(task) && <PinIcon className="text-primary size-4 shrink-0" aria-label={swt("interface.m0094")} />}
+          {task.active && <StarIcon className="size-4 shrink-0 fill-amber-400 text-amber-700 dark:text-amber-400" />}
+          {taskIsPinned(task) && (
+            <PinIcon className="text-primary size-4 shrink-0" aria-label={swt("interface.m0094")} />
+          )}
         </div>
       </TableCell>
-      <TableCell className="text-muted-foreground max-w-40">
+      <TableCell className="max-w-24 text-muted-foreground min-[1440px]:max-w-32">
         <Link
           href={`/function/tasks/detail?id=${encodeURIComponent(task.id)}`}
           className="block truncate rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -1212,7 +1321,7 @@ const TaskRow = React.memo(function TaskRow({
           {task.description}
         </Link>
       </TableCell>
-      <TableCell className="text-muted-foreground max-w-40 truncate" title={task.goal}>
+      <TableCell className="hidden max-w-32 truncate text-muted-foreground min-[1440px]:table-cell" title={task.goal}>
         {task.goal}
       </TableCell>
       <TableCell>
@@ -1230,23 +1339,21 @@ const TaskRow = React.memo(function TaskRow({
           const f = task.findings;
           const total = f ? f.critical + f.high + f.medium + f.low : 0;
           if (!f || total === 0) return <span className="text-muted-foreground">0</span>;
-          const seg = (n: number, cls: string) => (
-            <span className={n > 0 ? cls : "text-muted-foreground"}>{n}</span>
-          );
+          const seg = (n: number, cls: string) => <span className={n > 0 ? cls : "text-muted-foreground"}>{n}</span>;
           return (
             <span className="font-medium whitespace-nowrap" title={swt("interface.m0869")}>
               {seg(f.critical, "text-rose-600 dark:text-rose-400")}
               <span className="text-muted-foreground">/</span>
               {seg(f.high, "text-red-600 dark:text-red-400")}
               <span className="text-muted-foreground">/</span>
-              {seg(f.medium, "text-amber-600 dark:text-amber-400")}
+              {seg(f.medium, "text-amber-700 dark:text-amber-400")}
               <span className="text-muted-foreground">/</span>
               {seg(f.low, "text-slate-600 dark:text-slate-400")}
             </span>
           );
         })()}
       </TableCell>
-      <TableCell className="text-center text-xs tabular-nums">
+      <TableCell className="hidden text-center text-xs tabular-nums 2xl:table-cell">
         {task.in_flight && task.in_flight > 0 ? (
           <span className="text-foreground font-medium">{task.in_flight}</span>
         ) : (
@@ -1268,16 +1375,20 @@ const TaskRow = React.memo(function TaskRow({
         })()}
       </TableCell>
       <TableCell
-        className="text-right text-xs whitespace-nowrap tabular-nums"
+        className="hidden text-right text-xs whitespace-nowrap tabular-nums 2xl:table-cell"
         title={
           task.tokens
-            ? swt("interface.m0885", { p0: task.tokens.input_tokens, p1: task.tokens.cache_read_tokens, p2: task.tokens.output_tokens })
+            ? swt("interface.m0885", {
+                p0: task.tokens.input_tokens,
+                p1: task.tokens.cache_read_tokens,
+                p2: task.tokens.output_tokens,
+              })
             : undefined
         }
       >
         {task.tokens ? (
           <span className="text-muted-foreground">
-            {swt("interface.m0164")}{" "}<span className="text-foreground">{fmtTokens(task.tokens.input_tokens)}</span>
+            <span className="text-foreground">{fmtTokens(task.tokens.input_tokens)}</span>
             {swt("interface.m0886")}
             <span className="text-foreground">{fmtTokens(task.tokens.cache_read_tokens)}</span>
             {swt("interface.m0887")}
@@ -1289,7 +1400,13 @@ const TaskRow = React.memo(function TaskRow({
       </TableCell>
       <TableCell className="sticky right-0 z-10 bg-card text-right shadow-[-1px_0_0_0_hsl(var(--border))] group-hover:bg-muted/50">
         <div className="flex items-center justify-end gap-0.5">
-          <Button size="icon" variant="ghost" asChild aria-label={swt("interface.m0888")} title={swt("interface.m0888")}>
+          <Button
+            size="icon"
+            variant="ghost"
+            asChild
+            aria-label={swt("interface.m0888")}
+            title={swt("interface.m0888")}
+          >
             <Link href={`/function/tasks/detail?id=${encodeURIComponent(task.id)}`}>
               <EyeIcon />
             </Link>
@@ -1508,9 +1625,10 @@ function ArchiveConfirmDialog({
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{count === 1 ? swt("interface.m0812") : swt("interface.m0898", { p0: count })}</AlertDialogTitle>
-          <AlertDialogDescription className="[overflow-wrap:anywhere]">
-            {swt("interface.m0899")}</AlertDialogDescription>
+          <AlertDialogTitle>
+            {count === 1 ? swt("interface.m0812") : swt("interface.m0898", { p0: count })}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="[overflow-wrap:anywhere]">{swt("interface.m0899")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>{swt("interface.m0063")}</AlertDialogCancel>
@@ -1528,7 +1646,8 @@ function ArchiveConfirmDialog({
             }}
           >
             {pending && <Spinner data-icon="inline-start" />}
-            {swt("interface.m0815")}</AlertDialogAction>
+            {swt("interface.m0815")}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -1642,9 +1761,13 @@ function ArchiveDeleteDialog({
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{swt("interface.m0911")}{" "}{archives.length} {swt("interface.m0912")}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {swt("interface.m0911")} {archives.length} {swt("interface.m0912")}
+          </AlertDialogTitle>
           <AlertDialogDescription className="[overflow-wrap:anywhere]">
-            {swt("interface.m0913")}{" "}{formatArchiveBytes(bytes)} {swt("interface.m0914")}{" "}{rows.toLocaleString(getIntlLocale())} {swt("interface.m0915")}</AlertDialogDescription>
+            {swt("interface.m0913")} {formatArchiveBytes(bytes)} {swt("interface.m0914")}{" "}
+            {rows.toLocaleString(getIntlLocale())} {swt("interface.m0915")}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>{swt("interface.m0063")}</AlertDialogCancel>
@@ -1663,7 +1786,8 @@ function ArchiveDeleteDialog({
             }}
           >
             {pending && <Spinner data-icon="inline-start" />}
-            {swt("interface.m0911")}</AlertDialogAction>
+            {swt("interface.m0911")}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -1719,8 +1843,8 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
 
   React.useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), 2_000);
-    return () => clearInterval(timer);
+    const timer = pollWhileVisible(() => void load(), 2_000);
+    return () => timer();
   }, [load]);
 
   const selectable = React.useMemo(
@@ -1855,14 +1979,18 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
               </SelectGroup>
             </SelectContent>
           </Select>
-          <span className="text-muted-foreground text-xs tabular-nums">{total} {swt("interface.m0927")}</span>
+          <span className="text-muted-foreground text-xs tabular-nums">
+            {total} {swt("interface.m0927")}
+          </span>
           {selectedArchives.length > 0 && (
             <>
-              <span className="text-xs tabular-nums">{swt("interface.m0398")}{" "}{selectedArchives.length} {swt("interface.m0862")}</span>
+              <span className="text-xs tabular-nums">
+                {swt("interface.m0398")} {selectedArchives.length} {swt("interface.m0862")}
+              </span>
               {restorable.length > 0 && (
                 <Button size="sm" variant="outline" onClick={() => void restoreMany(restorable)}>
                   <Undo2Icon data-icon="inline-start" />
-                  {swt("interface.m0928")}{" "}{restorable.length}
+                  {swt("interface.m0928")} {restorable.length}
                 </Button>
               )}
               {deletable.length > 0 && (
@@ -1872,7 +2000,7 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
                   trigger={
                     <Button size="sm" variant="destructive">
                       <Trash2Icon data-icon="inline-start" />
-                      {swt("interface.m0911")}{" "}{deletable.length}
+                      {swt("interface.m0911")} {deletable.length}
                     </Button>
                   }
                 />
@@ -1939,7 +2067,9 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
                     <TableCell className="max-w-sm">
                       <div className="flex min-w-0 flex-col gap-0.5">
                         <span className="truncate font-medium">
-                          {archive.task_name || archive.task_description || swt("interface.m0401", { p0: archive.task_id })}
+                          {archive.task_name ||
+                            archive.task_description ||
+                            swt("interface.m0401", { p0: archive.task_id })}
                         </span>
                         <span className="text-muted-foreground truncate text-xs">
                           #{archive.task_id} · {archive.task_description}
@@ -1949,7 +2079,9 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
                     <TableCell>
                       <StatusBadge domain="task" value={archive.original_status} dot />
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{archive.category_name || swt("interface.m0326")}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {archive.category_name || swt("interface.m0326")}
+                    </TableCell>
                     <TableCell className="text-muted-foreground whitespace-nowrap text-xs">
                       {archiveDate(archive.archived_at || archive.requested_at)}
                     </TableCell>
@@ -1959,7 +2091,9 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
                     >
                       {archiveCompressionLabel(archive)}
                     </TableCell>
-                    <TableCell className="text-xs tabular-nums">{archiveDataTotal(archive).toLocaleString(getIntlLocale())}</TableCell>
+                    <TableCell className="text-xs tabular-nums">
+                      {archiveDataTotal(archive).toLocaleString(getIntlLocale())}
+                    </TableCell>
                     <TableCell>
                       <div className="flex min-w-0 flex-col gap-1.5">
                         <ArchiveStateBadge state={archive.state} />
@@ -2009,7 +2143,12 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
                             archives={[archive]}
                             onConfirm={() => deleteMany([archive])}
                             trigger={
-                              <Button size="icon" variant="ghost" aria-label={swt("interface.m0940")} title={swt("interface.m0911")}>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                aria-label={swt("interface.m0940")}
+                                title={swt("interface.m0911")}
+                              >
                                 <Trash2Icon />
                               </Button>
                             }
@@ -2207,7 +2346,10 @@ function DeleteTaskDialog({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{swt("interface.m0955")}{task.id}？</AlertDialogTitle>
+          <AlertDialogTitle>
+            {swt("interface.m0955")}
+            {task.id}？
+          </AlertDialogTitle>
           <AlertDialogDescription className="break-words">
             {task.description ? (
               <>
@@ -2220,7 +2362,8 @@ function DeleteTaskDialog({
             ) : (
               swt("interface.m0956")
             )}
-            {swt("interface.m0957")}</AlertDialogDescription>
+            {swt("interface.m0957")}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <DeleteOptionFields idPrefix={task.id} options={options} onOptionsChange={setOptions} disabled={deleting} />
         <AlertDialogFooter>
@@ -2275,11 +2418,14 @@ function MoveTasksCategoryDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
-          <FolderInputIcon data-icon="inline-start" /> {swt("interface.m0958")}</Button>
+          <FolderInputIcon data-icon="inline-start" /> {swt("interface.m0958")}
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{swt("interface.m0959")}{" "}{count} {swt("interface.m0960")}</DialogTitle>
+          <DialogTitle>
+            {swt("interface.m0959")} {count} {swt("interface.m0960")}
+          </DialogTitle>
           <DialogDescription>{swt("interface.m0961")}</DialogDescription>
         </DialogHeader>
         <Field>
@@ -2304,7 +2450,8 @@ function MoveTasksCategoryDialog({
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline" disabled={moving}>
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
           </DialogClose>
           <Button
             disabled={moving}
@@ -2313,7 +2460,8 @@ function MoveTasksCategoryDialog({
             }}
           >
             {moving && <Spinner data-icon="inline-start" />}
-            {swt("interface.m0965")}</Button>
+            {swt("interface.m0965")}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -2359,14 +2507,15 @@ function BulkDeleteTasksDialog({
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogTrigger asChild>
         <Button size="sm" variant="outline">
-          <Trash2Icon className="text-destructive" /> {swt("interface.m0966")}{" "}{ids.length}
+          <Trash2Icon className="text-destructive" /> {swt("interface.m0966")} {ids.length}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="max-h-[85vh] overflow-y-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle>{swt("interface.m0967")}{" "}{ids.length} {swt("interface.m0968")}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {swt("interface.m0969")}</AlertDialogDescription>
+          <AlertDialogTitle>
+            {swt("interface.m0967")} {ids.length} {swt("interface.m0968")}
+          </AlertDialogTitle>
+          <AlertDialogDescription>{swt("interface.m0969")}</AlertDialogDescription>
         </AlertDialogHeader>
         <div className="text-muted-foreground flex flex-wrap gap-1 text-xs">
           {ids.slice(0, 30).map((id) => (
@@ -2374,7 +2523,11 @@ function BulkDeleteTasksDialog({
               #{id}
             </code>
           ))}
-          {ids.length > 30 && <span className="self-center">{swt("interface.m0970")}{" "}{ids.length} {swt("interface.m0862")}</span>}
+          {ids.length > 30 && (
+            <span className="self-center">
+              {swt("interface.m0970")} {ids.length} {swt("interface.m0862")}
+            </span>
+          )}
         </div>
         <DeleteOptionFields idPrefix="bulk" options={options} onOptionsChange={setOptions} disabled={deleting} />
         <AlertDialogFooter>
@@ -2388,7 +2541,9 @@ function BulkDeleteTasksDialog({
             }}
           >
             {deleting && <Spinner data-icon="inline-start" />}
-            {deleting ? swt("interface.m0971", { p0: done, p1: ids.length }) : swt("interface.m0972", { p0: ids.length })}
+            {deleting
+              ? swt("interface.m0971", { p0: done, p1: ids.length })
+              : swt("interface.m0972", { p0: ids.length })}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -2587,7 +2742,8 @@ function CategoryPicker({
               className="flex w-full items-center gap-2 px-2 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
             >
               {creating ? <Spinner className="size-4" /> : <PlusIcon className="size-4" />}
-              {swt("interface.m0981")}{trimmed}」
+              {swt("interface.m0981")}
+              {trimmed}」
             </button>
           ) : (
             <div className="px-2 py-2 text-sm text-muted-foreground">{swt("interface.m0982")}</div>
@@ -2598,11 +2754,15 @@ function CategoryPicker({
 }
 
 const COMPANY_SCOPE_LABELS: Record<string, string> = {
-  get domain() { return swt("interface.m0232"); },
+  get domain() {
+    return swt("interface.m0232");
+  },
   ip: "IP",
   cidr: "CIDR",
   icp: "ICP",
-  get keyword() { return swt("interface.m0599"); },
+  get keyword() {
+    return swt("interface.m0599");
+  },
 };
 
 function companyScopeSummary(company: Company): string {
@@ -2650,7 +2810,9 @@ function CompanyPicker({
       <ComboboxChips>
         <ComboboxValue>
           {selectedIDs.map((companyID) => (
-            <ComboboxChip key={companyID}>{companiesByID.get(companyID)?.name ?? swt("interface.m0597", { p0: companyID })}</ComboboxChip>
+            <ComboboxChip key={companyID}>
+              {companiesByID.get(companyID)?.name ?? swt("interface.m0597", { p0: companyID })}
+            </ComboboxChip>
           ))}
         </ComboboxValue>
         <ComboboxChipsInput id="task-companies" placeholder={swt("interface.m0985")} />
@@ -2664,9 +2826,12 @@ function CompanyPicker({
               <ComboboxItem key={companyID} value={companyID}>
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate font-medium">{company?.name ?? swt("interface.m0597", { p0: companyID })}</span>
+                    <span className="min-w-0 flex-1 truncate font-medium">
+                      {company?.name ?? swt("interface.m0597", { p0: companyID })}
+                    </span>
                     <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
-                      {company?.asset_count ?? 0} {swt("interface.m0987")}</span>
+                      {company?.asset_count ?? 0} {swt("interface.m0987")}
+                    </span>
                   </div>
                   {company && (
                     <span className="text-muted-foreground truncate text-xs" title={companyScopeSummary(company)}>
@@ -2717,7 +2882,9 @@ function CategoryDropTarget({
       onClick={onSelect}
     >
       <span className="block truncate font-medium text-sm">{name}</span>
-      <span className="block truncate text-muted-foreground text-xs">{isOver ? swt("interface.m0988") : swt("interface.m0989", { p0: count })}</span>
+      <span className="block truncate text-muted-foreground text-xs">
+        {isOver ? swt("interface.m0988") : swt("interface.m0989", { p0: count })}
+      </span>
     </button>
   );
 }
@@ -2839,7 +3006,10 @@ function CategoryManagementSheet({
     [swLocale, categories, selectedView],
   );
 
-  const uncategorizedCount = React.useMemo(() => tasks.filter((task) => task.category_id == null).length, [swLocale, tasks]);
+  const uncategorizedCount = React.useMemo(
+    () => tasks.filter((task) => task.category_id == null).length,
+    [swLocale, tasks],
+  );
 
   const visibleTasks = React.useMemo(() => {
     if (selectedView === "uncategorized") return tasks.filter((task) => task.category_id == null);
@@ -2847,7 +3017,10 @@ function CategoryManagementSheet({
     return [];
   }, [swLocale, selectedView, tasks]);
 
-  const activeTask = React.useMemo(() => tasks.find((task) => task.id === activeTaskID) ?? null, [swLocale, activeTaskID, tasks]);
+  const activeTask = React.useMemo(
+    () => tasks.find((task) => task.id === activeTaskID) ?? null,
+    [swLocale, activeTaskID, tasks],
+  );
 
   const selectCategory = (category: TaskCategory) => {
     setSelectedView(category.id);
@@ -2881,7 +3054,12 @@ function CategoryManagementSheet({
       }
       onChanged();
     } catch (error) {
-      toast.error(swt("interface.m0994", { p0: selectedView === "new" ? swt("interface.m0995") : swt("interface.m0996"), p1: (error as Error).message }));
+      toast.error(
+        swt("interface.m0994", {
+          p0: selectedView === "new" ? swt("interface.m0995") : swt("interface.m0996"),
+          p1: (error as Error).message,
+        }),
+      );
     } finally {
       setSaving(false);
     }
@@ -2945,7 +3123,11 @@ function CategoryManagementSheet({
     void moveTask(task, destination.slice("category:".length));
   }
 
-  const saveLabel = saving ? swt("interface.m0792") : selectedView === "new" ? swt("interface.m1002") : swt("interface.m1003");
+  const saveLabel = saving
+    ? swt("interface.m0792")
+    : selectedView === "new"
+      ? swt("interface.m1002")
+      : swt("interface.m1003");
 
   return (
     <>
@@ -2953,7 +3135,8 @@ function CategoryManagementSheet({
         <SheetTrigger asChild>
           <Button size="sm" variant="outline">
             <TagsIcon data-icon="inline-start" />
-            {swt("interface.m1004")}</Button>
+            {swt("interface.m1004")}
+          </Button>
         </SheetTrigger>
         <SheetContent className="grid h-full w-full! max-w-none! grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 sm:w-[48rem]! sm:max-w-[48rem]!">
           <SheetHeader className="border-b px-6 py-5">
@@ -2970,7 +3153,8 @@ function CategoryManagementSheet({
               <div className="flex min-h-0 flex-col border-b p-3 lg:border-r lg:border-b-0">
                 <Button type="button" variant="outline" className="w-full" onClick={startNew}>
                   <PlusIcon data-icon="inline-start" />
-                  {swt("interface.m1007")}</Button>
+                  {swt("interface.m1007")}
+                </Button>
                 <ScrollArea className="mt-2 max-h-44 lg:max-h-none lg:flex-1">
                   <div className="flex flex-col gap-1 pr-2">
                     <CategoryDropTarget
@@ -3032,7 +3216,9 @@ function CategoryManagementSheet({
                       {visibleTasks.length === 0 ? (
                         <Empty className="min-h-36 border">
                           <EmptyHeader>
-                            <EmptyTitle>{selectedCategory ? swt("interface.m1016") : swt("interface.m1017")}</EmptyTitle>
+                            <EmptyTitle>
+                              {selectedCategory ? swt("interface.m1016") : swt("interface.m1017")}
+                            </EmptyTitle>
                             <EmptyDescription>{swt("interface.m1018")}</EmptyDescription>
                           </EmptyHeader>
                         </Empty>
@@ -3065,10 +3251,12 @@ function CategoryManagementSheet({
                 onClick={() => setDeleteOpen(true)}
               >
                 <Trash2Icon data-icon="inline-start" />
-                {swt("interface.m1019")}</Button>
+                {swt("interface.m1019")}
+              </Button>
             )}
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              {swt("interface.m0211")}</Button>
+              {swt("interface.m0211")}
+            </Button>
             {selectedView !== "uncategorized" && (
               <Button
                 type="button"
@@ -3085,9 +3273,13 @@ function CategoryManagementSheet({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m1020")}{selectedCategory?.name || swt("interface.m1021")}」？</AlertDialogTitle>
+            <AlertDialogTitle>
+              {swt("interface.m1020")}
+              {selectedCategory?.name || swt("interface.m1021")}」？
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {swt("interface.m1022")}{" "}{selectedCategory?.task_count ?? 0} {swt("interface.m1023")}</AlertDialogDescription>
+              {swt("interface.m1022")} {selectedCategory?.task_count ?? 0} {swt("interface.m1023")}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>{swt("interface.m0063")}</AlertDialogCancel>
@@ -3239,7 +3431,8 @@ function CreateTaskSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button size="sm">
-          <PlusIcon /> {swt("interface.m1028")}</Button>
+          <PlusIcon /> {swt("interface.m1028")}
+        </Button>
       </SheetTrigger>
       {/* The 45vw right drawer uses full viewport height and becomes full width on narrow screens. Fixed header/footer surround an independently scrolling flex-1 form. */}
       <SheetContent
@@ -3316,11 +3509,10 @@ function CreateTaskSheet({
                   disabled={uploading}
                 >
                   {uploading ? <Loader2Icon className="animate-spin" /> : <PaperclipIcon />}
-                  {swt("interface.m0070")}</Button>
+                  {swt("interface.m0070")}
+                </Button>
                 <span className="text-muted-foreground text-xs">
-                  {uploadCount > 0
-                    ? swt("interface.m1034", { p0: uploadCount })
-                    : swt("interface.m1035")}
+                  {uploadCount > 0 ? swt("interface.m1034", { p0: uploadCount }) : swt("interface.m1035")}
                 </span>
               </div>
             </div>
@@ -3343,8 +3535,8 @@ function CreateTaskSheet({
                 portalContainer={sheetContentRef}
               />
               <FieldDescription>
-                {swt("interface.m1038")}{" "}{MAX_SOURCE_TASKS}{" "}
-                {swt("interface.m1039")}</FieldDescription>
+                {swt("interface.m1038")} {MAX_SOURCE_TASKS} {swt("interface.m1039")}
+              </FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="task-companies">{swt("interface.m1040")}</FieldLabel>
@@ -3354,14 +3546,12 @@ function CreateTaskSheet({
                 onValueChange={setCompanyIDs}
                 portalContainer={sheetContentRef}
               />
-              <FieldDescription>
-                {swt("interface.m1041")}</FieldDescription>
+              <FieldDescription>{swt("interface.m1041")}</FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="task-intercept-rules">{swt("interface.m1042")}</FieldLabel>
               <AssetInterceptRulesEditor value={interceptRules} onChange={setInterceptRules} />
-              <FieldDescription>
-                {swt("interface.m1043")}</FieldDescription>
+              <FieldDescription>{swt("interface.m1043")}</FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="llm-profiles">{swt("interface.m1044")}</FieldLabel>
@@ -3379,7 +3569,8 @@ function CreateTaskSheet({
             <Collapsible>
               <CollapsibleTrigger className="group flex w-full items-center gap-2 border-t pt-4 text-sm font-medium">
                 <ChevronRightIcon className="text-muted-foreground size-4 transition-transform group-data-[state=open]:rotate-90" />
-                {swt("interface.m1046")}<span className="text-muted-foreground ml-auto text-xs font-normal">{swt("interface.m1047")}</span>
+                {swt("interface.m1046")}
+                <span className="text-muted-foreground ml-auto text-xs font-normal">{swt("interface.m1047")}</span>
               </CollapsibleTrigger>
               <CollapsibleContent className="grid gap-5 pt-5">
                 <div className="grid gap-2">
@@ -3393,8 +3584,7 @@ function CreateTaskSheet({
                     value={timeoutMin}
                     onChange={(e) => setTimeoutMin(e.target.value)}
                   />
-                  <p className="text-muted-foreground text-xs">
-                    {swt("interface.m1050")}</p>
+                  <p className="text-muted-foreground text-xs">{swt("interface.m1050")}</p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="heartbeat-min">{swt("interface.m1051")}</Label>
@@ -3407,8 +3597,7 @@ function CreateTaskSheet({
                     value={heartbeatMin}
                     onChange={(e) => setHeartbeatMin(e.target.value)}
                   />
-                  <p className="text-muted-foreground text-xs">
-                    {swt("interface.m1053")}</p>
+                  <p className="text-muted-foreground text-xs">{swt("interface.m1053")}</p>
                 </div>
                 <div className="grid gap-2">
                   <label htmlFor="seed-first-intent" className="flex items-center gap-2 text-sm">
@@ -3417,9 +3606,9 @@ function CreateTaskSheet({
                       checked={seedFirstIntent}
                       onCheckedChange={(v) => setSeedFirstIntent(!!v)}
                     />
-                    {swt("interface.m1054")}</label>
-                  <p className="text-muted-foreground text-xs">
-                    {swt("interface.m1055")}</p>
+                    {swt("interface.m1054")}
+                  </label>
+                  <p className="text-muted-foreground text-xs">{swt("interface.m1055")}</p>
                 </div>
                 <div className="grid gap-2">
                   <label htmlFor="coverage-enabled" className="flex items-center gap-2 text-sm">
@@ -3428,9 +3617,9 @@ function CreateTaskSheet({
                       checked={coverageEnabled}
                       onCheckedChange={(v) => setCoverageEnabled(!!v)}
                     />
-                    {swt("interface.m1056")}</label>
-                  <p className="text-muted-foreground text-xs">
-                    {swt("interface.m1057")}</p>
+                    {swt("interface.m1056")}
+                  </label>
+                  <p className="text-muted-foreground text-xs">{swt("interface.m1057")}</p>
                 </div>
               </CollapsibleContent>
             </Collapsible>

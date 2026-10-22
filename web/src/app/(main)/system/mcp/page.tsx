@@ -1,29 +1,24 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
-import { toast } from "sonner";
-import { PlusIcon, RefreshCwIcon, ServerIcon, Trash2Icon } from "lucide-react";
 
+import { PlusIcon, RefreshCwIcon, ServerIcon, Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
-import type { MCPServer, MCPTool, Agent } from "@/lib/types";
+import type { Agent, MCPServer, MCPTool } from "@/lib/types";
 
 type Transport = "stdio" | "http" | "sse";
 type FormState = {
@@ -63,7 +58,10 @@ export default function MCPPage() {
   const [refreshing, setRefreshing] = React.useState(false);
 
   const load = React.useCallback(() => {
-    api.agents().then(setAgents).catch(() => {});
+    api
+      .agents()
+      .then(setAgents)
+      .catch(() => {});
     api
       .mcpServers()
       .then((ss) => {
@@ -226,7 +224,9 @@ export default function MCPPage() {
     const on = (visibility[serverId] ?? []).includes(agentId);
     try {
       await api.toggleVisibility(agentId, "mcp", serverId, !on);
-      toast.success(swt("interface.m1453", { p0: on ? swt("interface.m0063") : swt("interface.m1454"), p1: agentName }));
+      toast.success(
+        swt("interface.m1453", { p0: on ? swt("interface.m0063") : swt("interface.m1454"), p1: agentName }),
+      );
       load();
     } catch (e) {
       toast.error(swt("interface.m0801") + (e as Error).message);
@@ -244,19 +244,22 @@ export default function MCPPage() {
               variant={form.transport === "stdio" ? "default" : "outline"}
               onClick={() => setF({ transport: "stdio" })}
             >
-              {swt("interface.m1456")}</Button>
+              {swt("interface.m1456")}
+            </Button>
             <Button
               type="button"
               variant={form.transport === "http" ? "default" : "outline"}
               onClick={() => setF({ transport: "http" })}
             >
-              {swt("interface.m1457")}</Button>
+              {swt("interface.m1457")}
+            </Button>
             <Button
               type="button"
               variant={form.transport === "sse" ? "default" : "outline"}
               onClick={() => setF({ transport: "sse" })}
             >
-              {swt("interface.m1458")}</Button>
+              {swt("interface.m1458")}
+            </Button>
           </div>
         </div>
         <div className="grid gap-2">
@@ -302,25 +305,17 @@ export default function MCPPage() {
               onChange={(e) => setF({ url: e.target.value })}
             />
             <label className="flex items-center gap-2 text-sm">
-              <Checkbox
-                checked={form.insecure}
-                onCheckedChange={(v) => setF({ insecure: v === true })}
-              />
-              {swt("interface.m1462")}</label>
+              <Checkbox checked={form.insecure} onCheckedChange={(v) => setF({ insecure: v === true })} />
+              {swt("interface.m1462")}
+            </label>
           </div>
         )}
         <div className="grid gap-2">
-          <Label htmlFor="m-env">
-            {form.transport !== "stdio"
-              ? swt("interface.m1463")
-              : swt("interface.m1464")}
-          </Label>
+          <Label htmlFor="m-env">{form.transport !== "stdio" ? swt("interface.m1463") : swt("interface.m1464")}</Label>
           <Textarea
             id="m-env"
             className="font-mono"
-            placeholder={
-              form.transport !== "stdio" ? "Authorization=Bearer xxxx" : "API_KEY=xxxx\nFOO=bar"
-            }
+            placeholder={form.transport !== "stdio" ? "Authorization=Bearer xxxx" : "API_KEY=xxxx\nFOO=bar"}
             value={form.env}
             onChange={(e) => setF({ env: e.target.value })}
           />
@@ -333,9 +328,12 @@ export default function MCPPage() {
     return (
       <div className="flex flex-col gap-3 py-4">
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground text-sm">{tools.length} {swt("interface.m0464")}</span>
+          <span className="text-muted-foreground text-sm">
+            {tools.length} {swt("interface.m0464")}
+          </span>
           <Button size="sm" variant="outline" disabled={refreshing} onClick={refreshTools}>
-            <RefreshCwIcon className={refreshing ? "animate-spin" : ""} /> {swt("interface.m0225")}</Button>
+            <RefreshCwIcon className={refreshing ? "animate-spin" : ""} /> {swt("interface.m0225")}
+          </Button>
         </div>
         {toolsLoading ? (
           <p className="text-muted-foreground text-sm">{swt("interface.m0260")}</p>
@@ -347,9 +345,7 @@ export default function MCPPage() {
               <div key={t.name} className="py-2.5">
                 <code className="font-mono text-sm">{t.name}</code>
                 {t.description && (
-                  <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed">
-                    {t.description}
-                  </p>
+                  <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed">{t.description}</p>
                 )}
               </div>
             ))}
@@ -389,7 +385,13 @@ export default function MCPPage() {
                 <Badge variant="outline" className="uppercase">
                   {s.transport}
                 </Badge>
-                <div className="ml-auto flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                {/* biome-ignore lint/a11y/noStaticElementInteractions: only stops clicks and keys from reaching the clickable card; it is not a control */}
+                <div
+                  role="presentation"
+                  className="ml-auto flex items-center gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                >
                   <Switch
                     checked={s.enabled}
                     onCheckedChange={() => toggleEnabled(s)}
@@ -408,9 +410,17 @@ export default function MCPPage() {
             </CardHeader>
             <CardContent className="grid gap-3">
               <p className="text-muted-foreground text-sm">
-                {s.tools && s.tools.length > 0 ? swt("interface.m1468", { p0: s.tools.length }) : swt("interface.m1469")}
+                {s.tools && s.tools.length > 0
+                  ? swt("interface.m1468", { p0: s.tools.length })
+                  : swt("interface.m1469")}
               </p>
-              <div className="grid gap-2" onClick={(e) => e.stopPropagation()}>
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: only stops clicks and keys from reaching the clickable card; it is not a control */}
+              <div
+                role="presentation"
+                className="grid gap-2"
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
                 <span className="text-muted-foreground text-xs">{swt("interface.m1470")}</span>
                 <div className="flex flex-wrap gap-x-4 gap-y-2">
                   {agents.map((a) => (
@@ -430,14 +440,10 @@ export default function MCPPage() {
       </div>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent
-          side="right"
-          className="w-full data-[side=right]:sm:max-w-lg"
-        >
+        <SheetContent side="right" className="w-full data-[side=right]:sm:max-w-lg">
           <SheetHeader>
             <SheetTitle>{editing ? editing.name : swt("interface.m1471")}</SheetTitle>
-            <SheetDescription>
-              {swt("interface.m1472")}</SheetDescription>
+            <SheetDescription>{swt("interface.m1472")}</SheetDescription>
           </SheetHeader>
 
           {editing ? (
@@ -449,14 +455,15 @@ export default function MCPPage() {
               <TabsList>
                 <TabsTrigger value="config">{swt("interface.m1473")}</TabsTrigger>
                 <TabsTrigger value="tools">
-                  {swt("interface.m1474")}{" "}{tools.length ? `（${tools.length}）` : ""}
+                  {swt("interface.m1474")} {tools.length ? `（${tools.length}）` : ""}
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="config" className="min-h-0 flex-1 overflow-y-auto">
                 {renderForm()}
                 <div className="flex gap-2 pt-2 pb-6">
                   <Button onClick={saveForm} disabled={saving}>
-                    {swt("interface.m0273")}</Button>
+                    {swt("interface.m0273")}
+                  </Button>
                 </div>
               </TabsContent>
               <TabsContent value="tools" className="min-h-0 flex-1 overflow-y-auto">
@@ -468,7 +475,8 @@ export default function MCPPage() {
               {renderForm()}
               <div className="pt-2 pb-6">
                 <Button onClick={saveForm} disabled={saving}>
-                  <PlusIcon /> {swt("interface.m0611")}</Button>
+                  <PlusIcon /> {swt("interface.m0611")}
+                </Button>
               </div>
             </div>
           )}

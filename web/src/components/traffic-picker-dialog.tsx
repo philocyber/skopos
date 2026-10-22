@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { toast } from "sonner";
@@ -24,6 +20,8 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { FindingTrafficBinding, TrafficResp } from "@/lib/types";
 
@@ -119,8 +117,7 @@ export function TrafficPickerDialog({
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
           <DialogHeader>
             <DialogTitle>{swt("interface.m2237")}</DialogTitle>
-            <DialogDescription>
-              {swt("interface.m2384")}</DialogDescription>
+            <DialogDescription>{swt("interface.m2384")}</DialogDescription>
           </DialogHeader>
           <FieldGroup className="flex flex-col gap-3 sm:flex-row">
             <Field>
@@ -227,7 +224,8 @@ export function TrafficPickerDialog({
                     <TableCell>{e.status}</TableCell>
                     <TableCell>
                       <Button variant="ghost" size="sm" onClick={() => setPreview(e.id)}>
-                        {swt("interface.m2390")}</Button>
+                        {swt("interface.m2390")}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -243,7 +241,9 @@ export function TrafficPickerDialog({
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-sm">
-              {swt("interface.m0398")}{" "}{selected.size} {swt("interface.m2392")}{" "}{data?.total ?? 0} {swt("interface.m0328")}</span>
+              {swt("interface.m0398")} {selected.size} {swt("interface.m2392")} {data?.total ?? 0}{" "}
+              {swt("interface.m0328")}
+            </span>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -251,20 +251,25 @@ export function TrafficPickerDialog({
                 disabled={loading || page === 0}
                 onClick={() => setPage((p) => p - 1)}
               >
-                {swt("interface.m0488")}</Button>
-              <span className="text-xs">{swt("interface.m0489")}{" "}{page + 1} {swt("interface.m0490")}</span>
+                {swt("interface.m0488")}
+              </Button>
+              <span className="text-xs">
+                {swt("interface.m0489")} {page + 1} {swt("interface.m0490")}
+              </span>
               <Button
                 variant="outline"
                 size="sm"
                 disabled={loading || (page + 1) * 25 >= (data?.total ?? 0)}
                 onClick={() => setPage((p) => p + 1)}
               >
-                {swt("interface.m0491")}</Button>
+                {swt("interface.m0491")}
+              </Button>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" disabled={busy} onClick={onClose}>
-              {swt("interface.m0063")}</Button>
+              {swt("interface.m0063")}
+            </Button>
             <Button disabled={busy || selected.size === 0} onClick={() => void save()}>
               {busy ? swt("interface.m0272") : swt("interface.m2393", { p0: selected.size })}
             </Button>

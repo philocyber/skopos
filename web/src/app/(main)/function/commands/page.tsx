@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { BarChart3Icon, ChevronLeftIcon, ChevronRightIcon, Loader2Icon, SearchIcon, TerminalIcon } from "lucide-react";
@@ -15,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { CommandRecord, ToolStat } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -165,14 +163,16 @@ export default function CommandsPage() {
           <SelectContent>
             {PAGE_SIZES.map((n) => (
               <SelectItem key={n} value={String(n)}>
-                {n} {swt("interface.m0261")}</SelectItem>
+                {n} {swt("interface.m0261")}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
         <Button variant="outline" size="sm" className="h-8" onClick={() => setStatsOpen(true)}>
           <BarChart3Icon className="size-4" />
-          {swt("interface.m0290")}</Button>
+          {swt("interface.m0290")}
+        </Button>
 
         <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
           <span className="tabular-nums">
@@ -227,7 +227,8 @@ export default function CommandsPage() {
                 ) : commands.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
-                      {swt("interface.m0293")}</TableCell>
+                      {swt("interface.m0293")}
+                    </TableCell>
                   </TableRow>
                 ) : (
                   commands.map((cmd) => (
@@ -258,10 +259,12 @@ export default function CommandsPage() {
                       <TableCell>
                         {cmd.is_error ? (
                           <Badge variant="destructive" className="text-xs">
-                            {swt("interface.m0294")}</Badge>
+                            {swt("interface.m0294")}
+                          </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-xs text-emerald-600">
-                            {swt("interface.m0295")}</Badge>
+                          <Badge variant="secondary" className="text-xs text-emerald-700 dark:text-emerald-400">
+                            {swt("interface.m0295")}
+                          </Badge>
                         )}
                       </TableCell>
                     </TableRow>
@@ -284,7 +287,8 @@ export default function CommandsPage() {
                 <>
                   {" · "}
                   <span className="tabular-nums">{stats.length}</span> {swt("interface.m0299")}{" "}
-                  <span className="tabular-nums">{statsTotal}</span> {swt("interface.m0300")}{" "}{statsErrors > 0 && (
+                  <span className="tabular-nums">{statsTotal}</span> {swt("interface.m0300")}{" "}
+                  {statsErrors > 0 && (
                     <>
                       {swt("interface.m0301")}
                       <span className="tabular-nums text-red-600 dark:text-red-400">{statsErrors}</span>
@@ -309,7 +313,9 @@ export default function CommandsPage() {
                     <div className="flex items-center gap-2">
                       <span className="truncate font-mono text-xs font-medium">{s.tool}</span>
                       {s.errors > 0 && (
-                        <span className="text-[11px] tabular-nums text-red-600 dark:text-red-400">{swt("interface.m0294")}{" "}{s.errors}</span>
+                        <span className="text-[11px] tabular-nums text-red-600 dark:text-red-400">
+                          {swt("interface.m0294")} {s.errors}
+                        </span>
                       )}
                     </div>
                     <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -351,16 +357,20 @@ export default function CommandsPage() {
                   </Badge>
                   {selected.is_error ? (
                     <Badge variant="destructive" className="text-xs">
-                      {swt("interface.m0294")}</Badge>
+                      {swt("interface.m0294")}
+                    </Badge>
                   ) : (
-                    <Badge variant="secondary" className="text-xs text-emerald-600">
-                      {swt("interface.m0295")}</Badge>
+                    <Badge variant="secondary" className="text-xs text-emerald-700 dark:text-emerald-400">
+                      {swt("interface.m0295")}
+                    </Badge>
                   )}
                 </div>
               </SheetHeader>
               <div className="grid min-h-0 flex-1 grid-rows-2 divide-y">
                 <div className="flex min-h-0 min-w-0 flex-col">
-                  <div className="border-b px-5 py-2 text-xs font-medium text-muted-foreground">{swt("interface.m0304")}</div>
+                  <div className="border-b px-5 py-2 text-xs font-medium text-muted-foreground">
+                    {swt("interface.m0304")}
+                  </div>
                   <div className="min-h-0 flex-1 overflow-auto">
                     <pre className="p-5 font-mono text-xs break-all whitespace-pre-wrap">
                       {toolInput(selected.command)}
@@ -368,7 +378,9 @@ export default function CommandsPage() {
                   </div>
                 </div>
                 <div className="flex min-h-0 min-w-0 flex-col">
-                  <div className="border-b px-5 py-2 text-xs font-medium text-muted-foreground">{swt("interface.m0305")}</div>
+                  <div className="border-b px-5 py-2 text-xs font-medium text-muted-foreground">
+                    {swt("interface.m0305")}
+                  </div>
                   <div className="min-h-0 flex-1 overflow-auto">
                     <pre
                       className={cn(

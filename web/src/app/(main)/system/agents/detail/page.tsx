@@ -1,7 +1,4 @@
 "use client";
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
-
 import * as React from "react";
 
 import Link from "next/link";
@@ -11,6 +8,8 @@ import { ArrowLeftIcon } from "lucide-react";
 
 import { AgentEditor } from "@/components/agent-editor";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 
 // Deep-link editor page for one agent. The primary flow is the drawer on
 // /system/agents; this page reuses the same AgentEditor component full-width so a

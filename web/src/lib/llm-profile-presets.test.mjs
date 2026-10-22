@@ -1,6 +1,6 @@
+import { applyLLMProfilePreset, getLLMProfilePreset } from "./llm-profile-presets.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
-import { applyLLMProfilePreset, getLLMProfilePreset } from "./llm-profile-presets.ts";
 
 test("GLM templates distinguish billing endpoints and use documented model settings", () => {
   const general = getLLMProfilePreset("zai-general");
@@ -18,10 +18,64 @@ test("GLM templates distinguish billing endpoints and use documented model setti
   }
 });
 
+test("Claude presets use the documented model IDs, 1M context and an unset thinking field", () => {
+  const expected = {
+    "claude-fable-5-1": "high",
+    "claude-opus-5-5": "medium",
+    "claude-sonnet-5-5": "high",
+    "claude-haiku-5-5": "medium",
+  };
+  for (const [id, effort] of Object.entries(expected)) {
+    const preset = getLLMProfilePreset(id);
+    assert.equal(preset.format, "anthropic");
+    assert.equal(preset.model, id, "the preset ID is the API model ID");
+    assert.equal(preset.base_url, "", "empty base URL means the official endpoint");
+    assert.equal(preset.context_window_k, 1000);
+    assert.equal(preset.reasoning_effort, effort, "effort is the documented default");
+    assert.equal(preset.thinking_type, "", "adaptive models must not get thinking enabled or disabled");
+    assert.equal(preset.max_tokens, 0);
+    assert.equal(preset.max_tokens_field, "");
+  }
+});
+
+test("OpenAI presets use the Responses format, the documented model IDs and the input share of the window", () => {
+  for (const [id, model] of [
+    ["openai-gpt-6-1-sol", "gpt-6.1-sol"],
+    ["openai-gpt-6-luna", "gpt-6-luna"],
+  ]) {
+    const preset = getLLMProfilePreset(id);
+    assert.equal(preset.format, "openai-responses", "Chat Completions has no function calling on GPT-6.1 Sol");
+    assert.equal(preset.model, model);
+    assert.equal(preset.base_url, "");
+    assert.equal(preset.context_window_k, 922, "1,050,000 total minus 128,000 output");
+    assert.equal(preset.reasoning_effort, "medium");
+    assert.equal(preset.thinking_type, "");
+    assert.equal(preset.max_tokens_field, "");
+  }
+});
+
+test("presets are independent copies", () => {
+  const first = getLLMProfilePreset("claude-opus-5-5");
+  const mutable = { ...first, model: "changed" };
+  assert.equal(getLLMProfilePreset("claude-opus-5-5").model, "claude-opus-5-5");
+  assert.equal(mutable.model, "changed");
+});
+
 test("applying a template preserves entered secrets and unrelated draft preferences", () => {
-  const draft = Object.freeze({ name: "My profile", api_key: "user-entered-key", proxy: "http://user:pass@proxy:8080", username: "operator", session_header_key: "x-session", streaming: false, rate_per_minute: 7, model: "custom-model", base_url: "https://previous.example" });
+  const draft = Object.freeze({
+    name: "My profile",
+    api_key: "user-entered-key",
+    proxy: "http://user:pass@proxy:8080",
+    username: "operator",
+    session_header_key: "x-session",
+    streaming: false,
+    rate_per_minute: 7,
+    model: "custom-model",
+    base_url: "https://previous.example",
+  });
   const next = applyLLMProfilePreset(draft, "zai-general");
-  for (const key of ["name", "api_key", "proxy", "username", "session_header_key", "streaming", "rate_per_minute"]) assert.equal(next[key], draft[key]);
+  for (const key of ["name", "api_key", "proxy", "username", "session_header_key", "streaming", "rate_per_minute"])
+    assert.equal(next[key], draft[key]);
   assert.equal(draft.model, "custom-model");
   assert.notEqual(next, draft);
   next.model = "user-selected-model";

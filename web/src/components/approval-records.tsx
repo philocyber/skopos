@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
@@ -28,6 +24,9 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { pollWhileVisible } from "@/hooks/use-polling";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type {
   InterceptApprovalFilter,
@@ -109,7 +108,12 @@ function StatusBadge({ status }: { status: string }) {
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
 
-  const labels: Record<string, string> = { pending: swt("interface.m2049"), allowed: swt("interface.m2050"), denied: swt("interface.m2051"), timeout: swt("interface.m0828") };
+  const labels: Record<string, string> = {
+    pending: swt("interface.m2049"),
+    allowed: swt("interface.m2050"),
+    denied: swt("interface.m2051"),
+    timeout: swt("interface.m0828"),
+  };
   let variant: "default" | "destructive" | "secondary" | "outline" = "outline";
   if (status === "allowed") variant = "default";
   if (status === "denied") variant = "destructive";
@@ -127,7 +131,8 @@ function MatchCell({ row, showReason = true }: { row: InterceptApprovalRow; show
       {source(row) === "model" ? (
         <Badge variant="outline">
           <BotIcon />
-          {swt("interface.m2052")}</Badge>
+          {swt("interface.m2052")}
+        </Badge>
       ) : (
         <span className="truncate">{row.rule_name || swt("interface.m2053")}</span>
       )}
@@ -157,7 +162,12 @@ function CodeBlock({ label, text, truncated = false }: { label: string; text: st
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-medium text-muted-foreground text-xs">{label}</h3>
         {text ? (
-          <Button variant="ghost" size="icon-xs" aria-label={swt("interface.m2056", { p0: label })} onClick={() => void copy()}>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={swt("interface.m2056", { p0: label })}
+            onClick={() => void copy()}
+          >
             <CopyIcon />
           </Button>
         ) : null}
@@ -171,21 +181,53 @@ function CodeBlock({ label, text, truncated = false }: { label: string; text: st
 }
 
 const contextLabels: Record<string, string> = {
-  get user() { return swt("interface.m2059"); },
-  get assistant() { return swt("interface.m2060"); },
-  get text() { return swt("interface.m2060"); },
-  get tool_use() { return swt("interface.m2061"); },
-  get tool_result() { return swt("interface.m2062"); },
+  get user() {
+    return swt("interface.m2059");
+  },
+  get assistant() {
+    return swt("interface.m2060");
+  },
+  get text() {
+    return swt("interface.m2060");
+  },
+  get tool_use() {
+    return swt("interface.m2061");
+  },
+  get tool_result() {
+    return swt("interface.m2062");
+  },
 };
 
-const actionLabels: Record<string, string> = { get allow() { return swt("interface.m0617"); }, get ask() { return swt("interface.m1224"); }, get deny() { return swt("interface.m2063"); } };
+const actionLabels: Record<string, string> = {
+  get allow() {
+    return swt("interface.m0617");
+  },
+  get ask() {
+    return swt("interface.m1224");
+  },
+  get deny() {
+    return swt("interface.m2063");
+  },
+};
 const executionLabels: Record<InterceptAudit["execution_status"], string> = {
-  get not_started() { return swt("interface.m2064"); },
-  get not_executed() { return swt("interface.m2065"); },
-  get awaiting_result() { return swt("interface.m2066"); },
-  get succeeded() { return swt("interface.m2067"); },
-  get failed() { return swt("interface.m2068"); },
-  get unknown() { return swt("interface.m2069"); },
+  get not_started() {
+    return swt("interface.m2064");
+  },
+  get not_executed() {
+    return swt("interface.m2065");
+  },
+  get awaiting_result() {
+    return swt("interface.m2066");
+  },
+  get succeeded() {
+    return swt("interface.m2067");
+  },
+  get failed() {
+    return swt("interface.m2068");
+  },
+  get unknown() {
+    return swt("interface.m2069");
+  },
 };
 
 function ModelReviewContext({ input }: { input: InterceptReviewInput }) {
@@ -197,7 +239,8 @@ function ModelReviewContext({ input }: { input: InterceptReviewInput }) {
       <div className="flex flex-col gap-2">
         <h3 className="font-medium text-sm">{swt("interface.m2070")}</h3>
         <p className="text-muted-foreground text-xs">
-          {swt("interface.m2071")}{input.version < 4 ? swt("interface.m2072") : null}
+          {swt("interface.m2071")}
+          {input.version < 4 ? swt("interface.m2072") : null}
         </p>
       </div>
       <CodeBlock
@@ -213,9 +256,7 @@ function ModelReviewContext({ input }: { input: InterceptReviewInput }) {
               truncated={input.background.truncated}
             />
             <p className="text-muted-foreground text-xs">
-              {input.background.source === "user_message"
-                ? swt("interface.m2076")
-                : swt("interface.m2077")}
+              {input.background.source === "user_message" ? swt("interface.m2076") : swt("interface.m2077")}
             </p>
           </div>
         ) : (
@@ -228,13 +269,21 @@ function ModelReviewContext({ input }: { input: InterceptReviewInput }) {
           ) : null}
           {input.task ? (
             <>
-              <CodeBlock label={swt("interface.m2080")} text={input.task.description} truncated={input.task.truncated} />
+              <CodeBlock
+                label={swt("interface.m2080")}
+                text={input.task.description}
+                truncated={input.task.truncated}
+              />
               <CodeBlock label={swt("interface.m2081")} text={input.task.goal} truncated={input.task.truncated} />
               <CodeBlock label={swt("interface.m2082")} text={JSON.stringify(input.task.constraints, null, 2)} />
             </>
           ) : null}
           {input.worker_intent ? (
-            <CodeBlock label={swt("interface.m2083")} text={input.worker_intent} truncated={input.background_truncated} />
+            <CodeBlock
+              label={swt("interface.m2083")}
+              text={input.worker_intent}
+              truncated={input.background_truncated}
+            />
           ) : null}
         </>
       )}
@@ -257,9 +306,7 @@ function ModelReviewContext({ input }: { input: InterceptReviewInput }) {
           ) : (
             <p className="text-muted-foreground text-xs">{swt("interface.m2090")}</p>
           )}
-          {input.history_truncated ? (
-            <p className="text-muted-foreground text-xs">{swt("interface.m2091")}</p>
-          ) : null}
+          {input.history_truncated ? <p className="text-muted-foreground text-xs">{swt("interface.m2091")}</p> : null}
         </div>
       )}
 
@@ -267,7 +314,8 @@ function ModelReviewContext({ input }: { input: InterceptReviewInput }) {
         <CollapsibleTrigger asChild>
           <Button variant="outline" size="sm" className="self-start">
             <ChevronDownIcon data-icon="inline-start" />
-            {swt("interface.m2092")}</Button>
+            {swt("interface.m2092")}
+          </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3">
           <CodeBlock label={swt("interface.m2093")} text={JSON.stringify(input, null, 2)} />
@@ -288,10 +336,12 @@ function DecisionActions({ row, busy, decide }: { row: InterceptApprovalRow; bus
     <div className="flex flex-wrap gap-2">
       <Button size="sm" disabled={busy} onClick={() => void decide(row.id, "allowed")}>
         <CheckIcon data-icon="inline-start" />
-        {swt("interface.m0617")}</Button>
+        {swt("interface.m0617")}
+      </Button>
       <Button size="sm" variant="destructive" disabled={busy} onClick={() => void decide(row.id, "denied")}>
         <XIcon data-icon="inline-start" />
-        {swt("interface.m2063")}</Button>
+        {swt("interface.m2063")}
+      </Button>
     </div>
   );
 }
@@ -368,7 +418,8 @@ export function ApprovalDetail({
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm">
                   <ChevronDownIcon data-icon="inline-start" />
-                  {swt("interface.m2100")}</Button>
+                  {swt("interface.m2100")}
+                </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-2">
                 <CodeBlock label={swt("interface.m2101")} text={command} />
@@ -376,7 +427,8 @@ export function ApprovalDetail({
             </Collapsible>
           ) : null}
           <p className="text-muted-foreground text-xs">
-            {swt("interface.m2102")}<span className="text-foreground">{detail ? execution : swt("interface.m0260")}</span>
+            {swt("interface.m2102")}
+            <span className="text-foreground">{detail ? execution : swt("interface.m0260")}</span>
           </p>
         </div>
         <div className="flex min-w-0 flex-col gap-4 lg:border-l lg:pl-5">
@@ -391,7 +443,12 @@ export function ApprovalDetail({
             {current.reason?.replace(/^\[(?:模型|Model)\]\s*/, "") || swt("interface.m2105")}
           </p>
           {audit?.decision_reason ? <p className="text-sm">{audit.decision_reason}</p> : null}
-          {audit?.effective_action ? <p className="text-sm">{swt("interface.m2106")}{actionLabels[audit.effective_action]}</p> : null}
+          {audit?.effective_action ? (
+            <p className="text-sm">
+              {swt("interface.m2106")}
+              {actionLabels[audit.effective_action]}
+            </p>
+          ) : null}
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-xs">
             <dt className="text-muted-foreground">{swt("interface.m0512")}</dt>
             <dd className="break-words">
@@ -421,9 +478,13 @@ export function ApprovalDetail({
         <Alert variant="destructive">
           <AlertDescription>
             <div className="flex flex-wrap items-center gap-2">
-              <span>{swt("interface.m2111")}{error}</span>
+              <span>
+                {swt("interface.m2111")}
+                {error}
+              </span>
               <Button variant="outline" size="sm" onClick={() => setRetry((v) => v + 1)}>
-                {swt("interface.m2112")}</Button>
+                {swt("interface.m2112")}
+              </Button>
             </div>
           </AlertDescription>
         </Alert>
@@ -449,9 +510,7 @@ export function ApprovalDetail({
               ) : (
                 <Alert>
                   <AlertDescription>
-                    {audit.model_input_digest
-                      ? swt("interface.m2116")
-                      : swt("interface.m2117")}
+                    {audit.model_input_digest ? swt("interface.m2116") : swt("interface.m2117")}
                   </AlertDescription>
                 </Alert>
               )}
@@ -477,7 +536,8 @@ export function ApprovalDetail({
                       <section className="flex min-w-0 flex-col gap-3">
                         <h3 className="font-medium text-muted-foreground text-xs">{swt("interface.m2121")}</h3>
                         <p className="text-muted-foreground text-xs">
-                          {swt("interface.m2122")}{" "}{fmtTime(audit.captured_at)} {swt("interface.m2123")}</p>
+                          {swt("interface.m2122")} {fmtTime(audit.captured_at)} {swt("interface.m2123")}
+                        </p>
                         {audit.context_truncated ? (
                           <p className="text-muted-foreground text-xs">{swt("interface.m2124")}</p>
                         ) : null}
@@ -504,24 +564,44 @@ export function ApprovalDetail({
               />
               <CodeBlock
                 label={swt("interface.m2127")}
-                text={audit.output ?? (audit.execution_status === "not_executed" ? swt("interface.m2128") : swt("interface.m2129"))}
+                text={
+                  audit.output ??
+                  (audit.execution_status === "not_executed" ? swt("interface.m2128") : swt("interface.m2129"))
+                }
                 truncated={audit.output_truncated}
               />
               {audit.correlation !== "exact" ? (
                 <Alert>
                   <AlertDescription>
-                    {audit.correlation === "ambiguous"
-                      ? swt("interface.m2130")
-                      : swt("interface.m2131")}
+                    {audit.correlation === "ambiguous" ? swt("interface.m2130") : swt("interface.m2131")}
                   </AlertDescription>
                 </Alert>
               ) : null}
               <dl className="grid gap-2 text-muted-foreground text-xs [overflow-wrap:anywhere]">
-                <div>{swt("interface.m2132")}{audit.tool_use_id || swt("interface.m2057")}</div>
-                <div>{swt("interface.m2133")}{audit.input_digest}</div>
-                <div>{swt("interface.m2134")}{audit.config_digest || swt("interface.m2057")}</div>
-                {audit.model_input_digest ? <div>{swt("interface.m2135")}{audit.model_input_digest}</div> : null}
-                {audit.execution_ended_at ? <div>{swt("interface.m2136")}{fmtTime(audit.execution_ended_at)}</div> : null}
+                <div>
+                  {swt("interface.m2132")}
+                  {audit.tool_use_id || swt("interface.m2057")}
+                </div>
+                <div>
+                  {swt("interface.m2133")}
+                  {audit.input_digest}
+                </div>
+                <div>
+                  {swt("interface.m2134")}
+                  {audit.config_digest || swt("interface.m2057")}
+                </div>
+                {audit.model_input_digest ? (
+                  <div>
+                    {swt("interface.m2135")}
+                    {audit.model_input_digest}
+                  </div>
+                ) : null}
+                {audit.execution_ended_at ? (
+                  <div>
+                    {swt("interface.m2136")}
+                    {fmtTime(audit.execution_ended_at)}
+                  </div>
+                ) : null}
               </dl>
             </div>
           </CollapsibleContent>
@@ -588,7 +668,7 @@ function ApprovalTable({
           <TableHead className="hidden md:table-cell">{swt("interface.m0512")}</TableHead>
           <TableHead className="hidden lg:table-cell">{swt("interface.m2138")}</TableHead>
           <TableHead className="hidden xl:table-cell">{swt("interface.m0251")}</TableHead>
-          <TableHead className="w-24">{swt("interface.m0191")}</TableHead>
+          <TableHead className="w-36">{swt("interface.m0191")}</TableHead>
           <TableHead className="hidden w-36 lg:table-cell">{swt("interface.m2107")}</TableHead>
           <TableHead className="hidden w-36 xl:table-cell">{swt("interface.m2108")}</TableHead>
         </TableRow>
@@ -608,7 +688,10 @@ function ApprovalTable({
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label={swt("interface.m2139", { p0: open ? swt("interface.m2140") : swt("interface.m0316"), p1: row.id })}
+                    aria-label={swt("interface.m2139", {
+                      p0: open ? swt("interface.m2140") : swt("interface.m0316"),
+                      p1: row.id,
+                    })}
                     aria-expanded={open}
                     aria-controls={open ? panelID : undefined}
                     onClick={(e) => {
@@ -703,7 +786,9 @@ export function ApprovalRecords({ taskId }: { taskId?: string }) {
         // filter. Older requests must remain actionable even when newer decisions
         // fill the page or a filter would hide them.
         const [history, pending] = await Promise.allSettled([
-          taskId ? api.interceptTaskPage(taskId, page, pageSize, filter) : api.interceptHistoryPage(page, pageSize, filter),
+          taskId
+            ? api.interceptTaskPage(taskId, page, pageSize, filter)
+            : api.interceptHistoryPage(page, pageSize, filter),
           api.interceptPending(),
         ]);
         if (id !== request.current) return;
@@ -737,10 +822,10 @@ export function ApprovalRecords({ taskId }: { taskId?: string }) {
 
   React.useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), 5000);
+    const timer = pollWhileVisible(() => void load(), 5000);
     return () => {
       request.current++;
-      clearInterval(timer);
+      timer();
     };
   }, [load]);
 
@@ -803,12 +888,17 @@ export function ApprovalRecords({ taskId }: { taskId?: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <ClipboardListIcon className="size-5 text-muted-foreground" />
-          <h1 className="font-semibold text-xl">{title}</h1>
-          {pending.length ? <Badge variant="secondary">{pending.length} {swt("interface.m2049")}</Badge> : null}
+          <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+          {pending.length ? (
+            <Badge variant="secondary">
+              {pending.length} {swt("interface.m2049")}
+            </Badge>
+          ) : null}
         </div>
         <Button variant="outline" size="sm" onClick={() => void load(true)} disabled={loading || refreshing}>
           <RefreshCwIcon data-icon="inline-start" className={cn(refreshing && "animate-spin")} />
-          {swt("interface.m0225")}</Button>
+          {swt("interface.m0225")}
+        </Button>
       </div>
       <p className="text-muted-foreground text-sm">{swt("interface.m2146")}</p>
       <FieldGroup className="flex-row flex-wrap items-end gap-3" aria-label={swt("interface.m2147")}>
@@ -863,26 +953,42 @@ export function ApprovalRecords({ taskId }: { taskId?: string }) {
         </Field>
         {filtered ? (
           <Button variant="ghost" size="sm" onClick={() => changeFilter({})}>
-            {swt("interface.m1093")}</Button>
+            {swt("interface.m1093")}
+          </Button>
         ) : null}
       </FieldGroup>
       {error ? (
         <Alert variant="destructive">
-          <AlertDescription>{swt("interface.m2153")}{error}{swt("interface.m2154")}</AlertDescription>
+          <AlertDescription>
+            {swt("interface.m2153")}
+            {error}
+            {swt("interface.m2154")}
+          </AlertDescription>
         </Alert>
       ) : null}
       {pendingError ? (
         <Alert variant="destructive">
-          <AlertDescription>{swt("interface.m2155")}{pendingError}{swt("interface.m2154")}</AlertDescription>
+          <AlertDescription>
+            {swt("interface.m2155")}
+            {pendingError}
+            {swt("interface.m2154")}
+          </AlertDescription>
         </Alert>
       ) : null}
       {pending.length ? (
         <section className="overflow-hidden rounded-xl border">
           <div className="flex items-center gap-2 border-b bg-muted/40 px-4 py-3 font-medium text-sm">
             <ShieldAlertIcon className="size-4" />
-            {swt("interface.m2156")}{pending.length}）<span className="text-muted-foreground text-xs">{swt("interface.m2157")}</span>
+            {swt("interface.m2156")}
+            {pending.length}）<span className="text-muted-foreground text-xs">{swt("interface.m2157")}</span>
           </div>
-          <ApprovalTable rows={pending} busy={deciding} decide={decide} revision={revision} label={swt("interface.m2158")} />
+          <ApprovalTable
+            rows={pending}
+            busy={deciding}
+            decide={decide}
+            revision={revision}
+            label={swt("interface.m2158")}
+          />
         </section>
       ) : null}
       <section className="overflow-hidden rounded-xl border">
@@ -903,16 +1009,18 @@ export function ApprovalRecords({ taskId }: { taskId?: string }) {
                 <ClipboardListIcon />
               </EmptyMedia>
               <EmptyTitle>{filtered ? swt("interface.m2161") : swt("interface.m2162")}</EmptyTitle>
-              <EmptyDescription>
-                {filtered
-                  ? swt("interface.m2163")
-                  : swt("interface.m2164")}
-              </EmptyDescription>
+              <EmptyDescription>{filtered ? swt("interface.m2163") : swt("interface.m2164")}</EmptyDescription>
             </EmptyHeader>
           </Empty>
         ) : null}
         {rows.length ? (
-          <ApprovalTable rows={rows} busy={deciding} decide={decide} revision={revision} label={swt("interface.m2165")} />
+          <ApprovalTable
+            rows={rows}
+            busy={deciding}
+            decide={decide}
+            revision={revision}
+            label={swt("interface.m2165")}
+          />
         ) : null}
         {!loading && !error ? (
           <TablePagination

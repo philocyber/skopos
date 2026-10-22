@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { LibraryIcon, PlusIcon, SaveIcon, Settings2Icon, Trash2Icon } from "lucide-react";
@@ -34,6 +32,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { AssetInterceptRuleInput, TaskCategory, TaskTemplate } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -218,7 +218,8 @@ function TaskTemplateManager({
             <div className="flex min-h-0 flex-col border-b p-3 lg:border-r lg:border-b-0">
               <Button type="button" variant="outline" className="w-full" onClick={startNew}>
                 <PlusIcon data-icon="inline-start" />
-                {swt("interface.m2342")}</Button>
+                {swt("interface.m2342")}
+              </Button>
               <ScrollArea className="mt-2 max-h-44 lg:max-h-none lg:flex-1">
                 <div className="flex flex-col gap-1 pr-2">
                   {templates.length === 0 && (
@@ -298,8 +299,7 @@ function TaskTemplateManager({
                     value={draft.interceptRules}
                     onChange={(rules) => patchDraft({ interceptRules: rules })}
                   />
-                  <FieldDescription>
-                    {swt("interface.m2350")}</FieldDescription>
+                  <FieldDescription>{swt("interface.m2350")}</FieldDescription>
                 </Field>
               </FieldGroup>
             </ScrollArea>
@@ -308,10 +308,12 @@ function TaskTemplateManager({
             {selectedID != null && (
               <Button type="button" variant="destructive" className="sm:mr-auto" onClick={() => setDeleteOpen(true)}>
                 <Trash2Icon data-icon="inline-start" />
-                {swt("interface.m2351")}</Button>
+                {swt("interface.m2351")}
+              </Button>
             )}
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              {swt("interface.m0211")}</Button>
+              {swt("interface.m0211")}
+            </Button>
             <Button type="button" disabled={saving} onClick={() => void save()}>
               {saving ? <Spinner data-icon="inline-start" /> : <SaveIcon data-icon="inline-start" />}
               {saveLabel}
@@ -322,7 +324,10 @@ function TaskTemplateManager({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m2352")}{draft.name || swt("interface.m2353")}」？</AlertDialogTitle>
+            <AlertDialogTitle>
+              {swt("interface.m2352")}
+              {draft.name || swt("interface.m2353")}」？
+            </AlertDialogTitle>
             <AlertDialogDescription>{swt("interface.m2354")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -448,7 +453,8 @@ export function TaskTemplateControls({
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="ghost" size="sm" onClick={() => openManager(null)}>
               <Settings2Icon data-icon="inline-start" />
-              {swt("interface.m2360")}</Button>
+              {swt("interface.m2360")}
+            </Button>
             <Button
               type="button"
               variant="ghost"
@@ -464,7 +470,8 @@ export function TaskTemplateControls({
               }
             >
               <SaveIcon data-icon="inline-start" />
-              {swt("interface.m2361")}</Button>
+              {swt("interface.m2361")}
+            </Button>
           </div>
         </div>
         <Combobox
@@ -513,13 +520,17 @@ export function TaskTemplateControls({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m2364")}{pendingTemplate?.name}」？</AlertDialogTitle>
+            <AlertDialogTitle>
+              {swt("interface.m2364")}
+              {pendingTemplate?.name}」？
+            </AlertDialogTitle>
             <AlertDialogDescription>{swt("interface.m2365")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{swt("interface.m0063")}</AlertDialogCancel>
             <AlertDialogAction onClick={() => pendingTemplate && applyTemplate(pendingTemplate)}>
-              {swt("interface.m2366")}</AlertDialogAction>
+              {swt("interface.m2366")}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

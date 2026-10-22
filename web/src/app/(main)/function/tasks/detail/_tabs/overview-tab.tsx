@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import {
@@ -30,6 +26,9 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
+import { pollWhileVisible } from "@/hooks/use-polling";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type {
   AssetInterceptKind,
@@ -62,24 +61,39 @@ function scopeValue(row: TaskScopeRow): string {
   if (row.value) return row.value;
   if (row.domain) return row.domain;
   if (row.net) return row.net;
-  if (row.company_id) return row.company_name?.trim() ? row.company_name : swt("interface.m0597", { p0: row.company_id });
+  if (row.company_id)
+    return row.company_name?.trim() ? row.company_name : swt("interface.m0597", { p0: row.company_id });
   return "—";
 }
 
 const SCOPE_KIND_LABELS: Record<TaskScopeRow["kind"], string> = {
-  get company() { return swt("interface.m0568"); },
-  get root_domain() { return swt("interface.m0142"); },
-  get subdomain() { return swt("interface.m0143"); },
+  get company() {
+    return swt("interface.m0568");
+  },
+  get root_domain() {
+    return swt("interface.m0142");
+  },
+  get subdomain() {
+    return swt("interface.m0143");
+  },
   ip: "IP",
-  get cidr() { return swt("interface.m0598"); },
+  get cidr() {
+    return swt("interface.m0598");
+  },
   icp: "ICP",
-  get keyword() { return swt("interface.m0599"); },
+  get keyword() {
+    return swt("interface.m0599");
+  },
 };
 
 const SCOPE_SOURCE_LABELS: Record<TaskScopeRow["source"], string> = {
-  get auto() { return swt("interface.m0600"); },
+  get auto() {
+    return swt("interface.m0600");
+  },
   agent: "Agent",
-  get manual() { return swt("interface.m0601"); },
+  get manual() {
+    return swt("interface.m0601");
+  },
 };
 
 function StatCard({
@@ -423,7 +437,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
     void loadTokens();
     void loadGoals();
     void loadConstraints();
-    const timer = setInterval(() => {
+    const timer = pollWhileVisible(() => {
       void load();
       void loadTokens();
       void loadGoals();
@@ -431,7 +445,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
     }, 3000);
     return () => {
       cancelled = true;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId, loadScope, loadTokens, loadGoals, loadConstraints]);
 
@@ -459,7 +473,8 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <TargetIcon className="size-4 text-primary" /> {swt("interface.m0604")}</CardTitle>
+            <TargetIcon className="size-4 text-primary" /> {swt("interface.m0604")}
+          </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
@@ -476,8 +491,10 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ListChecksIcon className="size-4 text-primary" /> {swt("interface.m0606")}<span className="text-muted-foreground text-xs font-normal">
-              {swt("interface.m0607")}{" "}{goals.length} {swt("interface.m0608")}</span>
+            <ListChecksIcon className="size-4 text-primary" /> {swt("interface.m0606")}
+            <span className="text-muted-foreground text-xs font-normal">
+              {swt("interface.m0607")} {goals.length} {swt("interface.m0608")}
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
@@ -504,8 +521,9 @@ export function OverviewTab({ taskId }: { taskId: string }) {
               disabled={goalBusy}
             />
             <Button size="sm" variant="outline" disabled={goalBusy || !goalText.trim()} onClick={() => void addGoal()}>
-              <PlusIcon className="size-3.5" /> {swt("interface.m0611")}</Button>
-            {goalErr && <span className="text-xs text-red-500">{goalErr}</span>}
+              <PlusIcon className="size-3.5" /> {swt("interface.m0611")}
+            </Button>
+            {goalErr && <span className="text-xs text-red-600 dark:text-red-400">{goalErr}</span>}
           </div>
           {/* Objective list. */}
           {goals.length > 0 ? (
@@ -542,7 +560,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       disabled={goalBusy || !editText.trim()}
                       onClick={() => void saveEditGoal(g)}
                     >
-                      <CheckIcon className="size-3.5 text-emerald-500" />
+                      <CheckIcon className="size-3.5 text-emerald-700 dark:text-emerald-400" />
                     </Button>
                     <Button
                       size="sm"
@@ -579,7 +597,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       disabled={goalBusy}
                       onClick={() => void removeGoal(g)}
                     >
-                      <Trash2Icon className="size-3.5 text-red-500" />
+                      <Trash2Icon className="size-3.5 text-red-600 dark:text-red-400" />
                     </Button>
                   </div>
                 ),
@@ -594,8 +612,10 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldAlertIcon className="size-4 text-amber-500" /> {swt("interface.m0613")}<span className="text-muted-foreground text-xs font-normal">
-              {swt("interface.m0614")}{" "}{constraints.length} {swt("interface.m0615")}</span>
+            <ShieldAlertIcon className="size-4 text-amber-700 dark:text-amber-400" /> {swt("interface.m0613")}
+            <span className="text-muted-foreground text-xs font-normal">
+              {swt("interface.m0614")} {constraints.length} {swt("interface.m0615")}
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
@@ -625,8 +645,9 @@ export function OverviewTab({ taskId }: { taskId: string }) {
               disabled={conBusy || !conText.trim()}
               onClick={() => void addConstraint()}
             >
-              <PlusIcon className="size-3.5" /> {swt("interface.m0611")}</Button>
-            {conErr && <span className="text-xs text-red-500">{conErr}</span>}
+              <PlusIcon className="size-3.5" /> {swt("interface.m0611")}
+            </Button>
+            {conErr && <span className="text-xs text-red-600 dark:text-red-400">{conErr}</span>}
           </div>
           {/* Constraint list. */}
           {constraints.length > 0 ? (
@@ -660,7 +681,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       disabled={conBusy || !editConText.trim()}
                       onClick={() => void saveEditConstraint(c)}
                     >
-                      <CheckIcon className="size-3.5 text-emerald-500" />
+                      <CheckIcon className="size-3.5 text-emerald-700 dark:text-emerald-400" />
                     </Button>
                     <Button
                       size="sm"
@@ -677,7 +698,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                     <span
                       className={`shrink-0 rounded px-1.5 py-0.5 text-xs ${
                         c.kind === "allow"
-                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                          ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400"
                           : "bg-red-500/15 text-red-600 dark:text-red-400"
                       }`}
                     >
@@ -700,15 +721,14 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       disabled={conBusy}
                       onClick={() => void removeConstraint(c)}
                     >
-                      <Trash2Icon className="size-3.5 text-red-500" />
+                      <Trash2Icon className="size-3.5 text-red-600 dark:text-red-400" />
                     </Button>
                   </div>
                 ),
               )}
             </div>
           ) : (
-            <p className="text-muted-foreground text-sm">
-              {swt("interface.m0619")}</p>
+            <p className="text-muted-foreground text-sm">{swt("interface.m0619")}</p>
           )}
         </CardContent>
       </Card>
@@ -717,7 +737,8 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <TargetIcon className="size-4 text-emerald-500" /> {swt("interface.m0620")}<span className="text-muted-foreground text-xs font-normal">{swt("interface.m0621")}</span>
+              <TargetIcon className="size-4 text-emerald-700 dark:text-emerald-400" /> {swt("interface.m0620")}
+              <span className="text-muted-foreground text-xs font-normal">{swt("interface.m0621")}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
@@ -726,7 +747,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                 {coverage.pct != null ? Math.round(coverage.pct * 100) + "%" : "—"}
               </span>
               <span className="text-muted-foreground text-sm">
-                {swt("interface.m0622")}{" "}{coverage.tested} {swt("interface.m0623")}{" "}{coverage.denominator}
+                {swt("interface.m0622")} {coverage.tested} {swt("interface.m0623")} {coverage.denominator}
               </span>
             </div>
             {coverage.pct != null && <Progress value={Math.round(coverage.pct * 100)} />}
@@ -749,8 +770,10 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <CoinsIcon className="size-4 text-amber-500" /> {swt("interface.m0624")}<span className="text-muted-foreground text-xs font-normal">
-              {swt("interface.m0625")}{" "}{tokenTotals.calls > 0 ? swt("interface.m0626", { p0: tokenTotals.calls }) : ""}）
+            <CoinsIcon className="size-4 text-amber-700 dark:text-amber-400" /> {swt("interface.m0624")}
+            <span className="text-muted-foreground text-xs font-normal">
+              {swt("interface.m0625")} {tokenTotals.calls > 0 ? swt("interface.m0626", { p0: tokenTotals.calls }) : ""}
+              ）
             </span>
           </CardTitle>
         </CardHeader>
@@ -773,7 +796,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                 </span>
                 <span className="tabular-nums">
                   <span className="text-muted-foreground">{swt("interface.m0177")}</span>
-                  <span className="font-semibold text-emerald-500">
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
                     {cacheHitRate(tokenTotals.cacheRead, tokenTotals.input)}
                   </span>
                 </span>
@@ -801,7 +824,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                         <td className="py-1.5 pr-3 text-right tabular-nums">{fmtTokens(m.input_tokens)}</td>
                         <td className="py-1.5 pr-3 text-right tabular-nums">{fmtTokens(m.output_tokens)}</td>
                         <td className="py-1.5 pr-3 text-right tabular-nums">{fmtTokens(m.cache_read_tokens)}</td>
-                        <td className="py-1.5 text-right tabular-nums text-emerald-500">
+                        <td className="py-1.5 text-right tabular-nums text-emerald-700 dark:text-emerald-400">
                           {cacheHitRate(m.cache_read_tokens, m.input_tokens)}
                         </td>
                       </tr>
@@ -819,8 +842,10 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldCheckIcon className="size-4 text-emerald-500" /> {swt("interface.m0631")}<span className="text-muted-foreground text-xs font-normal">
-              {swt("interface.m0632")}{" "}{scope.length} {swt("interface.m0416")}</span>
+            <ShieldCheckIcon className="size-4 text-emerald-700 dark:text-emerald-400" /> {swt("interface.m0631")}
+            <span className="text-muted-foreground text-xs font-normal">
+              {swt("interface.m0632")} {scope.length} {swt("interface.m0416")}
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
@@ -866,8 +891,9 @@ export function OverviewTab({ taskId }: { taskId: string }) {
               disabled={scopeBusy || !scopeValueInput.trim()}
               onClick={() => void addScope()}
             >
-              <PlusIcon className="size-3.5" /> {swt("interface.m0611")}</Button>
-            {scopeErr && <span className="text-xs text-red-500">{scopeErr}</span>}
+              <PlusIcon className="size-3.5" /> {swt("interface.m0611")}
+            </Button>
+            {scopeErr && <span className="text-xs text-red-600 dark:text-red-400">{scopeErr}</span>}
           </div>
           {/* Scope list. */}
           {scope.length > 0 ? (
@@ -877,13 +903,21 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                   <span className="bg-muted text-muted-foreground shrink-0 rounded px-1.5 py-0.5 text-xs">
                     {SCOPE_KIND_LABELS[row.kind]}
                   </span>
-                  <span className="min-w-0 flex-1 basis-40 truncate font-mono text-xs" title={scopeValue(row)}>{scopeValue(row)}</span>
+                  <span className="min-w-0 flex-1 basis-40 truncate font-mono text-xs" title={scopeValue(row)}>
+                    {scopeValue(row)}
+                  </span>
                   <span className="text-muted-foreground shrink-0 text-xs">{SCOPE_SOURCE_LABELS[row.source]}</span>
                   <span className="text-muted-foreground shrink-0 text-xs">
                     {swt(row.operator_authorized ? "interface.scopeAuthorized" : "interface.scopeCoverageProposal")}
                   </span>
                   {!row.operator_authorized && row.kind !== "keyword" && row.task_id.toString() === taskId && (
-                    <Button size="sm" variant="outline" className="h-6 shrink-0 px-1.5" disabled={scopeBusy} onClick={() => void authorizeScope(row)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-6 shrink-0 px-1.5"
+                      disabled={scopeBusy}
+                      onClick={() => void authorizeScope(row)}
+                    >
                       <ShieldCheckIcon className="size-3.5" /> {swt("interface.scopeAuthorize")}
                     </Button>
                   )}
@@ -894,7 +928,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                       className="h-6 shrink-0 px-1.5"
                       onClick={() => void removeScope(row)}
                     >
-                      <Trash2Icon className="size-3.5 text-red-500" />
+                      <Trash2Icon className="size-3.5 text-red-600 dark:text-red-400" />
                     </Button>
                   ) : (
                     <span className="text-muted-foreground shrink-0 text-xs">{swt("interface.m0638")}</span>
@@ -911,7 +945,8 @@ export function OverviewTab({ taskId }: { taskId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ActivityIcon className="size-4 text-blue-500" /> {swt("interface.m0640")}</CardTitle>
+            <ActivityIcon className="size-4 text-blue-600 dark:text-blue-400" /> {swt("interface.m0640")}
+          </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
@@ -936,7 +971,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
           </div>
           <div>
             <div className="text-xs text-muted-foreground">
-              {swt("interface.m0523")}{" "}{task?.goals_met ?? 0}/{task?.goals_total ?? 0}
+              {swt("interface.m0523")} {task?.goals_met ?? 0}/{task?.goals_total ?? 0}
             </div>
             <Progress value={goalsPct} className="mt-2" />
           </div>
@@ -957,7 +992,8 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <TargetIcon className="size-4" /> {swt("interface.m0644")}</CardTitle>
+              <TargetIcon className="size-4" /> {swt("interface.m0644")}
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             {running.slice(0, 6).map((i) => (
@@ -973,7 +1009,8 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <AlertTriangleIcon className="size-4 text-amber-500" /> {swt("interface.m0646")}</CardTitle>
+              <AlertTriangleIcon className="size-4 text-amber-700 dark:text-amber-400" /> {swt("interface.m0646")}
+            </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3 text-sm">
             <div>
@@ -998,7 +1035,8 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <BugIcon className="size-4 text-red-500" /> {swt("interface.m0651")}</CardTitle>
+              <BugIcon className="size-4 text-red-600 dark:text-red-400" /> {swt("interface.m0651")}
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             {taskFindings.slice(0, 6).map((f) => (
@@ -1017,11 +1055,15 @@ export function OverviewTab({ taskId }: { taskId: string }) {
         <Card className="border-red-500/30">
           <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
             <CardTitle className="flex items-center gap-2 text-sm">
-              <AlertTriangleIcon className="size-4 text-red-500" /> {swt("interface.m0652")}<span className="text-xs font-normal text-muted-foreground">{swt("interface.m0653")}{" "}{blocked.length} {swt("interface.m0654")}</span>
+              <AlertTriangleIcon className="size-4 text-red-600 dark:text-red-400" /> {swt("interface.m0652")}
+              <span className="text-xs font-normal text-muted-foreground">
+                {swt("interface.m0653")} {blocked.length} {swt("interface.m0654")}
+              </span>
             </CardTitle>
             <Button size="sm" variant="outline" disabled={rerunning.has("__all__")} onClick={() => void rerunAll()}>
               <RefreshCwIcon className={`size-3.5 ${rerunning.has("__all__") ? "animate-spin" : ""}`} />
-              {swt("interface.m0655")}</Button>
+              {swt("interface.m0655")}
+            </Button>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             {blocked.slice(0, 20).map((i) => (
@@ -1036,12 +1078,14 @@ export function OverviewTab({ taskId }: { taskId: string }) {
                   onClick={() => void rerunOne(i.id)}
                 >
                   <RefreshCwIcon className={`size-3 ${rerunning.has(i.id) ? "animate-spin" : ""}`} />
-                  {swt("interface.m0656")}</Button>
+                  {swt("interface.m0656")}
+                </Button>
               </div>
             ))}
             {blocked.length > 20 && (
               <p className="text-xs text-muted-foreground">
-                {swt("interface.m0657")}{" "}{blocked.length - 20} {swt("interface.m0658")}</p>
+                {swt("interface.m0657")} {blocked.length - 20} {swt("interface.m0658")}
+              </p>
             )}
           </CardContent>
         </Card>
@@ -1049,22 +1093,79 @@ export function OverviewTab({ taskId }: { taskId: string }) {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <StatCard label={swt("interface.m0659")} value={open.length} icon={ShieldCheckIcon} sub={swt("interface.m0660")} />
-        <StatCard label={swt("interface.m0153")} value={taskFindings.length} icon={BugIcon} sub={swt("interface.m0661")} />
-        <StatCard label={swt("interface.m0662")} value={intents.length} icon={AlertTriangleIcon} sub={swt("interface.m0663")} />
+        <StatCard
+          label={swt("interface.m0659")}
+          value={open.length}
+          icon={ShieldCheckIcon}
+          sub={swt("interface.m0660")}
+        />
+        <StatCard
+          label={swt("interface.m0153")}
+          value={taskFindings.length}
+          icon={BugIcon}
+          sub={swt("interface.m0661")}
+        />
+        <StatCard
+          label={swt("interface.m0662")}
+          value={intents.length}
+          icon={AlertTriangleIcon}
+          sub={swt("interface.m0663")}
+        />
       </div>
     </div>
   );
 }
 
 const TASK_RULE_KIND_OPTIONS: { value: AssetInterceptKind; label: string; placeholder: string }[] = [
-  { value: "exact_domain", get label() { return swt("interface.m0664"); }, placeholder: "example.gov.cn" },
-  { value: "exact_ip", get label() { return swt("interface.m0665"); }, placeholder: "203.0.113.10" },
-  { value: "exact_url", get label() { return swt("interface.m0666"); }, placeholder: "https://example.com/login" },
-  { value: "fuzzy_domain", get label() { return swt("interface.m0667"); }, placeholder: ".gov.cn" },
-  { value: "fuzzy_ip", get label() { return swt("interface.m0668"); }, placeholder: "203.0.113." },
-  { value: "fuzzy_url", get label() { return swt("interface.m0669"); }, placeholder: "/admin" },
-  { value: "cidr", get label() { return swt("interface.m0670"); }, placeholder: "192.168.0.0/16" },
+  {
+    value: "exact_domain",
+    get label() {
+      return swt("interface.m0664");
+    },
+    placeholder: "example.gov.cn",
+  },
+  {
+    value: "exact_ip",
+    get label() {
+      return swt("interface.m0665");
+    },
+    placeholder: "203.0.113.10",
+  },
+  {
+    value: "exact_url",
+    get label() {
+      return swt("interface.m0666");
+    },
+    placeholder: "https://example.com/login",
+  },
+  {
+    value: "fuzzy_domain",
+    get label() {
+      return swt("interface.m0667");
+    },
+    placeholder: ".gov.cn",
+  },
+  {
+    value: "fuzzy_ip",
+    get label() {
+      return swt("interface.m0668");
+    },
+    placeholder: "203.0.113.",
+  },
+  {
+    value: "fuzzy_url",
+    get label() {
+      return swt("interface.m0669");
+    },
+    placeholder: "/admin",
+  },
+  {
+    value: "cidr",
+    get label() {
+      return swt("interface.m0670");
+    },
+    placeholder: "192.168.0.0/16",
+  },
 ];
 
 const TASK_RULE_KIND_LABEL: Record<AssetInterceptKind, string> = Object.fromEntries(
@@ -1178,8 +1279,10 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <ShieldCheckIcon className="size-4 text-sky-500" /> {swt("interface.m0671")}<span className="text-muted-foreground text-xs font-normal">
-            {swt("interface.m0672")}{" "}{rules.length} {swt("interface.m0416")}</span>
+          <ShieldCheckIcon className="size-4 text-sky-700 dark:text-sky-400" /> {swt("interface.m0671")}
+          <span className="text-muted-foreground text-xs font-normal">
+            {swt("interface.m0672")} {rules.length} {swt("interface.m0416")}
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -1214,8 +1317,9 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
             disabled={busy}
           />
           <Button size="sm" variant="outline" disabled={busy || !newPattern.trim()} onClick={() => void add()}>
-            <PlusIcon className="size-3.5" /> {swt("interface.m0611")}</Button>
-          {err && <span className="text-xs text-red-500">{err}</span>}
+            <PlusIcon className="size-3.5" /> {swt("interface.m0611")}
+          </Button>
+          {err && <span className="text-xs text-red-600 dark:text-red-400">{err}</span>}
         </div>
         {/* Rule list. */}
         {rules.length > 0 ? (
@@ -1267,7 +1371,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
                     disabled={busy || !editPattern.trim()}
                     onClick={() => void saveEdit(r)}
                   >
-                    <CheckIcon className="size-3.5 text-emerald-500" />
+                    <CheckIcon className="size-3.5 text-emerald-700 dark:text-emerald-400" />
                   </Button>
                   <Button
                     size="sm"
@@ -1284,7 +1388,7 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
                   <span
                     className={`shrink-0 rounded px-1.5 py-0.5 text-xs ${
                       r.action === "allow"
-                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                        ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400"
                         : "bg-red-500/15 text-red-600 dark:text-red-400"
                     }`}
                   >
@@ -1312,15 +1416,14 @@ function TaskInterceptRulesCard({ taskId }: { taskId: string }) {
                     disabled={busy}
                     onClick={() => void remove(r)}
                   >
-                    <Trash2Icon className="size-3.5 text-red-500" />
+                    <Trash2Icon className="size-3.5 text-red-600 dark:text-red-400" />
                   </Button>
                 </div>
               ),
             )}
           </div>
         ) : (
-          <p className="text-muted-foreground text-sm">
-            {swt("interface.m0675")}</p>
+          <p className="text-muted-foreground text-sm">{swt("interface.m0675")}</p>
         )}
       </CardContent>
     </Card>

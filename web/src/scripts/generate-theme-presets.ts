@@ -89,7 +89,13 @@ const defaultPrimary = {
   dark: defaultDarkPrimaryMatch?.[1]?.trim() ?? "",
 };
 
-presets.unshift({ get label() { return swt("english.e188"); }, value: "default", primary: defaultPrimary });
+presets.unshift({
+  get label() {
+    return swt("english.e188");
+  },
+  value: "default",
+  primary: defaultPrimary,
+});
 
 const generatedBlock = `// --- generated:themePresets:start ---
 

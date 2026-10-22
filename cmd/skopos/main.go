@@ -20,6 +20,7 @@ import (
 
 	"github.com/Philocyber/skopos/agent"
 	"github.com/Philocyber/skopos/config"
+	"github.com/Philocyber/skopos/recontools"
 	"github.com/Philocyber/skopos/selfupdate"
 	"github.com/Philocyber/skopos/server"
 	"github.com/Philocyber/skopos/traffic"
@@ -135,6 +136,16 @@ func run() int {
 		log.Fatalf("open stores: %v", err)
 	}
 	defer mgr.Close()
+
+	// Make any recon tool installed through the one-click installer (System →
+	// Tools) immediately runnable by name from Bash, without per-tool PATH
+	// wiring: prepend its managed bin directory once, here, regardless of
+	// whether anything has been installed into it yet.
+	if binDir := recontools.BinDir(*dataDir); binDir != "" {
+		if err := os.MkdirAll(binDir, 0o755); err == nil {
+			_ = os.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
+		}
+	}
 
 	// Surviving this long means a freshly swapped-in build actually works, so drop
 	// the upgrade marker and stop counting attempts. Until it fires, every boot

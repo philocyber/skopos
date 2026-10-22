@@ -1,8 +1,4 @@
 "use client";
-import { getIntlLocale } from "@/i18n/runtime";
-
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import Link from "next/link";
@@ -18,17 +14,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/i18n";
+import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { FindingRetest } from "@/lib/types";
 
 const statusLabels = {
-  get pending() { return swt("interface.m2216"); },
-  get running() { return swt("interface.m0330"); },
-  get completed() { return swt("interface.m0809"); },
-  get failed() { return swt("interface.m2217"); },
-  get stopped() { return swt("interface.m2218"); },
+  get pending() {
+    return swt("interface.m2216");
+  },
+  get running() {
+    return swt("interface.m0330");
+  },
+  get completed() {
+    return swt("interface.m0809");
+  },
+  get failed() {
+    return swt("interface.m2217");
+  },
+  get stopped() {
+    return swt("interface.m2218");
+  },
 };
-const verdictLabels = { get reproduced() { return swt("interface.m2219"); }, get fixed() { return swt("interface.m2220"); }, get inconclusive() { return swt("interface.m2221"); } };
+const verdictLabels = {
+  get reproduced() {
+    return swt("interface.m2219");
+  },
+  get fixed() {
+    return swt("interface.m2220");
+  },
+  get inconclusive() {
+    return swt("interface.m2221");
+  },
+};
 
 function active(r: FindingRetest) {
   return r.status === "pending" || r.status === "running";
@@ -97,22 +115,26 @@ export function FindingRetestPanel({
           <Button asChild variant="outline" size="sm">
             <Link href={`/chat?c=${running.conversation_id}`} title={swt("interface.m0329")}>
               <Spinner data-icon="inline-start" aria-hidden="true" />
-              {swt("interface.m0330")}</Link>
+              {swt("interface.m0330")}
+            </Link>
           </Button>
         ) : null}
         {!running && !readOnly ? (
           <Button size="sm" onClick={() => setOpen(true)} disabled={items === null || !!error}>
             <RotateCcwIcon data-icon="inline-start" />
-            {swt("interface.m2224")}</Button>
+            {swt("interface.m2224")}
+          </Button>
         ) : null}
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {error ? (
           <Alert variant="destructive">
             <AlertDescription>
-              {swt("interface.m2225")}{error}
+              {swt("interface.m2225")}
+              {error}
               <Button variant="outline" size="sm" onClick={() => void load()}>
-                {swt("interface.m0682")}</Button>
+                {swt("interface.m0682")}
+              </Button>
             </AlertDescription>
           </Alert>
         ) : null}
@@ -155,7 +177,8 @@ export function FindingRetestPanel({
                 ) : null}
                 {item.notes ? (
                   <p className="whitespace-pre-wrap break-words text-muted-foreground text-xs">
-                    {swt("interface.m2230")}{item.notes}
+                    {swt("interface.m2230")}
+                    {item.notes}
                   </p>
                 ) : null}
                 {item.status === "completed" && item.evidence ? (

@@ -1,7 +1,5 @@
 "use client";
 
-import { translate as swt } from "@/i18n/runtime";
-import { useI18n } from "@/i18n";
 import * as React from "react";
 
 import { toast } from "sonner";
@@ -18,6 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n";
+import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { Finding, FindingsPage } from "@/lib/types";
 
@@ -90,7 +90,9 @@ export function LinkTrafficDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{swt("interface.m1095")}</DialogTitle>
-          <DialogDescription>{swt("interface.m2260")}{" "}{trafficIds.length} {swt("interface.m2261")}</DialogDescription>
+          <DialogDescription>
+            {swt("interface.m2260")} {trafficIds.length} {swt("interface.m2261")}
+          </DialogDescription>
         </DialogHeader>
         <FieldGroup>
           <Field>
@@ -137,23 +139,29 @@ export function LinkTrafficDialog({
         </div>
         <div className="flex items-center justify-between gap-2">
           <Button variant="outline" size="sm" disabled={loading || page <= 1} onClick={() => setPage((p) => p - 1)}>
-            {swt("interface.m0488")}</Button>
+            {swt("interface.m0488")}
+          </Button>
           <span className="text-xs">
-            {swt("interface.m0489")}{" "}{page} {swt("interface.m2265")}{" "}{data?.total ?? 0} {swt("interface.m0328")}</span>
+            {swt("interface.m0489")} {page} {swt("interface.m2265")} {data?.total ?? 0} {swt("interface.m0328")}
+          </span>
           <Button
             variant="outline"
             size="sm"
             disabled={loading || page * 20 >= (data?.total ?? 0)}
             onClick={() => setPage((p) => p + 1)}
           >
-            {swt("interface.m0491")}</Button>
+            {swt("interface.m0491")}
+          </Button>
         </div>
         <p className="text-sm">
-          {selected ? swt("interface.m2266", { p0: selected.finding_id, p1: selected.name || selected.vulnclass }) : swt("interface.m2267")}
+          {selected
+            ? swt("interface.m2266", { p0: selected.finding_id, p1: selected.name || selected.vulnclass })
+            : swt("interface.m2267")}
         </p>
         <DialogFooter>
           <Button variant="outline" disabled={busy} onClick={onClose}>
-            {swt("interface.m0063")}</Button>
+            {swt("interface.m0063")}
+          </Button>
           <Button disabled={busy || !selected} onClick={() => void save()}>
             {busy ? swt("interface.m0272") : swt("interface.m2268")}
           </Button>
