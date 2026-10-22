@@ -5,6 +5,8 @@
 - [Provenance and modifications](PROVENANCE.md)
 - [Verification and known limitations](VERIFICATION.md)
 - [Code review — quality and performance (2026-10-22)](CODE-REVIEW-2026-10-22.md)
+- [Dreadnode capabilities import (2026-10-22)](CAPABILITIES-IMPORT-2026-10-22.md)
+- [Recon planning guidance](../skills/recon-planning/SKILL.md)
 - [LLM provider templates](llm-providers.md)
 - [Claude Code, Codex and Pi adapter](../adapters/agent/README.md)
 - [Example engagement (template)](example-engagement.md)
