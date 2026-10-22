@@ -393,6 +393,12 @@ export const DOC_SECTIONS: DocSection[] = [
     summary: "Step-by-step procedures for day-to-day work.",
     blocks: [
       {
+        type: "callout",
+        tone: "info",
+        title: "Worked example",
+        text: "docs/example-engagement.md in the repository is a copy-and-adapt template for one full engagement against your own authorized target, from scope to exported report, with a synthetic sample of the report format.",
+      },
+      {
         type: "p",
         text: "Writing a good task goal",
       },
