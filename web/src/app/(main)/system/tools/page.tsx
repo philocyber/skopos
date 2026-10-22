@@ -22,6 +22,8 @@ import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
 import type { Agent, Tool } from "@/lib/types";
 
+import { ReconToolsCard } from "./_components/recon-tools-card";
+
 // Traffic tools are host tools gated by global traffic capture: bindable, but
 // only usable when capture is on. Keep in sync with traffic.SeedToolMetas.
 const TRAFFIC_TOOL_KEYS = new Set(["traffic_search", "traffic_get"]);
@@ -418,6 +420,8 @@ export default function ToolsPage() {
           />
         </div>
       </div>
+
+      <ReconToolsCard />
 
       <Tabs defaultValue="system">
         <TabsList>

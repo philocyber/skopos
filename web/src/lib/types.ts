@@ -1587,6 +1587,29 @@ export interface UpdateProgress {
   error?: string;
 }
 
+/* One cataloged recon tool's install state, from /api/recontools/status. */
+export interface ReconToolStatus {
+  key: string;
+  repo: string;
+  description: string;
+  installed: boolean;
+  /* true = installed into Skopos's own managed directory by this installer; false = found on PATH already. */
+  managed: boolean;
+  path?: string;
+  version?: string;
+}
+
+/* One install-progress event from /api/recontools/stream?tool=<key>. */
+export interface ReconToolProgress {
+  tool: string;
+  phase: "downloading" | "verifying" | "extracting" | "done" | "failed";
+  /* 0–100 only during download; -1 for other stages. */
+  percent: number;
+  message: string;
+  version?: string;
+  error?: string;
+}
+
 // Original execution selected from an approval, never submitted to the reviewer.
 export interface InterceptExecution {
   conversation_id: number | null;

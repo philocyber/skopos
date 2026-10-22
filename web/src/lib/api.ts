@@ -78,6 +78,7 @@ import type {
   NotificationMeta,
   PromptVar,
   PromptVersion,
+  ReconToolStatus,
   SessionTokenUsage,
   Settings,
   Severity,
@@ -1307,4 +1308,9 @@ export const api = {
   // Return 202 immediately; download in the background and stream progress through /api/update/stream.
   applyUpdate: () => post<{ ok: boolean; target: string }>(`/update/apply`),
   rollbackUpdate: () => post<{ ok: boolean }>(`/update/rollback`),
+
+  // One-click installer for optional recon tools (subfinder/httpx/naabu/dnsx).
+  listReconTools: () => get<{ tools: ReconToolStatus[] }>(`/recontools/status`),
+  // Return 202 immediately; download in the background and stream progress through /api/recontools/stream.
+  installReconTool: (tool: string) => post<{ ok: boolean; tool: string }>(`/recontools/install`, { tool }),
 };

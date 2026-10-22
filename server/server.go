@@ -45,6 +45,7 @@ type Server struct {
 	ctx    context.Context
 
 	skillDir string // root directory for skill subdirectories
+	dataDir  string // data directory for SQLite stores; also roots recontools' managed bin dir
 	jwtKey   []byte // HS256 signing key loaded from / generated into dataDir/jwt.key
 	authGate authAdmission
 
@@ -148,7 +149,7 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 	if err != nil {
 		log.Fatalf("[auth] JWT key: %v", err)
 	}
-	s := &Server{m: m, engine: NewEngine(m), ctx: ctx, skillDir: skillDir, jwtKey: key, chatBusy: map[string]bool{},
+	s := &Server{m: m, engine: NewEngine(m), ctx: ctx, skillDir: skillDir, dataDir: dataDir, jwtKey: key, chatBusy: map[string]bool{},
 		chatCancel: map[string]context.CancelCauseFunc{}, triggerQ: map[string][]triggeredRun{},
 		triggerActive: map[string]int{}, triggerCfg: map[string]triggerBehavior{},
 		profChatAgents: map[int64]*agent.ChatAgent{},
@@ -672,6 +673,13 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/update/apply", s.updateApply)
 	mux.HandleFunc("POST /api/update/rollback", s.updateRollback)
 	mux.HandleFunc("GET /api/update/stream", s.updateStream)
+
+	// One-click installer for optional recon tools (subfinder/httpx/naabu/dnsx).
+	// Same authentication tier as updates: it downloads and runs a third-party
+	// binary, so it is not exposed to /api/health's unauthenticated exemption.
+	mux.HandleFunc("GET /api/recontools/status", s.reconToolsStatus)
+	mux.HandleFunc("POST /api/recontools/install", s.reconToolsInstall)
+	mux.HandleFunc("GET /api/recontools/stream", s.reconToolsStream)
 
 	mux.HandleFunc("GET /api/tasks", s.listTasks)
 	mux.HandleFunc("POST /api/tasks", s.createTask)
