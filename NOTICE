@@ -23,6 +23,15 @@ Additional upstream components credited:
     norma SDK    https://github.com/Autumn-27/norma         (agent capabilities)
     ScopeSentry  https://github.com/Autumn-27/ScopeSentry    (asset-sync concepts)
 
+Several skill files under skills/ are adapted from Dreadnode's capabilities
+project (MIT License), commit 52f369eae047ba7a8b6b72d650355e4c6be4ec42:
+
+    capabilities https://github.com/dreadnode/capabilities      (MIT)
+
+See docs/CAPABILITIES-IMPORT-2026-10-22.md for the full list of imported and
+adapted skills, and each skill's own SKILL.md for its individual provenance
+note.
+
 The original ARTEX copyright, authorship, contributor acknowledgments, and
 upstream changelog history are retained and remain attributed to their authors.
 This project changes the product name, the user-facing interface and messages,
