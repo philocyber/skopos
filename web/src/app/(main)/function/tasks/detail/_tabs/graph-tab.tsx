@@ -3,6 +3,7 @@ import * as React from "react";
 
 import { ExplorationGraph } from "@/components/exploration-graph";
 import { Card, CardContent } from "@/components/ui/card";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { Edge, TaskNode } from "@/lib/types";
@@ -41,10 +42,10 @@ export function GraphTab({ taskId }: { taskId: string }) {
         });
     };
     load();
-    const timer = setInterval(load, 20000);
+    const timer = pollWhileVisible(load, 20000);
     return () => {
       cancelled = true;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId]);
 

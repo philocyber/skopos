@@ -48,6 +48,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useSideQuestions } from "@/hooks/use-side-questions";
 import { useI18n } from "@/i18n";
 import { getIntlLocale, translate as swt } from "@/i18n/runtime";
@@ -835,10 +836,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // Polling is best-effort; the next interval retries automatically.
         });
     void load();
-    const t = setInterval(load, 5000);
+    const t = pollWhileVisible(load, 5000);
     return () => {
       alive = false;
-      clearInterval(t);
+      t();
     };
   }, [taskId]);
 
@@ -858,10 +859,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         });
     };
     void load();
-    const timer = setInterval(load, 2000);
+    const timer = pollWhileVisible(load, 2000);
     return () => {
       alive = false;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId]);
 
@@ -877,10 +878,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // Polling is best-effort; the next interval retries automatically.
         });
     void load();
-    const timer = setInterval(load, 10_000);
+    const timer = pollWhileVisible(load, 10_000);
     return () => {
       alive = false;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId]);
 
@@ -896,18 +897,18 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // Polling is best-effort; the next interval retries automatically.
         });
     void load();
-    const t = setInterval(load, 5000);
+    const t = pollWhileVisible(load, 5000);
     return () => {
       alive = false;
-      clearInterval(t);
+      t();
     };
   }, [taskId]);
 
   // Re-render on a timer so "streaming" liveness recomputes as activity goes stale.
   const [, setTick] = React.useState(0);
   React.useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 1500);
-    return () => clearInterval(id);
+    const id = pollWhileVisible(() => setTick((t) => t + 1), 1500);
+    return () => id();
   }, []);
 
   // ── first load + single task SSE ────────────────────────────────────────────────
@@ -1118,10 +1119,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // The next poll retries; Worker controls and transcripts remain available.
         });
     void load();
-    const timer = setInterval(load, 5000);
+    const timer = pollWhileVisible(load, 5000);
     return () => {
       active = false;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId]);
 
@@ -1158,10 +1159,10 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           // Polling is best-effort; the next interval retries automatically.
         });
     void load();
-    const t = setInterval(load, 5000);
+    const t = pollWhileVisible(load, 5000);
     return () => {
       active = false;
-      clearInterval(t);
+      t();
     };
   }, [taskId]);
 

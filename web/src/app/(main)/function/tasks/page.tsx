@@ -118,6 +118,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useI18n } from "@/i18n";
 import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
@@ -523,8 +524,8 @@ export default function TasksPage() {
   React.useEffect(() => {
     load();
     loadCategories();
-    const i = setInterval(load, POLL_MS);
-    return () => clearInterval(i);
+    const i = pollWhileVisible(load, POLL_MS);
+    return () => i();
   }, [load, loadCategories]);
 
   const refreshCategoriesAndTasks = React.useCallback(() => {
@@ -561,8 +562,8 @@ export default function TasksPage() {
   React.useEffect(() => {
     if (!hasRunning) return;
     setNowSec(Math.floor(Date.now() / 1000));
-    const i = setInterval(() => setNowSec(Math.floor(Date.now() / 1000)), 1000);
-    return () => clearInterval(i);
+    const i = pollWhileVisible(() => setNowSec(Math.floor(Date.now() / 1000)), 1000);
+    return () => i();
   }, [hasRunning]);
 
   const deleteTask = React.useCallback(
@@ -1842,8 +1843,8 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
 
   React.useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), 2_000);
-    return () => clearInterval(timer);
+    const timer = pollWhileVisible(() => void load(), 2_000);
+    return () => timer();
   }, [load]);
 
   const selectable = React.useMemo(

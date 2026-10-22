@@ -39,6 +39,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useI18n } from "@/i18n";
 import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
@@ -553,8 +554,8 @@ export default function FindingsPage() {
     };
     refresh();
     if (view === "asset") return;
-    const timer = setInterval(refresh, 5000);
-    return () => clearInterval(timer);
+    const timer = pollWhileVisible(refresh, 5000);
+    return () => timer();
   }, [activeRetestFingerprint, loadFlat, loadGroup, preferencesHydrated, refreshGroups, view]);
 
   React.useEffect(() => {
@@ -586,10 +587,10 @@ export default function FindingsPage() {
         });
     };
     load();
-    const t = setInterval(load, 5000);
+    const t = pollWhileVisible(load, 5000);
     return () => {
       alive = false;
-      clearInterval(t);
+      t();
     };
   }, []);
 

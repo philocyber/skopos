@@ -5,7 +5,7 @@ performance and quality improvements. Each finding was verified against the
 source (and, where noted, against a production build or a running instance),
 not inferred. Severity is impact × likelihood; effort is the fix cost.
 
-Two fixes are already applied in this branch (F1, P1); the rest are
+Four fixes are applied in this branch (F1, P1, F2, B1); the rest are
 recommendations with the evidence to act on them.
 
 ## Applied
@@ -37,18 +37,22 @@ with an immediate fetch, and migrated this badge to it. See F2 for the rest.
 
 ## Recommended — frontend
 
-### F2 — 35 remaining polls never pause when the tab is hidden · perf · low effort
+### F2 — Remaining polls never paused when the tab was hidden · perf · **applied**
 
 `setInterval` appears 36 times across 16 files; none check
 `document.hidden`. A task-detail view alone runs several concurrent 2–5 s polls
 (`_tabs/sessions-tab.tsx` has seven). A console left open in a background tab
 keeps issuing these requests indefinitely, each driving backend DB work and SSE.
-Migrate the remaining call sites to the `usePolling` hook added in P1. The call
-sites follow one shape (`load(); const t = setInterval(load, N); return () =>
-clearInterval(t)`), so most are a direct swap; the few with extra guards
-(`findings/page.tsx` early-returns for `view === "asset"`,
-`use-side-questions.ts` has an epoch guard) need the guard folded into the
-hook's `enabled` argument.
+Fixed: all remaining `setInterval` polls (22 across 11 files) now go through a
+`pollWhileVisible` helper (added alongside `usePolling` in
+`web/src/hooks/use-polling.ts`) — a drop-in for the `setInterval`/`clearInterval`
+pair that keeps each effect's initial `load()` and `alive`/`active` guard
+intact, pauses while `document.hidden`, and fires one catch-up call on resume.
+The guard-bearing sites were preserved exactly (`findings/page.tsx` still
+early-returns for `view === "asset"`; the assets-tab debounce `setTimeout`
+is untouched). Verified against the running backend: on the task-detail page,
+21 `/api` requests in an 8 s visible window, **0** while hidden, polling resumes
+on return; the pause/resume catch-up was also unit-checked in isolation.
 
 ### F3 — Full payload re-fetch + full re-render on every poll · perf · medium effort
 
@@ -81,16 +85,22 @@ team decides to adopt the rule and format once.
 
 ## Recommended — backend
 
-### B1 — N+1 in the coverage-graph builder · perf · low effort
+### B1 — N+1 in the coverage-graph builder · perf · **applied**
 
 `db/task_scope.go` (~line 538) loops over the set of missing root domains and
 runs one `SELECT id, COALESCE(company_id,0) FROM assets WHERE type='root_domain'
 AND domain=$1 LIMIT 1` per root. For a task spanning many distinct root domains
 this is a query per root on each coverage-graph build (the Assets coverage view
-and the task "Asset coverage graph" tab). Replace with a single
-`WHERE type='root_domain' AND domain = ANY($1)` and index the result in a map.
-Impact is bounded by the number of distinct out-of-scope roots, so medium-low,
-but the fix is mechanical and removes a loop of round-trips.
+and the task "Asset coverage graph" tab). Fixed: the loop is replaced by one `WHERE type='root_domain' AND domain IN
+(…)` query (the repo's `IN`-list convention; `ANY` arrays are not used by the
+pgx stdlib driver here) with `DISTINCT ON (domain) … ORDER BY domain, id`. A
+unique constraint (`uq_av2_root_domain`) already guarantees one `root_domain`
+row per domain, so `DISTINCT ON` is provably equivalent to the old per-row
+`LIMIT 1`; the placeholder branch for domains with no asset row is preserved.
+A real DB error now surfaces instead of being silently treated as "no row".
+Verified: `go build`/`go vet` clean; the exact query run against Postgres
+returns one row per present domain and omits missing ones; the
+`/tasks/{id}/coverage-graph` endpoint still returns `200 {nodes,edges}`.
 
 ### B2 — Row-closing and single-startup loops look healthy · no action
 

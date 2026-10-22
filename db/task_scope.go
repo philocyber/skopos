@@ -533,22 +533,52 @@ ORDER BY a.id`, taskID)
 			}
 		}
 	}
-	for root := range missingRoots {
-		var id, companyID int64
-		err := s.db.QueryRow(`SELECT id, COALESCE(company_id,0) FROM assets
-WHERE type='root_domain' AND domain=$1 LIMIT 1`, root).Scan(&id, &companyID)
-		var node CoverageGraphNode
-		if err == nil && id > 0 {
-			node = CoverageGraphNode{Key: assetKey(id), Kind: "root_domain", AssetID: id,
-				CompanyID: companyID, Domain: root, Label: root}
-			if companyID > 0 {
-				companyIDs[companyID] = true
-			}
-		} else {
-			node = CoverageGraphNode{Key: "r:" + root, Kind: "root_domain", Domain: root, Label: root}
+	if len(missingRoots) > 0 {
+		// Resolve every missing root in one query instead of one SELECT per root.
+		// DISTINCT ON (domain) ... ORDER BY domain, id keeps one deterministic row
+		// per domain (the original per-root LIMIT 1 picked an arbitrary row).
+		roots := make([]string, 0, len(missingRoots))
+		ph := make([]string, 0, len(missingRoots))
+		args := make([]any, 0, len(missingRoots))
+		for root := range missingRoots {
+			ph = append(ph, "$"+strconv.Itoa(len(roots)+1))
+			args = append(args, root)
+			roots = append(roots, root)
 		}
-		add(node)
-		rootByDomain[root] = node.Key
+		type rootRow struct{ id, companyID int64 }
+		real := make(map[string]rootRow, len(roots))
+		rows, err := s.db.Query(`SELECT DISTINCT ON (domain) domain, id, COALESCE(company_id,0) FROM assets
+WHERE type='root_domain' AND domain IN (`+strings.Join(ph, ",")+`) ORDER BY domain, id`, args...)
+		if err != nil {
+			return nil, err
+		}
+		for rows.Next() {
+			var d string
+			var rr rootRow
+			if err := rows.Scan(&d, &rr.id, &rr.companyID); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			real[d] = rr
+		}
+		rows.Close()
+		if err := rows.Err(); err != nil {
+			return nil, err
+		}
+		for _, root := range roots {
+			var node CoverageGraphNode
+			if rr, ok := real[root]; ok && rr.id > 0 {
+				node = CoverageGraphNode{Key: assetKey(rr.id), Kind: "root_domain", AssetID: rr.id,
+					CompanyID: rr.companyID, Domain: root, Label: root}
+				if rr.companyID > 0 {
+					companyIDs[rr.companyID] = true
+				}
+			} else {
+				node = CoverageGraphNode{Key: "r:" + root, Kind: "root_domain", Domain: root, Label: root}
+			}
+			add(node)
+			rootByDomain[root] = node.Key
+		}
 	}
 
 	// Company nodes for every referenced company id — always gray context.
