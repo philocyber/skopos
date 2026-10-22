@@ -4,6 +4,7 @@
 - [Setup and operation](../README.md)
 - [Provenance and modifications](PROVENANCE.md)
 - [Verification and known limitations](VERIFICATION.md)
+- [Code review — quality and performance (2026-10-22)](CODE-REVIEW-2026-10-22.md)
 - [LLM provider templates](llm-providers.md)
 - [Claude Code, Codex and Pi adapter](../adapters/agent/README.md)
 - [Example engagement (template)](example-engagement.md)

@@ -14,7 +14,6 @@ import { localizedUrl, translate as swt } from "@/i18n/runtime";
 import type { ChatMention } from "@/lib/chat-mentions";
 import { ManagementTransportError, managementTransportAllowed } from "@/lib/management-transport";
 import { MOCK } from "@/lib/mock/enabled";
-import { mockHandle } from "@/lib/mock/handler";
 import type {
   ActiveFindingRetest,
   Activity,
@@ -123,7 +122,13 @@ function getToken(): string | null {
 }
 
 export async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  if (MOCK) return mockHandle<T>(init?.method ?? "GET", path, init?.body ?? null);
+  // Load the demo handler (and its ~8k lines of fixtures) only in the backend-free demo build.
+  // A static import keeps that whole subtree in the production bundle; a dynamic one, gated on the
+  // build-time MOCK constant, lets the bundler split it into a chunk that production never loads.
+  if (MOCK) {
+    const { mockHandle } = await import("@/lib/mock/handler");
+    return mockHandle<T>(init?.method ?? "GET", path, init?.body ?? null);
+  }
   const token = getToken();
   const r = await fetch(`/api${path}`, {
     ...init,
