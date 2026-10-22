@@ -27,6 +27,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useI18n } from "@/i18n";
 import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
@@ -570,8 +571,8 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
 
   React.useEffect(() => {
     setNow(Date.now());
-    const t = setInterval(() => setNow(Date.now()), 30000);
-    return () => clearInterval(t);
+    const t = pollWhileVisible(() => setNow(Date.now()), 30000);
+    return () => t();
   }, []);
 
   // Debounce input by 300 ms, then query and return to page one.
@@ -630,10 +631,10 @@ export function BroadcastTab({ taskId }: { taskId: string }) {
         alive = false;
       };
     }
-    const timer = setInterval(load, POLL_MS);
+    const timer = pollWhileVisible(load, POLL_MS);
     return () => {
       alive = false;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId, page, size, kinds, query, order, live, atLive]);
 

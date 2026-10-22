@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useI18n } from "@/i18n";
 import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
@@ -436,7 +437,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
     void loadTokens();
     void loadGoals();
     void loadConstraints();
-    const timer = setInterval(() => {
+    const timer = pollWhileVisible(() => {
       void load();
       void loadTokens();
       void loadGoals();
@@ -444,7 +445,7 @@ export function OverviewTab({ taskId }: { taskId: string }) {
     }, 3000);
     return () => {
       cancelled = true;
-      clearInterval(timer);
+      timer();
     };
   }, [taskId, loadScope, loadTokens, loadGoals, loadConstraints]);
 

@@ -38,6 +38,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useI18n } from "@/i18n";
 import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
@@ -467,11 +468,11 @@ export function AssetsTab({ taskId }: { taskId: string }) {
     };
     // Debounce DSL keystrokes; plain (re)loads and polling run immediately.
     const debounce = setTimeout(() => void load(), dsl ? 400 : 0);
-    const timer = setInterval(() => void load(), 10_000);
+    const timer = pollWhileVisible(() => void load(), 10_000);
     return () => {
       active = false;
       clearTimeout(debounce);
-      clearInterval(timer);
+      timer();
     };
   }, [page, query, refreshKey, size, tab, taskId]);
 

@@ -45,6 +45,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useI18n } from "@/i18n";
 import { translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
@@ -318,10 +319,10 @@ function TaskDetailInner() {
           // Polling is best-effort; the next interval retries automatically.
         });
     void load();
-    const t = setInterval(load, 5000);
+    const t = pollWhileVisible(load, 5000);
     return () => {
       alive = false;
-      clearInterval(t);
+      t();
     };
   }, [id]);
 
@@ -356,8 +357,8 @@ function TaskDetailInner() {
   }, [id]);
   React.useEffect(() => {
     load();
-    const timer = setInterval(load, 5000);
-    return () => clearInterval(timer);
+    const timer = pollWhileVisible(load, 5000);
+    return () => timer();
   }, [load]);
 
   async function togglePause() {

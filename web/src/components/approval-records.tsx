@@ -24,6 +24,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { pollWhileVisible } from "@/hooks/use-polling";
 import { useI18n } from "@/i18n";
 import { getIntlLocale, translate as swt } from "@/i18n/runtime";
 import { api } from "@/lib/api";
@@ -821,10 +822,10 @@ export function ApprovalRecords({ taskId }: { taskId?: string }) {
 
   React.useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), 5000);
+    const timer = pollWhileVisible(() => void load(), 5000);
     return () => {
       request.current++;
-      clearInterval(timer);
+      timer();
     };
   }, [load]);
 
