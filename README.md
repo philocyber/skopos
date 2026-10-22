@@ -2,43 +2,56 @@
 
 # Skopos
 
-An LLM multi-agent autonomous penetration-testing system (Go backend + Next.js frontend)
+**An LLM multi-agent autonomous penetration-testing platform** — plan, execute, and report a
+security engagement end to end, with full HTTP evidence behind every finding.
 
-English
+Go backend · Next.js frontend · PostgreSQL · AGPL-3.0
 
 </div>
 
 ---
 
-> **About this project.** Skopos is a derivative of [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX),
-> rebranded and translated into English and Korean. It is built from upstream commit `160fe13`.
+## What Skopos does
+
+- **Multi-agent exploration engine.** A planner and N parallel workers share a two-graph model
+  (asset graph + exploration graph) to build and track a stable, multi-step attack chain across
+  sessions, instead of a one-shot script that forgets what it already tried.
+- **Evidence-backed findings.** Every HTTP request/response the agents make is captured through a
+  MITM recording proxy and bound to the findings it supports — reports are defensible, not just
+  narrated.
+- **Bring your own LLM.** Anthropic Claude, OpenAI (Chat Completions or Responses API), Z.ai GLM,
+  or any OpenAI-compatible endpoint, configured per agent with ready-made presets.
+- **Human-in-the-loop safety.** A shell/command interception gate requires approval for risky
+  executions by default, with fine-grained allow/deny rules once you trust a workflow.
+- **One-click vulnerability retest.** Re-verify a finding later with a dedicated retest agent that
+  reports Reproduced / Fixed / Inconclusive against the original evidence.
+- **Extensible by design.** A bundled `agentskills.io`-format skill library (60+ vulnerability-class
+  and methodology skills), custom tools (shell/command/script/HTTP), MCP servers, and direct asset
+  sync from [ScopeSentry](https://github.com/Autumn-27/ScopeSentry).
+- **Deploy in minutes.** A single Go binary with the frontend embedded, a one-click install script,
+  or Docker Compose — with in-app one-click updates once you're running.
+
+> **Authorization required.** This is a security-testing tool. Use it only against systems you own
+> or are explicitly authorized to test. See [Permitted use](#permitted-use) and
+> [Prohibited](#prohibited) below — these are binding terms, not a suggestion.
+
+---
+
+> **About this project.** Skopos is derived from [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX)
+> at upstream commit `160fe13`, rebranded and translated into English. See
+> [Provenance and changes](#provenance-and-changes) for exactly what differs from upstream, and
+> [License and disclaimer](#license-and-disclaimer) for the terms, which are unchanged (AGPL-3.0).
 
 Modification date: **2026-10-02**. See [provenance and changes](docs/PROVENANCE.md); this is not a release tag.
 
 [Verification status and known limitations](docs/VERIFICATION.md).
 
-> The code and architecture originate in ARTEX. This standalone derivative changes the product
-> name, English/Korean interface and messages, documentation, and distribution targets. See [Provenance and changes](#provenance-and-changes)
-> for the full list of what differs from upstream, and [License and disclaimer](#license-and-disclaimer)
-> for the terms, which are unchanged (AGPL-3.0).
->
-> **Authorization.** This is a security-testing tool. Use it only against systems you own or are
-> explicitly authorized to test. The upstream usage restrictions still apply — read them below.
-
 ---
 
 ## Language
 
-English is the default. Select English or Korean in the interface. The server's durable default is
-`language` in system settings; `SKOPOS_LANGUAGE` (or `SKOPOS_LANGUAGE`) supplies the environment
-fallback. Operating-system `LANG` does not select the application language.
-
-Requests prefer `lang`, then supported `Accept-Language` preferences, then the `skopos_locale`
-cookie, then the server default. New HTTP-created tasks retain their language across queues and
-restarts; older tasks without saved language use the server default. Built-in agent guidance and
-output instructions use the run language; user-edited templates and stored evidence remain intact.
-Report/CSV/ZIP labels use the export request's language. The [full documentation](docs/README.md)
-includes the bundled skill guidance.
+English is the only supported interface and documentation language. The
+[full documentation](docs/README.md) includes the bundled skill guidance.
 
 ## Screenshots
 
@@ -176,13 +189,10 @@ Local recovery uses the current backend binary: `./reset-password.sh -m local --
 
 API authentication requires `Authorization: Bearer <token>` or an explicit `?token=`
 for EventSource streams. Cookies never authorize API requests. The web UI keeps its
-JWT in origin-scoped localStorage and uses only a non-secret `artex_session=1` cookie
+JWT in origin-scoped localStorage and uses only a non-secret `skopos_session=1` cookie
 for page redirects. Older JWT cookies are cleared when visiting the app; existing
 localStorage sessions continue through the login page. API clients using cookie-only
 authentication must switch to the Bearer header.
-
-> The scripts speak English by default. For Korean prompts, set `SKOPOS_LANGUAGE=ko` (or
-> `SKOPOS_LANGUAGE=ko`) before running, for example `SKOPOS_LANGUAGE=ko ./install.sh`.
 
 ### Option 2: Docker Compose (manual)
 
@@ -715,9 +725,8 @@ Skopos is derived from [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX) at 
   environment variables use the `SKOPOS_*` prefix, and the default database/login identifiers are
   `skopos`/`SKOPOS`. Nothing `artex`-named remains at runtime; only the upstream attribution text
   (LICENSE, NOTICE, this provenance section) still names ARTEX.
-- **Documentation language**: English only.
-- **Script language**: setup/build/start/update/reset-password prompts default to English, with
-  Korean selectable via `SKOPOS_LANGUAGE=ko`. No network translation is used.
+- **Language**: English only, across the interface, documentation, and setup/build/start/update
+  scripts.
 - **Distribution**: the output binary is `skopos`, release archives are
   `skopos-<version>-<os>-<arch>.zip`, the repository is
   `https://github.com/Philocyber/skopos`, and container images target this repo's GHCR. Upstream's
@@ -745,9 +754,6 @@ unchanged and credited to upstream.
 - **Asset sync**: [ScopeSentry](https://github.com/Autumn-27/ScopeSentry).
 - **Approval-detail UI**: [AegisHook](https://github.com/RuoJi6/AegisHook).
 - **Reference**: [Cairn](https://github.com/oritera/Cairn).
-- **Upstream community**: the ARTEX authors run the WeChat public account **SecSentry**
-  (`screenshots/wx.png` is their QR code, kept as an upstream asset). This is the upstream project's
-  channel, not a Skopos channel.
 
 ---
 
