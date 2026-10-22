@@ -15,6 +15,13 @@
 //   https://developers.openai.com/api/docs/models/gpt-6.1-sol
 //   https://developers.openai.com/api/docs/models/gpt-6-luna
 //
+// Gateway presets verified 2026-10-21 (base URLs, auth, model ID styles):
+//   https://vercel.com/docs/ai-gateway/sdks-and-apis/openai-chat-completions
+//   https://vercel.com/docs/ai-gateway/sdks-and-apis/anthropic-messages-api
+//   https://docs.aws.amazon.com/bedrock/latest/userguide/endpoints.html
+//   https://docs.aws.amazon.com/bedrock/latest/userguide/inference-messages-api.html
+//   https://docs.aws.amazon.com/bedrock/latest/userguide/inference-chat-completions.html
+//
 // Claude presets leave thinking.type empty on purpose: these models use adaptive thinking, Opus 5.5 and
 // Fable 5.1 cannot turn it off, and effort is the control. Effort is each model's documented default.
 export const LLM_PROFILE_PRESET_IDS = [
@@ -26,6 +33,10 @@ export const LLM_PROFILE_PRESET_IDS = [
   "claude-haiku-5-5",
   "openai-gpt-6-1-sol",
   "openai-gpt-6-luna",
+  "vercel-gateway-chat",
+  "vercel-gateway-claude",
+  "bedrock-claude",
+  "bedrock-open-models",
 ] as const;
 export type LLMProfilePresetId = (typeof LLM_PROFILE_PRESET_IDS)[number];
 
@@ -39,6 +50,10 @@ export const LLM_PROFILE_PRESET_NAMES: Record<LLMProfilePresetId, string> = {
   "claude-haiku-5-5": "Claude Haiku 5.5",
   "openai-gpt-6-1-sol": "GPT-6.1 Sol",
   "openai-gpt-6-luna": "GPT-6 Luna",
+  "vercel-gateway-chat": "Vercel AI Gateway",
+  "vercel-gateway-claude": "Vercel AI Gateway (Claude)",
+  "bedrock-claude": "Bedrock Claude",
+  "bedrock-open-models": "Bedrock open models",
 };
 
 export interface LLMProfilePresetFields {
@@ -54,6 +69,12 @@ export interface LLMProfilePresetFields {
 
 const ZAI_GENERAL = "https://api.z.ai/api/paas/v4";
 const ZAI_CODING = "https://api.z.ai/api/coding/paas/v4";
+const VERCEL_GATEWAY = "https://ai-gateway.vercel.sh";
+const VERCEL_GATEWAY_V1 = `${VERCEL_GATEWAY}/v1`;
+// Bedrock endpoints are per Region; us-east-1 is only a starting point and must match the Region the
+// Bedrock API key was created in.
+const BEDROCK_RUNTIME_ANTHROPIC = "https://bedrock-runtime.us-east-1.amazonaws.com/anthropic";
+const BEDROCK_MANTLE_OPENAI = "https://bedrock-mantle.us-east-1.api.aws/v1";
 
 const PRESETS: Record<LLMProfilePresetId, LLMProfilePresetFields> = {
   "zai-general": zai(ZAI_GENERAL),
@@ -64,6 +85,10 @@ const PRESETS: Record<LLMProfilePresetId, LLMProfilePresetFields> = {
   "claude-haiku-5-5": claude("claude-haiku-5-5", "medium"),
   "openai-gpt-6-1-sol": openaiResponses("gpt-6.1-sol", "medium"),
   "openai-gpt-6-luna": openaiResponses("gpt-6-luna", "medium"),
+  "vercel-gateway-chat": gateway("openai", VERCEL_GATEWAY_V1, "anthropic/claude-sonnet-5"),
+  "vercel-gateway-claude": gateway("anthropic", VERCEL_GATEWAY, "anthropic/claude-sonnet-5"),
+  "bedrock-claude": gateway("anthropic", BEDROCK_RUNTIME_ANTHROPIC, "us.anthropic.claude-sonnet-5"),
+  "bedrock-open-models": gateway("openai", BEDROCK_MANTLE_OPENAI, "openai.gpt-oss-120b"),
 };
 
 function zai(baseUrl: string): LLMProfilePresetFields {
@@ -94,6 +119,23 @@ function claude(model: string, effort: string): LLMProfilePresetFields {
   };
 }
 
+// Multi-model gateways (Vercel AI Gateway, Amazon Bedrock). The model is a starting point taken from the
+// providers' documentation; Load models lists what the key can actually use. Thinking and effort stay unset
+// because support depends on whichever model the user picks, and gateways reject fields a model lacks.
+// The window is a conservative 200K for the same reason; raise it to the chosen model's real window.
+function gateway(format: "openai" | "anthropic", baseUrl: string, model: string): LLMProfilePresetFields {
+  return {
+    format,
+    model,
+    base_url: baseUrl,
+    thinking_type: "",
+    reasoning_effort: "",
+    context_window_k: 200,
+    max_tokens: 0,
+    max_tokens_field: "",
+  };
+}
+
 function openaiResponses(model: string, effort: string): LLMProfilePresetFields {
   return {
     format: "openai-responses",
@@ -107,6 +149,56 @@ function openaiResponses(model: string, effort: string): LLMProfilePresetFields 
     max_tokens: 0,
     max_tokens_field: "",
   };
+}
+
+// Vendor-first selection: picking a vendor applies its first preset and offers the rest.
+// keyUrl is where the user creates the API key; it is only ever shown as a link.
+export const LLM_VENDOR_IDS = ["anthropic", "openai", "zai", "vercel", "bedrock"] as const;
+export type LLMVendorId = (typeof LLM_VENDOR_IDS)[number];
+
+export const LLM_VENDORS: Record<LLMVendorId, { presets: LLMProfilePresetId[]; keyUrl: string }> = {
+  anthropic: {
+    presets: ["claude-opus-5-5", "claude-fable-5-1", "claude-sonnet-5-5", "claude-haiku-5-5"],
+    keyUrl: "https://platform.claude.com/settings/keys",
+  },
+  openai: {
+    presets: ["openai-gpt-6-1-sol", "openai-gpt-6-luna"],
+    keyUrl: "https://platform.openai.com/api-keys",
+  },
+  zai: { presets: ["zai-general", "zai-coding-reference"], keyUrl: "https://z.ai/manage-apikey/apikey-list" },
+  vercel: {
+    presets: ["vercel-gateway-chat", "vercel-gateway-claude"],
+    keyUrl: "https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai-gateway%2Fapi-keys&title=AI+Gateway+API+Keys",
+  },
+  bedrock: {
+    presets: ["bedrock-claude", "bedrock-open-models"],
+    keyUrl: "https://console.aws.amazon.com/bedrock/home#/api-keys",
+  },
+};
+
+export function vendorOfPreset(id: string): LLMVendorId | undefined {
+  return LLM_VENDOR_IDS.find((v) => (LLM_VENDORS[v].presets as readonly string[]).includes(id));
+}
+
+// Common Bedrock Regions; availability differs per model and the Base URL stays editable for any other.
+export const BEDROCK_REGIONS = [
+  "us-east-1",
+  "us-east-2",
+  "us-west-2",
+  "eu-west-1",
+  "eu-west-2",
+  "eu-central-1",
+  "ap-northeast-1",
+  "ap-southeast-1",
+  "ap-southeast-2",
+  "ap-south-1",
+] as const;
+export const DEFAULT_BEDROCK_REGION = "us-east-1";
+
+// Swaps the Region in a bedrock-runtime / bedrock-mantle Base URL; any other URL is returned unchanged.
+export function bedrockBaseUrlForRegion(baseUrl: string, region: string): string {
+  if (!/^[a-z0-9-]+$/.test(region)) return baseUrl;
+  return baseUrl.replace(/^(https:\/\/bedrock-(?:runtime|mantle)\.)[a-z0-9-]+(\.)/, `$1${region}$2`);
 }
 
 export function getLLMProfilePreset(id: string): Readonly<LLMProfilePresetFields> {

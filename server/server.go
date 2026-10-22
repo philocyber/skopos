@@ -1429,8 +1429,15 @@ func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 	// Do not apply configured retries to connection tests: their hard 30-second timeout combined with
 	// long retry intervals can make a usable endpoint appear unavailable. Tests check connectivity;
 	// retry timing applies during normal execution.
+	// Hosted gateways (Vercel AI Gateway, Amazon Bedrock) fail with opaque 404/400s when the
+	// URL path or model ID style is wrong; catch that before spending a request.
+	if err := agent.ValidateEndpoint(cfg.Provider(), cfg.BaseURL, cfg.Model); err != nil {
+		writeJSON(w, 200, map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
 	lat, reply, err := agent.TestConnection(r.Context(), cfg)
 	if err != nil {
+		err = agent.ExplainProviderError(cfg.BaseURL, err)
 		writeJSON(w, 200, map[string]any{"ok": false, "error": locale.ErrorMessage(responseLanguage(w), err)})
 		return
 	}

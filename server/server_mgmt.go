@@ -2011,6 +2011,16 @@ func (s *Server) pgListModels(w http.ResponseWriter, r *http.Request) {
 	baseURL := strings.TrimRight(strings.TrimSpace(req.BaseURL), "/")
 	provider := strings.TrimSpace(req.Provider)
 
+	if msg := agent.ModelListUnsupported(baseURL); msg != "" {
+		writeJSON(w, 200, map[string]any{"ok": false, "error": msg})
+		return
+	}
+	// Model is not known yet, so only the URL shape is checked here.
+	if err := agent.ValidateEndpoint(agent.ConfigFrom(provider, "", baseURL, "", "").Provider(), baseURL, ""); err != nil {
+		writeJSON(w, 200, map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+
 	// Candidate endpoints to try in order. Some Anthropic-compatible providers
 	// (e.g. DeepSeek) implement /v1/messages under an /anthropic path but expose
 	// the model list only on their OpenAI-format path — so for anthropic we fall
@@ -2054,6 +2064,10 @@ func (s *Server) pgListModels(w http.ResponseWriter, r *http.Request) {
 				candidate{root + "/models", bearerHdr()},
 				candidate{root + "/v1/models", bearerHdr()},
 			)
+		}
+		// Vercel AI Gateway serves one model list on its OpenAI path for every format.
+		if agent.EndpointKind(b) == agent.EndpointVercelGateway {
+			candidates = append(candidates, candidate{b + "/v1/models", bearerHdr()})
 		}
 	}
 
@@ -2116,7 +2130,7 @@ func (s *Server) pgListModels(w http.ResponseWriter, r *http.Request) {
 	if lastErr == "" {
 		lastErr = locale.Text(responseLanguage(w), "No model list was returned")
 	}
-	writeJSON(w, 200, map[string]any{"ok": false, "error": lastErr})
+	writeJSON(w, 200, map[string]any{"ok": false, "error": agent.ExplainProviderError(baseURL, errors.New(lastErr)).Error()})
 }
 
 // --- prompt template helpers (Go text/template + catalog allowlist) ---
