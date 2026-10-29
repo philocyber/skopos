@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useI18n } from "@/i18n";
 import { getIntlLocale, translate as swt } from "@/i18n/runtime";
@@ -138,10 +137,9 @@ function FindingDetailInner() {
   return (
     <Tabs value={tab} onValueChange={setTab} className="flex min-h-0 min-w-0 flex-1 flex-col gap-0">
       {/* Sticky header */}
-      <header className="sticky top-0 z-10 flex flex-col gap-2 border-b bg-card px-4 py-3 lg:px-6">
+      <header className="sticky top-(--header-height) z-10 flex flex-col gap-2 border-b bg-card px-4 py-3 lg:px-6">
         <div className="flex flex-wrap items-center gap-2">
-          <SidebarTrigger className="-ml-1" />
-          <Button asChild variant="ghost" size="icon" className="size-7">
+          <Button asChild variant="ghost" size="icon" className="-ml-1 size-7">
             <Link href="/function/findings">
               <ArrowLeftIcon />
             </Link>

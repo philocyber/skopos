@@ -32,6 +32,9 @@ Thumbs.db
 # claude code local state
 .claude/
 
+# Local Codex session (model and Daybreak for this checkout)
+.codex/
+
 # Binary with embedded frontend
 /artex
 # Self-update staging, backup, failed binary and marker
@@ -73,3 +76,6 @@ node_modules/
 # Local Codex Security tooling, separate from application package manifests
 /package.json
 /package-lock.json
+
+# Private OAuth credentials for ChatGPT subscriptions
+/chatgpt-subscription/

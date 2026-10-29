@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 import { HttpCodeBlock } from "@/components/http-code-block";
 import { LinkTrafficDialog } from "@/components/link-traffic-dialog";
+import { PageHeader } from "@/components/page-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -346,30 +347,30 @@ export default function TrafficPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m1067")}</h1>
-          <p className="text-muted-foreground text-sm">{swt("interface.m1068")}</p>
-        </div>
-        <div className="flex items-center gap-4 text-sm">
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium",
-              traffic?.enabled
-                ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400"
-                : "border-transparent bg-muted text-muted-foreground",
-            )}
-          >
-            <RadioTowerIcon className="size-3.5" />
-            {traffic?.enabled ? swt("interface.m0161") : swt("interface.m1069")}
-          </span>
-          {traffic?.proxy && <span className="font-mono text-xs text-muted-foreground">{traffic.proxy}</span>}
-          <span className="text-xs text-muted-foreground">
-            {swt("interface.m0199")} <span className="tabular-nums">{traffic?.count ?? 0}</span>{" "}
-            {swt("interface.m0328")}
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        title={swt("interface.m1067")}
+        description={swt("interface.m1068")}
+        actions={
+          <div className="flex items-center gap-4 text-sm">
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium",
+                traffic?.enabled
+                  ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-800 dark:text-emerald-400"
+                  : "border-transparent bg-muted text-muted-foreground",
+              )}
+            >
+              <RadioTowerIcon className="size-3.5" />
+              {traffic?.enabled ? swt("interface.m0161") : swt("interface.m1069")}
+            </span>
+            {traffic?.proxy && <span className="font-mono text-xs text-muted-foreground">{traffic.proxy}</span>}
+            <span className="text-xs text-muted-foreground">
+              {swt("interface.m0199")} <span className="tabular-nums">{traffic?.count ?? 0}</span>{" "}
+              {swt("interface.m0328")}
+            </span>
+          </div>
+        }
+      />
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">

@@ -2,32 +2,35 @@
 name: Skopos application console
 description: A compact desktop console for inspecting agent work, scope and recorded evidence.
 colors:
-  light-background: "#f3f5f6"
-  light-foreground: "#18212b"
+  light-background: "#f4f4f5"
+  light-foreground: "#18181b"
   light-card: "#ffffff"
-  light-primary: "#006879"
+  light-primary: "#a3141c"
   light-primary-foreground: "#ffffff"
-  light-muted: "#edf1f4"
-  light-muted-foreground: "#566575"
-  light-accent: "#e6f3f5"
-  light-accent-foreground: "#005b6c"
-  light-border: "#d4dce2"
-  light-input: "#becad3"
-  light-ring: "#007f91"
-  light-destructive: "#b42338"
-  dark-background: "#080c11"
-  dark-foreground: "#e8eef3"
-  dark-card: "#0e141c"
-  dark-popover: "#121a24"
-  dark-primary: "#ba91ce"
-  dark-primary-foreground: "#160d1c"
-  dark-muted: "#19232f"
-  dark-muted-foreground: "#9aaab9"
-  dark-accent: "#261e30"
-  dark-accent-foreground: "#d7b7e7"
-  dark-border: "#293440"
-  dark-input: "#3a4857"
-  dark-destructive: "#ff8c97"
+  light-muted: "#f1f1f3"
+  light-muted-foreground: "#5f6068"
+  light-accent: "#fbeaeb"
+  light-accent-foreground: "#8a1018"
+  light-border: "#e4e4e7"
+  light-input: "#d4d4d8"
+  light-ring: "#a3141c"
+  light-destructive: "#b42318"
+  dark-background: "#0b0b0d"
+  dark-foreground: "#ececee"
+  dark-card: "#131316"
+  dark-popover: "#18181c"
+  dark-primary: "#e5484d"
+  dark-primary-foreground: "#1a0506"
+  dark-muted: "#1c1c20"
+  dark-muted-foreground: "#a1a1aa"
+  dark-accent: "#2a1213"
+  dark-accent-foreground: "#f6a5a8"
+  dark-border: "#27272b"
+  dark-input: "#36363c"
+  dark-destructive: "#ff8c8c"
+  topbar-background: "#131316"
+  topbar-foreground: "#f4f4f5"
+  topbar-accent: "#f0444c"
 typography:
   headline:
     fontFamily: "Inter, system-ui, sans-serif"
@@ -54,9 +57,10 @@ typography:
     fontFamily: "JetBrains Mono, ui-monospace, monospace"
     fontWeight: 400
 rounded:
-  sm: "3px"
-  md: "5px"
-  lg: "7px"
+  sm: "4px"
+  md: "6px"
+  lg: "8px"
+  xl: "12px"
 spacing:
   1: "4px"
   2: "8px"
@@ -89,18 +93,18 @@ components:
 
 ## Overview
 
-**Creative North Star: "The pentest console"**
+**Creative North Star: "The offensive security console"**
 
-Skopos is an operational research console with PhiloCyber brand details. Compact controls, quiet navigation and readable evidence take priority over editorial or marketing composition. Inter supplies the interface voice; JetBrains Mono distinguishes identifiers and code. The existing Skopos name and scope-grid logo remain.
+Skopos is an operational research console whose layout discipline is modelled on Akto's security dashboard — a global graphite top bar, a grouped quiet sidebar, soft-lifted cards and tabbed table workspaces — carried over to Skopos' own capabilities, data and tags rather than copied screen for screen. Compact controls, quiet navigation and readable evidence take priority over editorial or marketing composition. Inter supplies the interface voice; JetBrains Mono distinguishes identifiers and code. The existing Skopos name and scope-grid logo remain, with the lens recoloured to the brand red.
 
-This document describes the implemented default console theme at the `web/` boundary. The separate public landing page retains its own system in [root DESIGN.md](../DESIGN.md). Existing user-selectable layout, font and theme preferences remain available; they are compatibility features, not new defaults. The approved Chat + Auto composition belongs to the [console surface contract](../.impeccable/surfaces/console.md), rather than a rule that every workspace must become a chat layout.
+This document describes the implemented default console theme at the `web/` boundary. The separate public landing page retains its own system in [root DESIGN.md](../DESIGN.md). The console ships a single light/dark identity; the earlier selectable theme presets and alternate interface fonts were removed. The approved Chat + Auto composition belongs to the [console surface contract](../.impeccable/surfaces/console.md), rather than a rule that every workspace must become a chat layout.
 
 **Key Characteristics:**
 
-- Dense workspaces with bounded scrolling and persistent task navigation.
-- Cool neutral surfaces with cyan light-mode and violet dark-mode interaction signals.
-- Semantic severity and review states that remain distinct from brand accents.
-- Shared tables, fields and Radix overlays across workspaces.
+- A persistent graphite global top bar (logo, centred search, Ask Skopos, preferences, theme, account) above a grouped navigation sidebar and the workspace.
+- Neutral zinc surfaces with a dark-red (CrowdStrike-adjacent) brand accent: `#a3141c` in light mode, a slightly brighter `#e5484d` in dark mode, reserved for primary actions, active navigation, focus and links.
+- Semantic severity and review states that remain distinct from the brand red: Critical stays solid rose, High soft red, Medium amber, Low slate, always paired with a written label.
+- Soft-lifted cards and tabbed table workspaces with pill filters and relative timestamps, shared across workspaces alongside the existing fields and Radix overlays.
 
 ## Colors
 
@@ -108,9 +112,10 @@ The neutral palette separates application ground, content surfaces and quiet met
 
 ### Primary
 
-- **Deep cyan:** light-mode actions, selected navigation, caret and focus signals.
-- **Soft violet:** the corresponding dark-mode interaction signal, with dark text on filled primary controls.
-- **Tinted accent surfaces:** selected or contextual states use the paired accent foreground rather than replacing semantic status colors.
+- **Dark brand red:** light-mode actions, selected navigation, caret and focus signals use `#a3141c`.
+- **Brightened red:** the corresponding dark-mode interaction signal is `#e5484d`, with near-black text on filled primary controls.
+- **Graphite top bar:** the global header stays graphite (`#131316`, deepening in dark mode) in both colour modes; its controls use the dark token set and a red status dot on the Ask Skopos pill.
+- **Tinted accent surfaces:** selected or contextual states use the paired red accent foreground rather than replacing semantic status colors.
 
 ### Neutral
 
@@ -134,7 +139,7 @@ The hierarchy is intentionally shallow. Standard workspace headings use the head
 
 ## Layout
 
-The application shell combines collapsible side navigation with a toolbar and workspace content. Repeated spacing follows a four-pixel rhythm, usually 12 or 16 pixels inside compact controls and cards, with 24-pixel desktop workspace padding where the route calls for it. Card small variants use 12-pixel spacing.
+The application shell is a full-width graphite top bar over a row of collapsible side navigation and workspace content, following Akto's global-header pattern. The top bar carries the brand, a centred command search, the Ask Skopos entry, update badge, preferences, theme toggle and account menu; the sidebar drops the brand and account rows it used to duplicate. Task and finding details offset their sticky headers below the top bar and no longer carry their own sidebar toggle. Repeated spacing follows a four-pixel rhythm, usually 12 or 16 pixels inside compact controls and cards, with 24-pixel desktop workspace padding where the route calls for it. Card small variants use 12-pixel spacing.
 
 The approved Chat workspace uses a flexible conversation column and an optional task-context column bounded from 20 to 24rem. History is a toggleable 14rem rail; history and task context are mutually exclusive. The transcript scrolls within its panel and the composer remains available below it; the context panel scrolls independently. Existing Auto, model, attachment and side-question controls remain part of that working layout.
 

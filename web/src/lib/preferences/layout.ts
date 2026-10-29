@@ -58,21 +58,3 @@ export const CONTENT_LAYOUT_OPTIONS = [
 ] as const;
 export const CONTENT_LAYOUT_VALUES = CONTENT_LAYOUT_OPTIONS.map((v) => v.value);
 export type ContentLayout = (typeof CONTENT_LAYOUT_VALUES)[number];
-
-// Navbar Style
-export const NAVBAR_STYLE_OPTIONS = [
-  {
-    get label() {
-      return swt("english.e024");
-    },
-    value: "sticky",
-  },
-  {
-    get label() {
-      return swt("english.e026");
-    },
-    value: "scroll",
-  },
-] as const;
-export const NAVBAR_STYLE_VALUES = NAVBAR_STYLE_OPTIONS.map((v) => v.value);
-export type NavbarStyle = (typeof NAVBAR_STYLE_VALUES)[number];

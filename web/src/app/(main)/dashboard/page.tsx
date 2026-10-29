@@ -8,6 +8,7 @@ import {
   ActivityIcon,
   ArrowUpRightIcon,
   BugIcon,
+  CircleCheckIcon,
   ClockIcon,
   NetworkIcon,
   ShieldCheckIcon,
@@ -16,10 +17,14 @@ import {
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Tooltip as RechartsTooltip, XAxis, YAxis } from "recharts";
 
+import { EmptyState } from "@/components/console/empty-state";
+import { KpiCard } from "@/components/console/kpi-card";
+import { OverflowChip } from "@/components/console/overflow-chip";
+import { WidgetCard } from "@/components/console/widget-card";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Progress } from "@/components/ui/progress";
 import { useI18n } from "@/i18n";
@@ -363,6 +368,7 @@ export default function DashboardPage() {
   const activeProfile = llmProfiles.find((p) => p.is_default);
   const enabledTools = tools.filter((t) => t.enabled);
   const pendingCount = pending.length;
+  const reviewCount = findings.filter((f) => f.status === "pending" || f.status === "in_progress").length;
 
   // ── token stats per LLM profile ──────────────────────────────────────────
   // tasks whose llm_profile_id is null/undefined used the active default profile
@@ -549,18 +555,17 @@ export default function DashboardPage() {
 
       {/* ── Row 1: 5 stat cards ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {/* Active tasks. */}
-        <Card className="gap-1">
-          <CardHeader className="pb-0">
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <TargetIcon className="size-3" /> {swt("interface.m0149")}
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-semibold tabular-nums">{tasksByStatus.running ?? 0}</span>
-              <span className="text-xs text-muted-foreground">/ {tasks.length}</span>
-            </div>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-x-2.5 gap-y-0.5 text-[10px]">
+        <KpiCard
+          icon={TargetIcon}
+          label={swt("interface.m0149")}
+          value={
+            <>
+              {tasksByStatus.running ?? 0}
+              <span className="ml-1 font-normal text-muted-foreground text-xs">/ {tasks.length}</span>
+            </>
+          }
+        >
+          <span className="flex flex-wrap gap-x-2.5 gap-y-0.5">
             {(tasksByStatus.running ?? 0) > 0 && (
               <span className="text-blue-600 dark:text-blue-400">
                 {swt("app.metricValue", { label: swt("interface.m2851"), value: tasksByStatus.running })}
@@ -576,19 +581,12 @@ export default function DashboardPage() {
                 {swt("app.metricValue", { label: swt("interface.m0809"), value: tasksByStatus.done })}
               </span>
             )}
-            {tasks.length === 0 && <span className="text-muted-foreground">{swt("interface.m0152")}</span>}
-          </CardContent>
-        </Card>
+            {tasks.length === 0 && <span>{swt("interface.m0152")}</span>}
+          </span>
+        </KpiCard>
 
-        {/* Confirmed findings. */}
-        <Card className="gap-1">
-          <CardHeader className="pb-0">
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <BugIcon className="size-3" /> {swt("interface.m0153")}
-            </div>
-            <div className="text-2xl font-semibold tabular-nums">{findings.length}</div>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2.5 text-[10px]">
+        <KpiCard icon={BugIcon} label={swt("interface.m0153")} value={findings.length}>
+          <span className="flex flex-wrap gap-2.5">
             <span className="text-rose-600 dark:text-rose-400">
               {swt("app.metricValue", { label: swt("interface.m0154"), value: findingsBySev.critical })}
             </span>
@@ -601,29 +599,31 @@ export default function DashboardPage() {
             <span className="text-slate-600 dark:text-slate-400">
               {swt("app.metricValue", { label: swt("interface.m0157"), value: findingsBySev.low })}
             </span>
-          </CardContent>
-        </Card>
+          </span>
+          {findings.length > 0 && (
+            <span className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-muted">
+              {(
+                [
+                  ["bg-rose-600", findingsBySev.critical],
+                  ["bg-red-500", findingsBySev.high],
+                  ["bg-amber-500", findingsBySev.medium],
+                  ["bg-slate-400", findingsBySev.low],
+                ] as const
+              ).map(([color, count]) =>
+                count > 0 ? (
+                  <span key={color} className={color} style={{ width: `${(count / findings.length) * 100}%` }} />
+                ) : null,
+              )}
+            </span>
+          )}
+        </KpiCard>
 
-        {/* Asset nodes. */}
-        <Card className="gap-1">
-          <CardHeader className="pb-0">
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <NetworkIcon className="size-3" /> {swt("interface.m0158")}
-            </div>
-            <div className="text-2xl font-semibold tabular-nums">{totalAssets}</div>
-          </CardHeader>
-          <CardContent className="text-[10px] text-muted-foreground">{swt("interface.m0159")}</CardContent>
-        </Card>
+        <KpiCard icon={NetworkIcon} label={swt("interface.m0158")} value={totalAssets}>
+          {swt("interface.m0159")}
+        </KpiCard>
 
-        {/* Traffic exchanges. */}
-        <Card className="gap-1">
-          <CardHeader className="pb-0">
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <ActivityIcon className="size-3" /> {swt("interface.m0160")}
-            </div>
-            <div className="text-2xl font-semibold tabular-nums">{traffic.length}</div>
-          </CardHeader>
-          <CardContent className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+        <KpiCard icon={ActivityIcon} label={swt("interface.m0160")} value={traffic.length}>
+          <span className="flex items-center gap-1.5">
             {settings?.traffic_capture ? (
               <>
                 <LiveDot />
@@ -632,293 +632,344 @@ export default function DashboardPage() {
             ) : (
               <span>{swt("interface.m0162")}</span>
             )}
-          </CardContent>
-        </Card>
+          </span>
+        </KpiCard>
 
-        {/* LLM usage. */}
-        <Card className="gap-1">
-          <CardHeader className="pb-0">
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <ZapIcon className="size-3" /> {swt("interface.m0163")}
-            </div>
-            <div className="text-2xl font-semibold tabular-nums">
-              {fmtTokens(displayedTokens.input + displayedTokens.output) || "—"}
-            </div>
-          </CardHeader>
-          <CardContent className="text-[10px] text-muted-foreground">
-            {swt("app.tokenSummary", {
-              input: fmtTokens(displayedTokens.input),
-              cache: fmtTokens(displayedTokens.cacheRead),
-              output: fmtTokens(displayedTokens.output),
-            })}
-          </CardContent>
-        </Card>
+        <KpiCard
+          icon={ZapIcon}
+          label={swt("interface.m0163")}
+          value={fmtTokens(displayedTokens.input + displayedTokens.output) || "—"}
+        >
+          {swt("app.tokenSummary", {
+            input: fmtTokens(displayedTokens.input),
+            cache: fmtTokens(displayedTokens.cacheRead),
+            output: fmtTokens(displayedTokens.output),
+          })}
+        </KpiCard>
       </div>
 
-      {/* Row 2: LLM token usage. */}
-      <Card className="p-4">
-        {/* Header */}
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 text-xs font-semibold">
-            <ZapIcon className="size-3.5 text-muted-foreground" />
-            {swt("interface.m0167")}
-            {/* Legacy activity includes historical tasks; the more precise llm_usage ledger covers only data since enablement. */}
-            <div className="ml-1 flex gap-0.5 rounded-md border bg-muted/30 p-0.5">
-              {(
-                [
-                  { v: "old", label: swt("interface.m0168") },
-                  { v: "new", label: swt("interface.m0169") },
-                ] as const
-              ).map(({ v, label }) => (
-                <button
-                  type="button"
-                  key={v}
-                  onClick={() => setTokenVersion(v)}
-                  title={v === "new" ? swt("interface.m0170") : swt("interface.m0171")}
-                  className={cn(
-                    "rounded px-2 py-0.5 text-[9px] font-medium transition-colors",
-                    tokenVersion === v
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Profile tabs */}
-          <div className="flex flex-wrap items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setTokenTab("all")}
-              className={cn(
-                "rounded-md px-2.5 py-1 text-[10px] font-medium transition-colors",
-                tokenTab === "all"
-                  ? "bg-foreground text-background"
-                  : "bg-muted/30 text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {swt("interface.m0172")}
-            </button>
-            {llmProfiles.map((p) => {
-              const key = Number(p.id);
-              const hasData = tokenByProfile.has(key) || (p.is_default && tokenByProfile.has(defaultProfileId));
-              const resolvedKey = tokenByProfile.has(key) ? key : p.is_default ? defaultProfileId : key;
-              return (
-                <button
-                  type="button"
-                  key={p.id}
-                  onClick={() => setTokenTab(resolvedKey)}
-                  className={cn(
-                    "flex items-center gap-1 rounded-md px-2.5 py-1 text-[10px] font-medium transition-colors",
-                    tokenTab === resolvedKey
-                      ? "bg-foreground text-background"
-                      : "bg-muted/30 text-muted-foreground hover:text-foreground",
-                    !hasData && "opacity-40",
-                  )}
-                >
-                  {p.name}
-                  {p.is_default && (
-                    <span
+      <div className="grid grid-cols-1 items-start gap-3 xl:grid-cols-[minmax(0,1fr)_18rem]">
+        <div className="min-w-0">
+          {/* Row 2: LLM token usage. */}
+          <Card className="p-4">
+            {/* Header */}
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-xs font-semibold">
+                <ZapIcon className="size-3.5 text-muted-foreground" />
+                {swt("interface.m0167")}
+                {/* Legacy activity includes historical tasks; the more precise llm_usage ledger covers only data since enablement. */}
+                <div className="ml-1 flex gap-0.5 rounded-md border bg-muted/30 p-0.5">
+                  {(
+                    [
+                      { v: "old", label: swt("interface.m0168") },
+                      { v: "new", label: swt("interface.m0169") },
+                    ] as const
+                  ).map(({ v, label }) => (
+                    <button
+                      type="button"
+                      key={v}
+                      onClick={() => setTokenVersion(v)}
+                      title={v === "new" ? swt("interface.m0170") : swt("interface.m0171")}
                       className={cn(
-                        "rounded px-1 py-0 text-[8px]",
-                        tokenTab === resolvedKey
-                          ? "bg-background/20 text-background"
-                          : "bg-emerald-500/20 text-emerald-800 dark:text-emerald-400",
+                        "rounded px-2 py-0.5 text-[9px] font-medium transition-colors",
+                        tokenVersion === v
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground",
                       )}
                     >
-                      {swt("interface.m0077")}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Body: metrics left + bar chart right */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr]">
-          {/* Left: key metrics */}
-          <div className="flex flex-col gap-4">
-            {/* Total */}
-            <div>
-              <div className="text-[10px] text-muted-foreground">{swt("interface.m0173")}</div>
-              <div className="mt-0.5 text-3xl font-bold tabular-nums tracking-tight">
-                {fmtTokens(displayedTokens.input + displayedTokens.output) || "—"}
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="mt-0.5 text-[10px] text-muted-foreground">
-                {displayedTokens.taskCount} {swt("interface.m0174")}
+              {/* Profile tabs */}
+              <div className="flex flex-wrap items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setTokenTab("all")}
+                  className={cn(
+                    "rounded-md px-2.5 py-1 text-[10px] font-medium transition-colors",
+                    tokenTab === "all"
+                      ? "bg-foreground text-background"
+                      : "bg-muted/30 text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {swt("interface.m0172")}
+                </button>
+                {llmProfiles.map((p) => {
+                  const key = Number(p.id);
+                  const hasData = tokenByProfile.has(key) || (p.is_default && tokenByProfile.has(defaultProfileId));
+                  const resolvedKey = tokenByProfile.has(key) ? key : p.is_default ? defaultProfileId : key;
+                  return (
+                    <button
+                      type="button"
+                      key={p.id}
+                      onClick={() => setTokenTab(resolvedKey)}
+                      className={cn(
+                        "flex items-center gap-1 rounded-md px-2.5 py-1 text-[10px] font-medium transition-colors",
+                        tokenTab === resolvedKey
+                          ? "bg-foreground text-background"
+                          : "bg-muted/30 text-muted-foreground hover:text-foreground",
+                        !hasData && "opacity-40",
+                      )}
+                    >
+                      {p.name}
+                      {p.is_default && (
+                        <span
+                          className={cn(
+                            "rounded px-1 py-0 text-[8px]",
+                            tokenTab === resolvedKey
+                              ? "bg-background/20 text-background"
+                              : "bg-emerald-500/20 text-emerald-800 dark:text-emerald-400",
+                          )}
+                        >
+                          {swt("interface.m0077")}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Per-type bars */}
-            <div className="space-y-3">
-              {(() => {
-                // Input includes cache; split into disjoint uncached input, cache hits, and output for the total.
-                const total = displayedTokens.input + displayedTokens.output;
-                return [
-                  {
-                    label: swt("interface.m0175"),
-                    value: displayedTokens.input - displayedTokens.cacheRead,
-                    barColor: dailyTrendConfig.input.color!,
-                    text: "text-blue-600 dark:text-blue-400",
-                  },
-                  {
-                    label: swt("interface.m0176"),
-                    value: displayedTokens.cacheRead,
-                    barColor: dailyTrendConfig.cacheRead.color!,
-                    text: "text-emerald-700 dark:text-emerald-400",
-                  },
-                  {
-                    label: swt("interface.m0136"),
-                    value: displayedTokens.output,
-                    barColor: dailyTrendConfig.output.color!,
-                    text: "text-violet-600 dark:text-violet-400",
-                  },
-                ].map(({ label, value, barColor, text }) => {
-                  const pct = total > 0 ? (value / total) * 100 : 0;
+            {/* Body: metrics left + bar chart right */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr]">
+              {/* Left: key metrics */}
+              <div className="flex flex-col gap-4">
+                {/* Total */}
+                <div>
+                  <div className="text-[10px] text-muted-foreground">{swt("interface.m0173")}</div>
+                  <div className="mt-0.5 text-3xl font-bold tabular-nums tracking-tight">
+                    {fmtTokens(displayedTokens.input + displayedTokens.output) || "—"}
+                  </div>
+                  <div className="mt-0.5 text-[10px] text-muted-foreground">
+                    {displayedTokens.taskCount} {swt("interface.m0174")}
+                  </div>
+                </div>
+
+                {/* Per-type bars */}
+                <div className="space-y-3">
+                  {(() => {
+                    // Input includes cache; split into disjoint uncached input, cache hits, and output for the total.
+                    const total = displayedTokens.input + displayedTokens.output;
+                    return [
+                      {
+                        label: swt("interface.m0175"),
+                        value: displayedTokens.input - displayedTokens.cacheRead,
+                        barColor: dailyTrendConfig.input.color!,
+                        text: "text-blue-600 dark:text-blue-400",
+                      },
+                      {
+                        label: swt("interface.m0176"),
+                        value: displayedTokens.cacheRead,
+                        barColor: dailyTrendConfig.cacheRead.color!,
+                        text: "text-emerald-700 dark:text-emerald-400",
+                      },
+                      {
+                        label: swt("interface.m0136"),
+                        value: displayedTokens.output,
+                        barColor: dailyTrendConfig.output.color!,
+                        text: "text-violet-600 dark:text-violet-400",
+                      },
+                    ].map(({ label, value, barColor, text }) => {
+                      const pct = total > 0 ? (value / total) * 100 : 0;
+                      return (
+                        <div key={label}>
+                          <div className="mb-1 flex items-center justify-between text-[10px]">
+                            <span className="text-muted-foreground">{label}</span>
+                            <span className={cn("font-mono font-semibold tabular-nums", text)}>{fmtTokens(value)}</span>
+                          </div>
+                          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${pct}%`, background: barColor }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+
+                {/* Cache hit rate */}
+                {(() => {
+                  // Input includes cache, so hit rate is cache hits divided by total input.
+                  const denominator = displayedTokens.input;
+                  const hitPct = denominator > 0 ? Math.round((displayedTokens.cacheRead / denominator) * 100) : 0;
                   return (
-                    <div key={label}>
-                      <div className="mb-1 flex items-center justify-between text-[10px]">
-                        <span className="text-muted-foreground">{label}</span>
-                        <span className={cn("font-mono font-semibold tabular-nums", text)}>{fmtTokens(value)}</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: `${pct}%`, background: barColor }}
-                        />
-                      </div>
+                    <div className="flex items-center justify-between rounded-lg border bg-muted/20 px-3 py-2 text-[10px]">
+                      <span className="text-muted-foreground">{swt("interface.m0177")}</span>
+                      <span
+                        className={cn(
+                          "font-semibold tabular-nums",
+                          hitPct > 50 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400",
+                        )}
+                      >
+                        {hitPct}%
+                      </span>
                     </div>
                   );
-                });
-              })()}
-            </div>
+                })()}
+              </div>
 
-            {/* Cache hit rate */}
-            {(() => {
-              // Input includes cache, so hit rate is cache hits divided by total input.
-              const denominator = displayedTokens.input;
-              const hitPct = denominator > 0 ? Math.round((displayedTokens.cacheRead / denominator) * 100) : 0;
-              return (
-                <div className="flex items-center justify-between rounded-lg border bg-muted/20 px-3 py-2 text-[10px]">
-                  <span className="text-muted-foreground">{swt("interface.m0177")}</span>
-                  <span
-                    className={cn(
-                      "font-semibold tabular-nums",
-                      hitPct > 50 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400",
-                    )}
-                  >
-                    {hitPct}%
-                  </span>
+              {/* Right: daily bar chart */}
+              <div className="flex min-h-0 flex-col">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex gap-3 text-[9px] text-muted-foreground">
+                    {(["input", "output", "cacheRead"] as const).map((k) => (
+                      <span key={k} className="flex items-center gap-1">
+                        <span
+                          className="inline-block size-2 rounded-sm"
+                          style={{ background: dailyTrendConfig[k].color }}
+                        />
+                        {dailyTrendConfig[k].label}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-0.5 rounded-md border bg-muted/30 p-0.5">
+                    {(
+                      [
+                        { days: 7, label: swt("interface.m0178") },
+                        { days: 30, label: swt("interface.m0179") },
+                        { days: 90, label: swt("interface.m0180") },
+                        { days: 180, label: swt("interface.m0181") },
+                        { days: 365, label: swt("interface.m0182") },
+                      ] as const
+                    ).map(({ days, label }) => (
+                      <button
+                        type="button"
+                        key={days}
+                        onClick={() => setTokenDays(days)}
+                        className={cn(
+                          "rounded px-2.5 py-0.5 text-[9px] font-medium transition-colors",
+                          tokenDays === days
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              );
-            })()}
-          </div>
 
-          {/* Right: daily bar chart */}
-          <div className="flex min-h-0 flex-col">
-            <div className="mb-2 flex items-center justify-between">
-              <div className="flex gap-3 text-[9px] text-muted-foreground">
-                {(["input", "output", "cacheRead"] as const).map((k) => (
-                  <span key={k} className="flex items-center gap-1">
-                    <span
-                      className="inline-block size-2 rounded-sm"
-                      style={{ background: dailyTrendConfig[k].color }}
-                    />
-                    {dailyTrendConfig[k].label}
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-0.5 rounded-md border bg-muted/30 p-0.5">
-                {(
-                  [
-                    { days: 7, label: swt("interface.m0178") },
-                    { days: 30, label: swt("interface.m0179") },
-                    { days: 90, label: swt("interface.m0180") },
-                    { days: 180, label: swt("interface.m0181") },
-                    { days: 365, label: swt("interface.m0182") },
-                  ] as const
-                ).map(({ days, label }) => (
-                  <button
-                    type="button"
-                    key={days}
-                    onClick={() => setTokenDays(days)}
-                    className={cn(
-                      "rounded px-2.5 py-0.5 text-[9px] font-medium transition-colors",
-                      tokenDays === days
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground",
+                {dailyTokenData.length === 0 ? (
+                  <div
+                    className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-lg border bg-muted/10 text-center text-xs text-muted-foreground"
+                    style={{ minHeight: 180 }}
+                  >
+                    <span>{swt("english.e202")}</span>
+                    {tokenDays < 365 && (
+                      <button
+                        type="button"
+                        onClick={() => setTokenDays(365)}
+                        className="text-primary underline-offset-4 hover:underline"
+                      >
+                        {swt("english.e203")}
+                      </button>
                     )}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {dailyTokenData.length === 0 ? (
-              <div
-                className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-lg border bg-muted/10 text-center text-xs text-muted-foreground"
-                style={{ minHeight: 180 }}
-              >
-                <span>{swt("english.e202")}</span>
-                {tokenDays < 365 && (
-                  <button
-                    type="button"
-                    onClick={() => setTokenDays(365)}
-                    className="text-primary underline-offset-4 hover:underline"
-                  >
-                    {swt("english.e203")}
-                  </button>
+                  </div>
+                ) : (
+                  <ChartContainer config={dailyTrendConfig} className="h-[200px] w-full">
+                    <BarChart data={dailyTokenData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }} maxBarSize={40}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="date"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fontSize: 10 }}
+                        tickMargin={6}
+                        interval="preserveStartEnd"
+                      />
+                      <YAxis
+                        tickFormatter={(v) => fmtTokens(Number(v))}
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fontSize: 10 }}
+                        width={44}
+                      />
+                      <ChartTooltip
+                        cursor={false}
+                        content={
+                          <ChartTooltipContent
+                            indicator="line"
+                            formatter={(value, name) => (
+                              <div className="flex w-full items-center justify-between gap-4">
+                                <span>
+                                  {(dailyTrendConfig as Record<string, { label: string }>)[String(name)]?.label ??
+                                    String(name)}
+                                </span>
+                                <span className="font-mono font-semibold tabular-nums">{fmtTokens(Number(value))}</span>
+                              </div>
+                            )}
+                          />
+                        }
+                      />
+                      <Bar dataKey="input" stackId="1" fill="var(--color-input)" radius={[0, 0, 0, 0]} />
+                      <Bar dataKey="output" stackId="1" fill="var(--color-output)" radius={[0, 0, 0, 0]} />
+                      <Bar dataKey="cacheRead" stackId="1" fill="var(--color-cacheRead)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ChartContainer>
                 )}
               </div>
-            ) : (
-              <ChartContainer config={dailyTrendConfig} className="h-[200px] w-full">
-                <BarChart data={dailyTokenData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }} maxBarSize={40}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fontSize: 10 }}
-                    tickMargin={6}
-                    interval="preserveStartEnd"
-                  />
-                  <YAxis
-                    tickFormatter={(v) => fmtTokens(Number(v))}
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fontSize: 10 }}
-                    width={44}
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={
-                      <ChartTooltipContent
-                        indicator="line"
-                        formatter={(value, name) => (
-                          <div className="flex w-full items-center justify-between gap-4">
-                            <span>
-                              {(dailyTrendConfig as Record<string, { label: string }>)[String(name)]?.label ??
-                                String(name)}
-                            </span>
-                            <span className="font-mono font-semibold tabular-nums">{fmtTokens(Number(value))}</span>
-                          </div>
-                        )}
-                      />
-                    }
-                  />
-                  <Bar dataKey="input" stackId="1" fill="var(--color-input)" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="output" stackId="1" fill="var(--color-output)" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="cacheRead" stackId="1" fill="var(--color-cacheRead)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
-            )}
-          </div>
+            </div>
+          </Card>
         </div>
-      </Card>
+
+        <WidgetCard icon={ShieldCheckIcon} title={swt("app.actNow")} className="xl:sticky xl:top-4">
+          {pendingCount === 0 &&
+          (tasksByStatus.paused ?? 0) === 0 &&
+          reviewCount === 0 &&
+          findingsBySev.critical === 0 ? (
+            <EmptyState icon={CircleCheckIcon} title={swt("app.actNowQuiet")} className="py-6" />
+          ) : (
+            <div className="flex flex-col gap-2">
+              {(
+                [
+                  pendingCount > 0 && {
+                    href: "/system/intercept/approvals",
+                    dot: "bg-amber-500",
+                    title: swt("app.actNowApprovalsTitle"),
+                    detail: swt("app.actNowApprovalsDetail", { count: pendingCount }),
+                  },
+                  (tasksByStatus.paused ?? 0) > 0 && {
+                    href: "/function/tasks",
+                    dot: "bg-amber-500",
+                    title: swt("app.actNowPausedTitle"),
+                    detail: swt("app.actNowPausedDetail", { count: tasksByStatus.paused ?? 0 }),
+                  },
+                  reviewCount > 0 && {
+                    href: "/function/findings",
+                    dot: "bg-red-500",
+                    title: swt("app.actNowReviewTitle"),
+                    detail: swt("app.actNowReviewDetail", { count: reviewCount }),
+                  },
+                  findingsBySev.critical > 0 && {
+                    href: "/function/findings",
+                    dot: "bg-rose-600",
+                    title: swt("app.actNowCriticalTitle"),
+                    detail: swt("app.actNowCriticalDetail", { count: findingsBySev.critical }),
+                  },
+                ] as const
+              )
+                .filter((item): item is { href: string; dot: string; title: string; detail: string } => Boolean(item))
+                .map((item) => (
+                  <Link
+                    key={item.title}
+                    href={item.href}
+                    className="flex items-start gap-2.5 rounded-lg px-2 py-2 transition-colors hover:bg-muted/60"
+                  >
+                    <span className={cn("mt-1.5 size-1.5 shrink-0 rounded-full", item.dot)} />
+                    <span className="min-w-0">
+                      <span className="block font-medium text-[13px]">{item.title}</span>
+                      <span className="block text-[11px] text-muted-foreground">{item.detail}</span>
+                    </span>
+                  </Link>
+                ))}
+            </div>
+          )}
+        </WidgetCard>
+      </div>
 
       {/* Row 3: activity feed and findings. */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -1284,9 +1335,11 @@ export default function DashboardPage() {
                 {pendingCount > 3 && (
                   <Link
                     href="/system/intercept/approvals"
-                    className="text-center text-[10px] text-muted-foreground hover:text-foreground"
+                    className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground"
                   >
-                    {swt("interface.m0214")} {pendingCount - 3} {swt("interface.m0215")}
+                    {swt("interface.m0214")}
+                    <OverflowChip count={pendingCount - 3} />
+                    {swt("interface.m0215")}
                   </Link>
                 )}
               </div>

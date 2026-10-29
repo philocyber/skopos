@@ -2,11 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Theme preset styles: these override CSS variables based on the selected data-theme-preset */
-@import "../styles/presets/brutalist.css";
-@import "../styles/presets/soft-pop.css";
-@import "../styles/presets/tangerine.css";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -48,81 +43,91 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-topbar: var(--topbar);
+  --color-topbar-foreground: var(--topbar-foreground);
+  --color-topbar-muted: var(--topbar-muted);
+  --color-topbar-border: var(--topbar-border);
+  --color-topbar-input: var(--topbar-input);
+  --color-topbar-accent: var(--topbar-accent);
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
 }
 
-/* Default theme styles (used when no data-theme-preset is set or when 'default' is selected).
-These serve as the fallback; there is no separate default.css file. */
 :root {
-  --radius: 0.4375rem;
-  --background: #f3f5f6;
-  --foreground: #18212b;
+  --radius: 0.5rem;
+  --background: #f4f4f5;
+  --foreground: #18181b;
   --card: #ffffff;
-  --card-foreground: #18212b;
+  --card-foreground: #18181b;
   --popover: #ffffff;
-  --popover-foreground: #18212b;
-  --primary: #006879;
+  --popover-foreground: #18181b;
+  --primary: #a3141c;
   --primary-foreground: #ffffff;
-  --secondary: #edf1f4;
-  --secondary-foreground: #263544;
-  --muted: #edf1f4;
-  --muted-foreground: #566575;
-  --accent: #e6f3f5;
-  --accent-foreground: #005b6c;
-  --destructive: #b42338;
-  --border: #d4dce2;
-  --input: #becad3;
-  --ring: #007f91;
-  --chart-1: #007f91;
-  --chart-2: #8c5aa4;
-  --chart-3: #308165;
-  --chart-4: #b47b21;
-  --chart-5: #566575;
+  --secondary: #f1f1f3;
+  --secondary-foreground: #27272a;
+  --muted: #f1f1f3;
+  --muted-foreground: #5f6068;
+  --accent: #fbeaeb;
+  --accent-foreground: #8a1018;
+  --destructive: #b42318;
+  --border: #e4e4e7;
+  --input: #d4d4d8;
+  --ring: #a3141c;
+  --chart-1: #a3141c;
+  --chart-2: #e8777b;
+  --chart-3: #3f7d68;
+  --chart-4: #c4861d;
+  --chart-5: #71717a;
   --sidebar: #ffffff;
-  --sidebar-foreground: #344250;
-  --sidebar-primary: #006879;
+  --sidebar-foreground: #3f3f46;
+  --sidebar-primary: #a3141c;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e6f3f5;
-  --sidebar-accent-foreground: #005b6c;
-  --sidebar-border: #d4dce2;
-  --sidebar-ring: #007f91;
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains-mono);
+  --sidebar-accent: #fbeaeb;
+  --sidebar-accent-foreground: #8a1018;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #a3141c;
+  /* The global top bar stays graphite in both modes. */
+  --topbar: #131316;
+  --topbar-foreground: #f4f4f5;
+  --topbar-muted: #a1a1aa;
+  --topbar-border: #27272a;
+  --topbar-input: #1f1f23;
+  --topbar-accent: #f0444c;
+  --header-height: 3.5rem;
 }
 
 .dark {
-  --background: #080c11;
-  --foreground: #e8eef3;
-  --card: #0e141c;
-  --card-foreground: #e8eef3;
-  --popover: #121a24;
-  --popover-foreground: #e8eef3;
-  --primary: #ba91ce;
-  --primary-foreground: #160d1c;
-  --secondary: #19232f;
-  --secondary-foreground: #d1dbe5;
-  --muted: #19232f;
-  --muted-foreground: #9aaab9;
-  --accent: #261e30;
-  --accent-foreground: #d7b7e7;
-  --destructive: #ff8c97;
-  --border: #293440;
-  --input: #3a4857;
-  --ring: #ba91ce;
-  --chart-1: #ba91ce;
-  --chart-2: #6ebaca;
-  --chart-3: #76bda1;
-  --chart-4: #d3aa63;
-  --chart-5: #9aaab9;
-  --sidebar: #0b1017;
-  --sidebar-foreground: #bac8d5;
-  --sidebar-primary: #ba91ce;
-  --sidebar-primary-foreground: #160d1c;
-  --sidebar-accent: #261e30;
-  --sidebar-accent-foreground: #d7b7e7;
-  --sidebar-border: #293440;
-  --sidebar-ring: #ba91ce;
+  --background: #0b0b0d;
+  --foreground: #ececee;
+  --card: #131316;
+  --card-foreground: #ececee;
+  --popover: #18181c;
+  --popover-foreground: #ececee;
+  --primary: #e5484d;
+  --primary-foreground: #1a0506;
+  --secondary: #1c1c20;
+  --secondary-foreground: #d4d4d8;
+  --muted: #1c1c20;
+  --muted-foreground: #a1a1aa;
+  --accent: #2a1213;
+  --accent-foreground: #f6a5a8;
+  --destructive: #ff8c8c;
+  --border: #27272b;
+  --input: #36363c;
+  --ring: #e5484d;
+  --chart-1: #e5484d;
+  --chart-2: #f29a9d;
+  --chart-3: #5fb39a;
+  --chart-4: #d6a54f;
+  --chart-5: #a1a1aa;
+  --sidebar: #0f0f12;
+  --sidebar-foreground: #c4c4cc;
+  --sidebar-primary: #e5484d;
+  --sidebar-primary-foreground: #1a0506;
+  --sidebar-accent: #2a1213;
+  --sidebar-accent-foreground: #f6a5a8;
+  --sidebar-border: #27272b;
+  --sidebar-ring: #e5484d;
 }
 
 @layer base {
@@ -130,101 +135,15 @@ These serve as the fallback; there is no separate default.css file. */
     @apply border-border outline-ring/50;
   }
 
+  /* next/font declares the face variables on <body>, so the aliases must resolve there. */
   body {
+    --font-sans: var(--font-inter);
+    --font-mono: var(--font-jetbrains-mono);
     @apply bg-background text-foreground;
     font-family: var(--font-sans), system-ui, sans-serif;
   }
   html {
     @apply font-sans;
-  }
-}
-
-@layer utilities {
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-2xs {
-    box-shadow: var(--shadow-2xs);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-xs {
-    box-shadow: var(--shadow-xs);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-sm {
-    box-shadow: var(--shadow-sm);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow {
-    box-shadow: var(--shadow);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-md {
-    box-shadow: var(--shadow-md);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-lg {
-    box-shadow: var(--shadow-lg);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-xl {
-    box-shadow: var(--shadow-xl);
-  }
-
-  [data-theme-preset]:not([data-theme-preset="default"]) .shadow-2xl {
-    box-shadow: var(--shadow-2xl);
-  }
-
-  html[data-font="inter"] body {
-    --font-sans: var(--font-inter);
-  }
-  html[data-font="notoSans"] body {
-    --font-sans: var(--font-noto-sans);
-  }
-  html[data-font="nunitoSans"] body {
-    --font-sans: var(--font-nunito-sans);
-  }
-  html[data-font="figtree"] body {
-    --font-sans: var(--font-figtree);
-  }
-  html[data-font="roboto"] body {
-    --font-sans: var(--font-roboto);
-  }
-  html[data-font="geist"] body {
-    --font-sans: var(--font-geist);
-  }
-  html[data-font="raleway"] body {
-    --font-sans: var(--font-raleway);
-  }
-  html[data-font="dmSans"] body {
-    --font-sans: var(--font-dm-sans);
-  }
-  html[data-font="publicSans"] body {
-    --font-sans: var(--font-public-sans);
-  }
-  html[data-font="outfit"] body {
-    --font-sans: var(--font-outfit);
-  }
-  html[data-font="geistMono"] body {
-    --font-sans: var(--font-geist-mono);
-  }
-  html[data-font="geistPixelSquare"] body {
-    --font-sans: var(--font-geist-pixel-square);
-  }
-  html[data-font="jetBrainsMono"] body {
-    --font-sans: var(--font-jetbrains-mono);
-  }
-  html[data-font="notoSerif"] body {
-    --font-sans: var(--font-noto-serif);
-  }
-  html[data-font="robotoSlab"] body {
-    --font-sans: var(--font-roboto-slab);
-  }
-  html[data-font="merriweather"] body {
-    --font-sans: var(--font-merriweather);
-  }
-  html[data-font="lora"] body {
-    --font-sans: var(--font-lora);
-  }
-  html[data-font="playfairDisplay"] body {
-    --font-sans: var(--font-playfair-display);
   }
 }
 

@@ -17,6 +17,7 @@ import { PREFERENCE_DEFAULTS } from "@/lib/preferences/preferences-config";
 import { cn } from "@/lib/utils";
 
 import { MainContent } from "./_components/main-content";
+import { SiteHeader } from "./_components/site-header";
 
 // Reads a layout-critical preference from the browser cookie (falls back to the
 // default during static-export prerender where document is unavailable). Kept
@@ -65,25 +66,32 @@ export default function Layout({ children }: Readonly<{ children: ReactNode }>) 
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
+      className="flex-col"
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 68)",
+          "--sidebar-width": "calc(var(--spacing) * 60)",
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant={variant} collapsible={collapsible} />
-      <SidebarInset
-        className={cn(
-          "[html[data-content-layout=centered]_&>*]:mx-auto",
-          "[html[data-content-layout=centered]_&>*]:w-full",
-          "[html[data-content-layout=centered]_&>*]:max-w-screen-2xl",
-          "peer-data-[variant=inset]:border",
-          "[--dashboard-header-height:--spacing(12)]",
-          "min-w-0 overflow-x-hidden",
-        )}
-      >
-        <MainContent>{children}</MainContent>
-      </SidebarInset>
+      <SiteHeader />
+      <div className="flex min-h-0 flex-1">
+        <AppSidebar
+          variant={variant}
+          collapsible={collapsible}
+          className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
+        />
+        <SidebarInset
+          className={cn(
+            "[html[data-content-layout=centered]_&>*]:mx-auto",
+            "[html[data-content-layout=centered]_&>*]:w-full",
+            "[html[data-content-layout=centered]_&>*]:max-w-screen-2xl",
+            "peer-data-[variant=inset]:border",
+            "min-h-[calc(100svh-var(--header-height))] min-w-0 overflow-x-hidden",
+          )}
+        >
+          <MainContent>{children}</MainContent>
+        </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 }

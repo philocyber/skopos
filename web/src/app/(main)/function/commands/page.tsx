@@ -1,8 +1,10 @@
 "use client";
 import * as React from "react";
 
-import { BarChart3Icon, ChevronLeftIcon, ChevronRightIcon, Loader2Icon, SearchIcon, TerminalIcon } from "lucide-react";
+import { BarChart3Icon, ChevronLeftIcon, ChevronRightIcon, Loader2Icon, SearchIcon } from "lucide-react";
 
+import { CountLabel } from "@/components/console/count-label";
+import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -130,14 +132,7 @@ export default function CommandsPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <TerminalIcon className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m0287")}</h1>
-          <Badge variant="secondary">{total}</Badge>
-        </div>
-      </div>
+      <PageHeader title={<CountLabel label={swt("interface.m0287")} count={total} />} />
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">

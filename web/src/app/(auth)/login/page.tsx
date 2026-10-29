@@ -97,12 +97,13 @@ export default function LoginPage() {
       <div className="console-auth-brand">
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/skopos.svg" alt="" width={36} height={36} className="grayscale" />
+          <img src="/skopos.svg" alt="" width={36} height={36} />
           <div className="flex flex-col">
-            <span className="text-lg font-semibold tracking-tight">Skopos</span>
-            <span className="text-xs text-muted-foreground">PhiloCyber</span>
+            <span className="font-semibold text-lg text-topbar-foreground tracking-tight">skopos</span>
+            <span className="text-topbar-muted text-xs">PhiloCyber</span>
           </div>
         </div>
+        <p className="hidden max-w-xs text-sm text-topbar-muted md:block">{swt("app.metaDescription")}</p>
       </div>
 
       {/* Right panel */}

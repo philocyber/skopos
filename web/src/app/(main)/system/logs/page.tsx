@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n";
@@ -192,10 +193,7 @@ export default function LogsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-3">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">{swt("interface.m1438")}</h1>
-        <p className="text-muted-foreground text-sm">{swt("interface.m1439")}</p>
-      </div>
+      <PageHeader title={swt("interface.m1438")} description={swt("interface.m1439")} />
       <div className="flex flex-1 flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <Input

@@ -44,6 +44,7 @@ import {
 import { toast } from "sonner";
 
 import { AssetInterceptRulesEditor } from "@/components/asset-intercept-rules-editor";
+import { CountLabel } from "@/components/console/count-label";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { TablePagination } from "@/components/table-pagination";
@@ -885,8 +886,10 @@ export default function TasksPage() {
         }
       />
       <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-4">
-        <TabsList>
-          <TabsTrigger value="current">{swt("interface.m0856")}</TabsTrigger>
+        <TabsList variant="line" className="h-9">
+          <TabsTrigger value="current">
+            <CountLabel label={swt("interface.m0856")} count={tasks.length} />
+          </TabsTrigger>
           <TabsTrigger value="archived">{swt("interface.m0857")}</TabsTrigger>
         </TabsList>
         <TabsContent value="current">

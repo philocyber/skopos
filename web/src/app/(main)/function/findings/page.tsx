@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { CountLabel } from "@/components/console/count-label";
+import { KpiCard } from "@/components/console/kpi-card";
 import { FindingRetestDialog } from "@/components/finding-retest-dialog";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
@@ -152,6 +154,7 @@ export default function FindingsPage() {
   const [assetScope, setAssetScope] = React.useState<string | null>(null);
   const [groups, setGroups] = React.useState<FindingGroup[]>([]);
   const [groupTotal, setGroupTotal] = React.useState(0);
+  const [groupsLoaded, setGroupsLoaded] = React.useState(false);
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(() => new Set());
   const [groupFindings, setGroupFindings] = React.useState<Record<string, GroupFindingsState>>({});
   const [total, setTotal] = React.useState(0);
@@ -391,6 +394,7 @@ export default function FindingsPage() {
       if (request !== groupsRequest.current || activeFilterFingerprint.current !== requestFilter) return;
       setGroups(result.items);
       setGroupTotal(result.total);
+      setGroupsLoaded(true);
       setTotal(result.finding_total);
     } catch {
       // Polling keeps the last successful snapshot visible.
@@ -514,6 +518,7 @@ export default function FindingsPage() {
     setExpandedGroups(new Set());
     setGroupFindings({});
     setFlatPage(1);
+    setGroupsLoaded(false);
     setFlat(EMPTY_FLAT_STATE);
     // Filter changes may remove the selected tree node; return to All assets.
     setAssetScope(null);
@@ -851,39 +856,36 @@ export default function FindingsPage() {
             <Button size="sm" variant="outline" onClick={openExport}>
               <DownloadIcon /> {swt("interface.m0399")}
             </Button>
-            <Tabs value={view} onValueChange={(v) => setView(v as FindingView)}>
-              <TabsList>
-                <TabsTrigger value="flat" aria-controls={undefined}>
-                  {swt("interface.m0386")}
-                </TabsTrigger>
-                <TabsTrigger value="grouped" aria-controls={undefined}>
-                  {swt("interface.m0387")}
-                </TabsTrigger>
-                <TabsTrigger value="asset" aria-controls={undefined}>
-                  {swt("interface.m0388")}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
           </>
         }
       />
       <div className="flex flex-1 flex-col gap-4 md:gap-6">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {statCards.map((stat) => {
-            const StatIcon = stat.icon;
-            return (
-              <Card key={stat.label} className="gap-1 py-4">
-                <CardHeader className="px-4">
-                  <CardDescription>{stat.label}</CardDescription>
-                  <CardTitle className={cn("flex items-center gap-2 text-2xl tabular-nums", stat.tone)}>
-                    <StatIcon className="size-5" aria-hidden="true" />
-                    {stat.value}
-                  </CardTitle>
-                </CardHeader>
-              </Card>
-            );
-          })}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {statCards.map((stat) => (
+            <KpiCard
+              key={stat.label}
+              icon={stat.icon}
+              label={stat.label}
+              value={<span className={stat.tone}>{stat.value}</span>}
+            />
+          ))}
         </div>
+        <Tabs value={view} onValueChange={(v) => setView(v as FindingView)}>
+          <TabsList variant="line" className="h-9">
+            <TabsTrigger value="flat" aria-controls={undefined}>
+              <CountLabel label={swt("interface.m0386")} count={flat.loaded ? flat.total : stats.total} />
+            </TabsTrigger>
+            <TabsTrigger value="grouped" aria-controls={undefined}>
+              <CountLabel label={swt("interface.m0387")} count={groupsLoaded ? groupTotal : undefined} />
+            </TabsTrigger>
+            <TabsTrigger value="asset" aria-controls={undefined}>
+              <CountLabel
+                label={swt("interface.m0388")}
+                count={assetTree.loaded ? assetTree.findingTotal : undefined}
+              />
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         <div className="flex flex-wrap items-center gap-2">
           <InputGroup className="w-full sm:w-60">

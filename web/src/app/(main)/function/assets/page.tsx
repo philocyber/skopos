@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 
 import { AssetDslSearch } from "@/components/asset-dsl-search";
+import { CountLabel } from "@/components/console/count-label";
 import { PageHeader } from "@/components/page-header";
 import { ScopeTextEditor } from "@/components/scope-text-editor";
 import {
@@ -382,12 +383,11 @@ export default function AssetsPage() {
 
       <Tabs value={tab} onValueChange={setTab} className="flex min-h-0 flex-1 flex-col gap-4">
         <div className="overflow-x-auto overflow-y-hidden">
-          <TabsList variant="default">
+          <TabsList variant="line" className="h-9 w-max">
             {TABS.map((t) => (
               <TabsTrigger key={t.key} value={t.key}>
                 <t.icon className="size-3.5" />
-                {t.label}
-                <span className="ml-1 tabular-nums text-muted-foreground">{tabCounts[t.key]}</span>
+                <CountLabel label={t.label} count={tabCounts[t.key] ?? 0} />
               </TabsTrigger>
             ))}
           </TabsList>

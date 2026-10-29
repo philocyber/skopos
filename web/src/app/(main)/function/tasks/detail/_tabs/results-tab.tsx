@@ -260,7 +260,7 @@ export function ResultsTab({ taskId }: { taskId: string }) {
           <aside
             id="result-inspector"
             aria-label="Recorded result details"
-            className="sticky top-0 max-h-[calc(100dvh-13rem)] min-w-0 self-start overflow-y-auto rounded-lg border bg-card"
+            className="sticky top-0 max-h-[calc(100dvh-13rem-var(--header-height))] min-w-0 self-start overflow-y-auto rounded-lg border bg-card"
           >
             <div className="flex items-center justify-between border-b p-3">
               <h3 className="text-sm font-semibold">Record #{selected.id}</h3>

@@ -13,6 +13,7 @@ import {
   XIcon,
 } from "lucide-react";
 
+import { CountLabel } from "@/components/console/count-label";
 import { PageHeader } from "@/components/page-header";
 import {
   AlertDialog,
@@ -283,14 +284,7 @@ export default function LLMRecordsPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       {/* Header */}
-      <PageHeader
-        title={
-          <span className="flex items-center gap-2">
-            {swt("interface.m0426")}
-            <Badge variant="secondary">{total}</Badge>
-          </span>
-        }
-      />
+      <PageHeader title={<CountLabel label={swt("interface.m0426")} count={total} />} />
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
