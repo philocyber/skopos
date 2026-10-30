@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -36,6 +37,7 @@ type InterceptAudit struct {
 	EffectiveAction  string                  `json:"effective_action,omitempty"`
 	DecisionReason   string                  `json:"decision_reason,omitempty"`
 	RuleName         string                  `json:"rule_name,omitempty"`
+	GrantScope       string                  `json:"grant_scope,omitempty"`
 	ConfigDigest     string                  `json:"config_digest,omitempty"`
 	ProfileID        int64                   `json:"profile_id,omitempty"`
 	ExecutionStatus  string                  `json:"execution_status"`
@@ -73,27 +75,65 @@ func (d *DB) GetInterceptDetail(id int64) (*InterceptDetail, error) {
 
 // ResolveIntercept atomically settles a pending request. A timeout cannot
 // overwrite a human decision and repeat decisions cannot rewrite history.
-func (d *DB) ResolveIntercept(id int64, status, action, reason string) (bool, error) {
+func (d *DB) ResolveIntercept(id int64, status, action, reason string, grants ...*TaskToolGrant) (bool, error) {
 	execution := "not_executed"
 	if action == "allow" {
 		execution = "awaiting_result"
 	}
-	patch, err := json.Marshal(map[string]any{
+	fields := map[string]any{
 		"effective_action": action, "decision_reason": reason, "execution_status": execution,
-	})
+	}
+	if action == "allow" && status == "allowed" {
+		fields["grant_scope"] = "once"
+		if len(grants) > 0 && grants[0] != nil && grants[0].Scope != "" {
+			fields["grant_scope"] = grants[0].Scope
+		}
+	}
+	patch, err := json.Marshal(fields)
 	if err != nil {
 		return false, err
 	}
-	r, err := d.Exec(`UPDATE intercept_pending SET status=$2, decided_at=NOW(),
+	tx, err := d.Begin()
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+	r, err := tx.Exec(`UPDATE intercept_pending SET status=$2, reason=$5, decided_at=NOW(),
 		audit=CASE WHEN audit IS NULL THEN NULL ELSE audit || $3::jsonb ||
         CASE WHEN $4='allow' AND audit->>'correlation' IS DISTINCT FROM 'exact'
         THEN '{"execution_status":"unknown"}'::jsonb ELSE '{}'::jsonb END END
-        WHERE id=$1 AND status='pending'`, id, status, patch, action)
+        WHERE id=$1 AND status='pending'`, id, status, patch, action, reason)
 	if err != nil {
 		return false, err
 	}
 	n, err := r.RowsAffected()
-	return n == 1, err
+	if err != nil || n != 1 {
+		return false, err
+	}
+	if len(grants) > 0 && grants[0] != nil {
+		g := grants[0]
+		if action != "allow" {
+			return false, fmt.Errorf("standing approvals require an allow decision")
+		}
+		_, err = tx.Exec(`INSERT INTO task_tool_grants(task_id,scope,tool_name,command)
+    VALUES ($1,$2,$3,$4) ON CONFLICT (task_id,scope,tool_name,command) DO NOTHING`, g.TaskID, g.Scope, g.ToolName, g.Command)
+		if err != nil {
+			return false, err
+		}
+	}
+	if action == "allow" {
+		_, err = tx.Exec(`INSERT INTO task_approval_replays(pending_id,task_id,tool_name,tool_input)
+   SELECT p.id,t.id,p.tool_name,p.tool_input FROM intercept_pending p JOIN tasks t ON p.task_id=t.id::text
+   WHERE p.id=$1 AND p.deferred_task AND EXISTS(SELECT 1 FROM task_approval_holds WHERE task_id=t.id AND ended_at IS NULL)
+   ON CONFLICT(pending_id) DO NOTHING`, id)
+		if err != nil {
+			return false, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // CompleteIntercept only updates the exact recorded call after it was allowed.

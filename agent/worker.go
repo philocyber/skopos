@@ -11,14 +11,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Philocyber/skopos/db"
-	"github.com/Philocyber/skopos/intercept"
 	"github.com/Autumn-27/norma/agentcore"
 	"github.com/Autumn-27/norma/harness"
 	"github.com/Autumn-27/norma/llm"
 	"github.com/Autumn-27/norma/permission"
 	actool "github.com/Autumn-27/norma/tool"
 	"github.com/Autumn-27/norma/transcript"
+	"github.com/Philocyber/skopos/db"
+	"github.com/Philocyber/skopos/intercept"
 )
 
 // Worker is an LLM work agent (docs §4.4): it claims ONE intent, completes it
@@ -364,6 +364,7 @@ func (w *Worker) execute(ctx context.Context, name string, taskID int64, as *db.
 	// inherit a parent run's background into the action reviewer.
 	ctx = intercept.WithReviewContext(ctx, runDir, intercept.ReviewBackground{})
 	overview := renderWorkerGraphOverview(tsx.graphOverviewData())
+	ctx = withTaskOperatorAuthorization(ctx, ts, taskID)
 	sysBody := workerSystem(w.proxyAddr, w.proxyCACert, w.workDir, runDir, locale.FromContext(ctx))
 	if w.wantConstraints() {
 		sysBody += constraintBlock(ts, locale.FromContext(ctx)) // Inject operating constraints for strict worker compliance.
@@ -390,6 +391,7 @@ func (w *Worker) execute(ctx context.Context, name string, taskID int64, as *db.
 		}
 	}
 	sysBody += locale.Text(locale.FromContext(ctx), "\n\nExecute the intent above only. Produce facts, assets, and findings, then stop.")
+	sysBody += taskOperatorAuthorizationPrompt(ts, taskID)
 	system, boundary := deferredSystem(sysBody, def)
 	// Context carries the task deadline, clamping this run's budget and selecting settlement text.
 	tc := taskClockFrom(ctx)
@@ -481,6 +483,9 @@ func (w *Worker) execute(ctx context.Context, name string, taskID int64, as *db.
 		if len(s.Messages()) > 0 && message == "" {
 			seedUnlockFromHistory(s.Messages(), def.UnlockSkill)
 			input = locale.Text(locale.FromContext(ctx), "Continue execution.")
+			if next, ok := approvalHoldContinuation(locale.FromContext(ctx), s.Messages(), ts, taskID); ok {
+				input = next
+			}
 		} else if len(s.Messages()) > 0 {
 			seedUnlockFromHistory(s.Messages(), def.UnlockSkill)
 		}

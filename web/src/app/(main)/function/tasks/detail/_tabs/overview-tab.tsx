@@ -1122,7 +1122,7 @@ const TASK_RULE_KIND_OPTIONS: { value: AssetInterceptKind; label: string; placeh
     get label() {
       return swt("interface.m0664");
     },
-    placeholder: "example.gov.cn",
+    placeholder: "example.gov",
   },
   {
     value: "exact_ip",
@@ -1143,7 +1143,7 @@ const TASK_RULE_KIND_OPTIONS: { value: AssetInterceptKind; label: string; placeh
     get label() {
       return swt("interface.m0667");
     },
-    placeholder: ".gov.cn",
+    placeholder: ".gov",
   },
   {
     value: "fuzzy_ip",

@@ -106,7 +106,7 @@ This is the translated upstream ARTEX history from baseline `160fe13`, preservin
 
 #### Added
 
-- Added global asset deny rules for exact/fuzzy domain, IP and URL matches and CIDR ranges. System → Asset interception supports create/read/update/delete and enable/disable. Built-in fuzzy rules block government (`.gov` / `.gov.cn`) and education (`.edu` / `.edu.cn`) sites by default.
+- Added global asset deny rules for exact/fuzzy domain, IP and URL matches and CIDR ranges. System → Asset interception supports create/read/update/delete and enable/disable. Built-in fuzzy rules block government (`.gov`) and education (`.edu`) sites by default.
 - Integrated asset interception into execution. Before `add_intent` or `insert_assets`, the agent's target is checked. Blocked intents are not dispatched and blocked assets are not inserted; asset details and the reason return to the agent.
 - Added task-local deny/allow rules independent of global rules. Deny is evaluated first. If no deny matches but configured allow rules also do not match, testing is disallowed. With no allow rules, allowlisting is inactive. Configure at task creation or manage and toggle in task Overview.
 - Task templates can store a category and task-level deny/allow rules, applying both to new-task forms.

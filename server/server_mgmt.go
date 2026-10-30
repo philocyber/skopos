@@ -23,11 +23,11 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/Autumn-27/norma/llm"
+	"github.com/Autumn-27/norma/skill"
 	"github.com/Philocyber/skopos/agent"
 	"github.com/Philocyber/skopos/db"
 	"github.com/Philocyber/skopos/locale"
-	"github.com/Autumn-27/norma/llm"
-	"github.com/Autumn-27/norma/skill"
 )
 
 // validSkillName checks the agentskills.io name constraints, widened so a skill can
@@ -1807,8 +1807,9 @@ func (s *Server) pgSaveProfile(w http.ResponseWriter, r *http.Request) {
 	// would get wrong — legacy/partial clients that never send it stay streaming.
 	var body struct {
 		db.LLMProfile
-		APIKey    string `json:"api_key"`
-		Streaming *bool  `json:"streaming"`
+		APIKey         string  `json:"api_key"`
+		SubscriptionID *string `json:"subscription_id"`
+		Streaming      *bool   `json:"streaming"`
 	}
 	if err := decode(r, &body); err != nil {
 		writeError(w, 400, err)
@@ -1816,6 +1817,13 @@ func (s *Server) pgSaveProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	p := body.LLMProfile
 	p.APIKey = body.APIKey
+	if body.SubscriptionID != nil {
+		p.SubscriptionID = *body.SubscriptionID
+	} else if p.ID > 0 {
+		if existing, err := pg.ProfileByID(p.ID); err == nil && existing != nil {
+			p.SubscriptionID = existing.SubscriptionID
+		}
+	}
 	p.Streaming = body.Streaming == nil || *body.Streaming
 	// Negative output limits are meaningless; normalize to zero, omitting the request field. Field-name selection
 	// applies only to Chat Completions; Anthropic and OpenAI Responses fix their field names, so storing it misleads readers.
@@ -1825,6 +1833,21 @@ func (s *Server) pgSaveProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	if p.Format != "openai" || p.MaxTokensField != llm.MaxTokensFieldCompletion {
 		p.MaxTokensField = ""
+	}
+	if p.SubscriptionID != "" {
+		cfg := agent.ConfigFrom(p.Format, p.Model, p.BaseURL, "", p.Proxy)
+		cfg.Stream = p.Streaming
+		cfg.CyberAccessProgram = p.CyberAccessProgram
+		p.Proxy = ""
+		p.ThinkingType = ""
+		p.MaxTokens = 0
+		p.SessionHeaderKey = ""
+		cfg.Proxy = ""
+		if err := s.configureSubscription(&cfg, p.SubscriptionID); err != nil {
+			writeError(w, 400, err)
+			return
+		}
+		p.APIKey, p.APIKeyHint, p.BaseURL = "", "", cfg.BaseURL
 	}
 	id, err := pg.SaveProfile(&p)
 	if err != nil {
@@ -1986,14 +2009,33 @@ func (s *Server) pgLLMPoolReset(w http.ResponseWriter, r *http.Request) {
 // the OpenAI path, it falls back to the OpenAI endpoint at the stripped root.
 func (s *Server) pgListModels(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Provider  string `json:"provider"` // "openai" | "anthropic"
-		BaseURL   string `json:"base_url"`
-		APIKey    string `json:"api_key"`
-		Proxy     string `json:"proxy"`
-		ProfileID *int64 `json:"profile_id"` // fallback: use stored key from this profile
+		SubscriptionID string `json:"subscription_id"`
+		Provider       string `json:"provider"` // "openai" | "anthropic"
+		BaseURL        string `json:"base_url"`
+		APIKey         string `json:"api_key"`
+		Proxy          string `json:"proxy"`
+		ProfileID      *int64 `json:"profile_id"` // fallback: use stored key from this profile
 	}
 	if err := decode(r, &req); err != nil {
 		writeError(w, 400, err)
+		return
+	}
+	if req.SubscriptionID == "" && req.ProfileID != nil && req.APIKey == "" {
+		if p, err := s.m.pg.ProfileByID(*req.ProfileID); err == nil && p != nil {
+			req.SubscriptionID = p.SubscriptionID
+		}
+	}
+	if req.SubscriptionID != "" {
+		models, err := s.subscriptions.Models(r.Context(), req.SubscriptionID)
+		if err != nil {
+			writeJSON(w, 200, map[string]any{"ok": false, "error": err.Error()})
+			return
+		}
+		slugs := make([]string, 0, len(models))
+		for _, model := range models {
+			slugs = append(slugs, model.Slug)
+		}
+		writeJSON(w, 200, map[string]any{"ok": true, "models": slugs, "model_choices": models})
 		return
 	}
 	// Resolve API key: form input > profile stored key.

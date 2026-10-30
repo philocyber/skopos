@@ -15,13 +15,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Autumn-27/norma/llm"
+	"github.com/Autumn-27/norma/transcript"
 	"github.com/Philocyber/skopos/agent"
 	"github.com/Philocyber/skopos/db"
 	"github.com/Philocyber/skopos/llmrec"
 	"github.com/Philocyber/skopos/locale"
 	"github.com/Philocyber/skopos/sidequestion"
-	"github.com/Autumn-27/norma/llm"
-	"github.com/Autumn-27/norma/transcript"
 )
 
 type sideRun struct {
@@ -339,6 +339,10 @@ func (s *Server) handleSideQuestions(w http.ResponseWriter, r *http.Request, p s
 		writeJSON(w, 200, map[string]any{"items": items, "current": current, "next_cursor": next, "snapshot": meta})
 		return
 	}
+	if p.TaskID > 0 && s.taskApprovalHeld(strconv.FormatInt(p.TaskID, 10)) {
+		writeErr(w, 409, "Task is waiting for tool permission; resolve the requests and click Resume")
+		return
+	}
 	r.Body = http.MaxBytesReader(w, r.Body, 32<<10)
 	var in struct {
 		Question string `json:"question"`
@@ -355,6 +359,10 @@ func (s *Server) handleSideQuestions(w http.ResponseWriter, r *http.Request, p s
 	}
 	s.side.commands.Lock()
 	defer s.side.commands.Unlock()
+	if p.TaskID > 0 && s.taskApprovalHeld(strconv.FormatInt(p.TaskID, 10)) {
+		writeErr(w, 409, "Task is waiting for tool permission; resolve the requests and click Resume")
+		return
+	}
 	if p.TaskID > 0 && s.engine.IsDeleting(strconv.FormatInt(p.TaskID, 10)) {
 		writeErr(w, 409, locale.Text(responseLanguage(w), "Task is being archived or deleted"))
 		return

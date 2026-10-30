@@ -52,6 +52,7 @@ import { pollWhileVisible } from "@/hooks/use-polling";
 import { useSideQuestions } from "@/hooks/use-side-questions";
 import { useI18n } from "@/i18n";
 import { getIntlLocale, translate as swt } from "@/i18n/runtime";
+import { activeDurationMs } from "@/lib/active-duration";
 import { api, sseUrl } from "@/lib/api";
 import { shouldSubmitOnKey, useChatSendMode } from "@/lib/chat-send-mode";
 import { MOCK } from "@/lib/mock/enabled";
@@ -67,6 +68,7 @@ import type {
   SessionTokenUsage,
   TaskLLMResolution,
   TaskLLMResolutions,
+  Task,
   TaskNode,
   TokenTotal,
 } from "@/lib/types";
@@ -349,6 +351,10 @@ function intentStatus(state: string): SessionStatus {
 
 // Derive worker sessions from running/open intents — there is no backend
 // sessions endpoint, so intents (≈ worker units) are the closest real source.
+function workerDisplayNo(s: { worker_no?: number; intent_id?: string }) {
+  return s.worker_no || s.intent_id || "";
+}
+
 function intentToSession(n: TaskNode): Session {
   const label = (n.payload ?? "").trim();
   const state = intentStatus(n.state);
@@ -360,6 +366,7 @@ function intentToSession(n: TaskNode): Session {
     live: !n.inherited && state === "running",
     last_activity: n.ts,
     intent_id: n.id,
+    worker_no: n.worker_no,
     source_task_id: n.source_task_id,
     inherited: n.inherited,
   };
@@ -416,9 +423,9 @@ function SessionItem({
         className="flex min-w-0 flex-1 items-center gap-1 px-2 py-1.5 text-left text-sm"
       >
         {icon ?? <span className="size-3.5 shrink-0" />}
-        {s.intent_id && (
+        {s.role === "worker" && !!s.worker_no && (
           <span className="shrink-0 rounded bg-muted px-1 py-0.5 font-mono text-[10px] tabular-nums text-muted-foreground">
-            #{s.intent_id}
+            #{s.worker_no}
           </span>
         )}
         {s.inherited && s.source_task_id && (
@@ -517,10 +524,11 @@ function WorkerAssetBadge({ assets }: { assets: IntentAsset[] }) {
   );
 }
 
-export function SessionsTab({ taskId }: { taskId: string }) {
+export function SessionsTab({ taskId, task }: { taskId: string; task?: Task }) {
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
 
+  const permissionHeld = task?.approval_state?.holds.some((hold) => !hold.ended_at) ?? false;
   const approvalFocus = useApprovalFocus({ taskId });
   const [selectedSessionId, setActiveId] = React.useState(MAIN_ID);
   const focusSession = React.useMemo<Session | undefined>(() => {
@@ -537,7 +545,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         id,
         role: "worker",
         intent_id: id,
-        title: `Worker #${id}`,
+        title: "Worker",
         status: "done",
         live: false,
         last_activity: source.items[0]?.ts ?? "",
@@ -646,21 +654,21 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         const res = await api.controlIntent(taskId, session.intent_id, action, reason, mode);
         if (action === "pause") {
           patchIntentState(session.intent_id, "paused");
-          toast.success(swt("interface.m0707", { p0: session.intent_id }));
+          toast.success(swt("interface.m0707", { p0: workerDisplayNo(session) }));
         } else if (action === "resume") {
           patchIntentState(session.intent_id, "open");
-          toast.success(swt("interface.m0708", { p0: session.intent_id }));
+          toast.success(swt("interface.m0708", { p0: workerDisplayNo(session) }));
         } else if (mode === "hard") {
           // Hard deletion physically removes the intent and exclusive descendants; remove its list row.
           patchIntentState(session.intent_id);
           const d = res.deleted;
           const extra = d ? swt("interface.m0709", { p0: d.intents, p1: d.facts, p2: d.findings }) : "";
-          toast.success(swt("interface.m0710", { p0: session.intent_id, p1: extra }));
+          toast.success(swt("interface.m0710", { p0: workerDisplayNo(session), p1: extra }));
           setCancelReason("");
         } else {
           // Soft deletion records deleted status/reason and preserves nodes and outputs.
           patchIntentState(session.intent_id, "deleted");
-          toast.success(swt("interface.m0711", { p0: session.intent_id }));
+          toast.success(swt("interface.m0711", { p0: workerDisplayNo(session) }));
           setCancelReason("");
         }
       } catch (error) {
@@ -905,7 +913,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
   }, [taskId]);
 
   // Re-render on a timer so "streaming" liveness recomputes as activity goes stale.
-  const [, setTick] = React.useState(0);
+  const [tick, setTick] = React.useState(0);
   React.useEffect(() => {
     const id = pollWhileVisible(() => setTick((t) => t + 1), 1500);
     return () => id();
@@ -1308,8 +1316,9 @@ export function SessionsTab({ taskId }: { taskId: string }) {
     const items = [...mainSessions, { ...PLANNER_SESSION, live: plannerLive }, ...workerSessions, SYSTEM_SESSION];
     const located = focusSession ?? retainedSession;
     if (located && !items.some((s) => s.id === located.id)) items.push(located);
-    return items;
-  }, [swLocale, mainSessions, workerSessions, plannerLive, focusSession, retainedSession]);
+    return task?.approval_state?.holds.some((hold) => !hold.ended_at)
+      ? items.map((session) => ({ ...session, live: false })) : items;
+  }, [swLocale, mainSessions, workerSessions, plannerLive, focusSession, retainedSession, task?.approval_state]);
 
   const grouped = {
     mainagent: sessions.filter((s) => s.role === "mainagent"),
@@ -1488,8 +1497,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
     }
     if (!Number.isFinite(min) || max === 0) return null;
     const end = active.live ? Date.now() : max;
-    return Math.max(0, end - min);
-  }, [swLocale, activity, active.live]);
+    return activeDurationMs(min, end, task?.approval_state?.holds);
+  }, [swLocale, activity, active.live, task?.approval_state?.holds, tick]);
 
   // ---- transcript auto-scroll (open → bottom; stick to bottom unless scrolled up) ----
   const contentRef = React.useRef<HTMLDivElement | null>(null);
@@ -1599,7 +1608,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         patchIntentState(intentId, result.state);
         setWorkerMessage("");
         setWorkerMessageRequestId("");
-        toast.success(swt("interface.m0717", { p0: intentId }));
+        toast.success(swt("interface.m0717", { p0: workerDisplayNo(active) }));
       })
       .catch((error) => {
         toast.error(swt("interface.m0714", { p0: (error as Error).message || swt("interface.m0715") }));
@@ -1627,9 +1636,9 @@ export function SessionsTab({ taskId }: { taskId: string }) {
       {/* Reserve header height (title/objectives/tabs about 7.5rem) plus padding: 10rem on mobile and 13rem on desktop, including desktop scroll allowance. Using 13rem on mobile wastes transcript height. */}
       <div
         className={cn(
-          "grid h-[calc(100svh-10rem)] min-h-0 grid-cols-1 gap-4",
+          "grid h-[calc(100svh-10rem-var(--header-height))] min-h-0 grid-cols-1 gap-4",
           listOpen ? "grid-rows-[minmax(0,40svh)_minmax(0,1fr)]" : "grid-rows-[auto_minmax(0,1fr)]",
-          "lg:h-[calc(100svh-13rem)] lg:grid-cols-[18rem_1fr] lg:grid-rows-[minmax(0,1fr)]",
+          "lg:h-[calc(100svh-13rem-var(--header-height))] lg:grid-cols-[18rem_1fr] lg:grid-rows-[minmax(0,1fr)]",
         )}
       >
         {/* Left: session list */}
@@ -1793,7 +1802,11 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         {/* Right: transcript */}
         <SideQuestionWorkspace
           side={side}
-          label={active.role === "worker" ? `Worker #${active.intent_id} · ${activeDisplayTitle}` : activeDisplayTitle}
+          label={
+            active.role === "worker"
+              ? `${active.worker_no ? `Worker ${active.worker_no}` : "Worker"} · ${activeDisplayTitle}`
+              : activeDisplayTitle
+          }
         >
           <div className="flex min-h-0 flex-1 min-w-0 flex-col overflow-hidden rounded-lg border bg-card">
             <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 border-b px-3 py-2 sm:px-4 sm:py-2.5">
@@ -1889,7 +1902,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   </Tooltip>
                 )}
                 {runDuration != null && (
-                  <span className="inline-flex items-center gap-1" title={swt("interface.m0738")}>
+                  <span className="inline-flex items-center gap-1" title="Active duration (tool permission waits excluded)">
                     <ClockIcon className="size-3" />
                     {fmtDuration(runDuration)}
                   </span>
@@ -2009,9 +2022,9 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                     inputGroup
                     rows={1}
                     aria-label={swt("interface.m0748")}
-                    placeholder={mainBusy ? swt("interface.m0749") : swt("interface.m0750")}
+                    placeholder={permissionHeld ? "Waiting for tool approval. This is not the scan pause. Review the requests, then continue the task." : mainBusy ? swt("interface.m0749") : swt("interface.m0750")}
                     value={input}
-                    disabled={sending}
+                    disabled={sending || permissionHeld}
                     onValueChange={setInput}
                     onKeyDown={(e) => {
                       if (!shouldSubmitOnKey(e, sendMode)) return;
@@ -2025,7 +2038,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       size="icon-xs"
                       variant="ghost"
                       onClick={() => fileInputRef.current?.click()}
-                      disabled={mainBusy || uploading}
+                      disabled={mainBusy || uploading || permissionHeld}
                       title={swt("interface.m0070")}
                       aria-label={swt("interface.m0070")}
                     >
@@ -2054,7 +2067,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                         size="icon-xs"
                         variant="default"
                         onClick={send}
-                        disabled={(!input.trim() && attachments.length === 0) || sending}
+                        disabled={(!input.trim() && attachments.length === 0) || sending || permissionHeld}
                         title={swt("interface.m0073")}
                         aria-label={swt("interface.m0073")}
                       >
@@ -2072,8 +2085,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   <MentionTextarea
                     inputGroup
                     rows={1}
-                    aria-label={swt("interface.m0752", { p0: active.intent_id })}
-                    placeholder={swt("interface.m0753", { p0: active.intent_id })}
+                    aria-label={swt("interface.m0752", { p0: workerDisplayNo(active) })}
+                    placeholder={swt("interface.m0753", { p0: workerDisplayNo(active) })}
                     value={workerMessage}
                     onValueChange={(value) => {
                       setWorkerMessage(value);
@@ -2084,7 +2097,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                       event.preventDefault();
                       sendWorkerChat();
                     }}
-                    disabled={workerMessageSending}
+                    disabled={workerMessageSending || permissionHeld}
                     aria-invalid={workerMessageCharCount(workerMessage) > MAX_WORKER_MESSAGE_CHARS}
                     className="max-h-36 min-h-9 overflow-y-auto"
                   />
@@ -2125,7 +2138,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                           size="xs"
                           variant="ghost"
                           onClick={() => void controlWorker(active, "resume")}
-                          disabled={controllingIntent === active.intent_id || workerMessageSending}
+                          disabled={controllingIntent === active.intent_id || workerMessageSending || permissionHeld}
                           title={swt("interface.m0755")}
                           aria-label={swt("interface.m0756")}
                         >
@@ -2140,7 +2153,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                           variant="default"
                           onClick={sendWorkerChat}
                           disabled={
-                            workerMessageSending ||
+                            permissionHeld || workerMessageSending ||
                             !workerMessage.trim() ||
                             workerMessageCharCount(workerMessage) > MAX_WORKER_MESSAGE_CHARS
                           }
@@ -2178,7 +2191,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
             <AlertDialogHeader>
               <AlertDialogTitle>
                 {swt("interface.m0758")}
-                {cancelIntent?.intent_id}？
+                {cancelIntent ? workerDisplayNo(cancelIntent) : ""}？
               </AlertDialogTitle>
               <AlertDialogDescription className="break-words whitespace-normal">
                 {deleteMode === "hard" ? (

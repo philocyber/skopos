@@ -1,6 +1,6 @@
 // Package intercept implements the user-configurable tool-call interception layer.
-// Rules are loaded from the database, cached in memory, and evaluated in priority
-// order (highest first) on every PreToolUse event. Three actions are supported:
+// Rules are loaded from the database and cached in memory. Denials run first,
+// then other rules in priority order (highest first) on every PreToolUse event. Three actions are supported:
 //
 //   - allow: immediately permits the call, skipping lower-priority rules.
 //   - deny:  blocks the call and returns a message to the model.
@@ -16,6 +16,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -129,6 +130,7 @@ type Interceptor struct {
 	enabledTools map[string]bool // nil means not loaded yet
 	pending      *pendingManager
 	reviewer     Reviewer // nil = LLM fallback judge not wired
+	taskApproval TaskApprovalHandler
 }
 
 // SetReviewer installs the LLM fallback judge callback. Passing nil disables it.
@@ -162,6 +164,44 @@ func (i *Interceptor) Invalidate() {
 	i.mu.Unlock()
 }
 
+// Granted reports whether this task has a standing approval for the call.
+// A database error does not grant anything.
+func (i *Interceptor) Granted(ctx context.Context, tools []string, input []byte) bool {
+	if i == nil || i.db == nil {
+		return false
+	}
+	taskID, _ := taskInfoFromCtx(ctx)
+	if taskID == "" {
+		return false
+	}
+	grants, err := i.taskGrants(taskID)
+	if err != nil {
+		return false
+	}
+	return GrantAllows(grants, tools, input)
+}
+
+// MatchingTaskGrant returns the standing approval that covers this call.
+func (i *Interceptor) MatchingTaskGrant(ctx context.Context, tools []string, input []byte) (db.TaskToolGrant, bool) {
+	if i == nil || i.db == nil {
+		return db.TaskToolGrant{}, false
+	}
+	taskID, _ := taskInfoFromCtx(ctx)
+	if taskID == "" {
+		return db.TaskToolGrant{}, false
+	}
+	grants, err := i.taskGrants(taskID)
+	if err != nil {
+		return db.TaskToolGrant{}, false
+	}
+	return MatchingGrant(grants, tools, input)
+}
+
+// Read fresh so revocation cannot race an in-flight grant-cache load.
+func (i *Interceptor) taskGrants(taskID string) ([]db.TaskToolGrant, error) {
+	return i.db.ListTaskToolGrants(taskID)
+}
+
 func (i *Interceptor) loadLocked() error {
 	rules, err := i.db.ListInterceptRules()
 	if err != nil {
@@ -173,6 +213,11 @@ func (i *Interceptor) loadLocked() error {
 			continue
 		}
 		cr := compiledRule{InterceptRule: r}
+		if r.MatchTarget == "tool_call" {
+			if err := ValidateCallPattern(r.Pattern); err != nil {
+				return err
+			}
+		}
 		if r.MatchType == "regex" {
 			re, err := regexp.Compile(r.Pattern)
 			if err != nil {
@@ -182,6 +227,8 @@ func (i *Interceptor) loadLocked() error {
 		}
 		out = append(out, cr)
 	}
+	// Denials cannot be bypassed by a broad allow rule. Keep priority within groups.
+	sort.SliceStable(out, func(a, b int) bool { return out[a].Action == "deny" && out[b].Action != "deny" })
 	// Load enabled-tools set from settings, falling back to hard-coded defaults.
 	val, ok, err := i.db.GetSetting("intercept_enabled_tools")
 	if err != nil {
@@ -299,6 +346,8 @@ type Decision struct {
 	ConfigDigest     string
 	ProfileID        int64
 	Action           string // "allow" | "deny" | "ask"
+	GrantScope       string // once | command | input | tool | all, when a person or standing approval decided
+	RememberAllowed  bool   // Legacy whole-tool prompts may be satisfied by task approvals.
 	Message          string
 	RuleID           int64
 	TimeoutEnabled   bool
@@ -481,6 +530,11 @@ func (i *Interceptor) Judge(ctx context.Context, tool string, arguments json.Raw
 		defer cancel()
 	}
 
+	authorization, authorizationErr := i.TaskOperatorAuthorization(cctx)
+	if authorizationErr != nil {
+		return Decision{Action: "ask", Message: "Could not load the task's user authorization", TimeoutEnabled: true, TimeoutSeconds: cfg.AskTimeoutSeconds, TimeoutAction: "deny"}, true
+	}
+	cctx = WithOperatorAuthorization(cctx, authorization)
 	input, contextErr := BuildReviewInput(cctx, tool, arguments)
 	cfg.Prompt = EffectiveJudgePrompt(cfg.Prompt, locale.FromContext(cctx))
 	var out Decision
@@ -540,7 +594,7 @@ func judgeActionLabel(action string, langs ...locale.Lang) string {
 	}
 }
 
-// Match evaluates the rule list (priority DESC) against a tool call.
+// Match evaluates denials first, then other rules by descending priority.
 // Returns (Decision, true) for the first matching enabled rule, or
 // (Decision{}, false) if no rule matches.
 func (i *Interceptor) Match(toolName string, input []byte, langs ...locale.Lang) (Decision, bool) {
@@ -586,7 +640,7 @@ func (i *Interceptor) MatchNames(names []string, input []byte, langs ...locale.L
 			}
 			configJSON, _ := json.Marshal(r.InterceptRule)
 			return Decision{
-				RuleName: r.Name, ConfigDigest: digestInput(configJSON),
+				RuleName: r.Name, ConfigDigest: digestInput(configJSON), RememberAllowed: r.MatchTarget == "tool_name",
 				Action:         r.Action,
 				Message:        msg,
 				RuleID:         r.ID,
@@ -639,6 +693,8 @@ func ruleMatches(r compiledRule, toolName string, input []byte) bool {
 	switch r.MatchTarget {
 	case "tool_name":
 		subject = toolName
+	case "tool_call":
+		return CallPatternMatches(r.Pattern, toolName, input)
 	case "tool_input":
 		subject = string(input)
 	default:
@@ -681,9 +737,8 @@ func (i *Interceptor) Log(ctx context.Context, convID int64, dec Decision, toolN
 // Returns true if the user approved.
 //
 // convID == 0 means no active conversation (background pentest task). The
-// pending record is still created (conversation_id = NULL) so the approvals
-// page shows it and the sidebar badge lights up. The worker thread blocks just
-// like in a chat session — the user must visit the approvals page to unblock it.
+// Task-associated requests persist a task-wide hold when a handler is installed.
+// Their decision survives cancellation and requires explicit task resume.
 func (i *Interceptor) HandleAsk(ctx context.Context, convID int64, dec Decision, toolName string, input []byte) bool {
 	ruleID := dec.RuleID
 	taskID, agentName := taskInfoFromCtx(ctx)
@@ -695,13 +750,33 @@ func (i *Interceptor) HandleAsk(ctx context.Context, convID int64, dec Decision,
 		return false
 	}
 
-	i.bindResult(ctx, pendingID, audit)
+	// Persist and install a task-wide execution barrier before returning to the
+	// harness. Cancellation must not resolve this approval as a denial.
+	held := false
+	if handler := i.taskApprovalHandler(); handler != nil && taskID != "" {
+		var expires *time.Time
+		if dec.TimeoutEnabled {
+			secs := dec.TimeoutSeconds
+			if secs <= 0 {
+				secs = 60
+			}
+			at := time.Now().Add(time.Duration(secs) * time.Second)
+			expires = &at
+		}
+		held, err = handler(taskID, pendingID, expires, dec.TimeoutAction)
+		if err != nil {
+			return false
+		} // Fail closed; leave the request visible for recovery.
+	}
+	if !held {
+		i.bindResult(ctx, pendingID, audit)
+	}
 	ch := i.pending.add(pendingID)
 	defer i.pending.remove(pendingID)
 	// Polling clients can decide after INSERT commits but before the channel is
 	// registered. Re-read after registration so that decision cannot be lost;
 	// later decisions will be delivered through ch.
-	if saved, err := i.db.GetInterceptDetail(pendingID); err == nil && saved != nil && saved.Status != "pending" {
+	if saved, err := i.db.GetInterceptDetail(pendingID); !held && err == nil && saved != nil && saved.Status != "pending" {
 		return saved.Status == "allowed" || (saved.Audit != nil && saved.Audit.EffectiveAction == "allow")
 	}
 
@@ -723,6 +798,10 @@ func (i *Interceptor) HandleAsk(ctx context.Context, convID int64, dec Decision,
 		// Task worker: emit to the exploration activity stream so it appears
 		// inline in the session transcript (the emit fn stamps NodeID + Worker).
 		taskEmit(activity)
+	}
+
+	if held {
+		return false
 	}
 
 	if !dec.TimeoutEnabled {
@@ -771,21 +850,28 @@ func (i *Interceptor) HandleAsk(ctx context.Context, convID int64, dec Decision,
 var ErrAlreadyDecided = locale.NewError("Approval was already resolved or does not exist; refresh the record")
 
 // Decide resolves a pending request. Called by the HTTP decide endpoint.
-func (i *Interceptor) Decide(pendingID int64, allowed bool) error {
+func (i *Interceptor) Decide(pendingID int64, allowed bool, grants ...*db.TaskToolGrant) error {
 	status := "denied"
 	if allowed {
 		status = "allowed"
 	}
 	action, reason := "deny", locale.Text(locale.ServerDefault(), "Human denied execution")
 	if allowed {
-		action, reason = "allow", locale.Text(locale.ServerDefault(), "Human allowed execution")
+		scope, tool := "once", ""
+		if len(grants) > 0 && grants[0] != nil {
+			scope, tool = grants[0].Scope, grants[0].ToolName
+		}
+		action, reason = "allow", HumanGrantReason(locale.ServerDefault(), scope, tool)
 	}
-	resolved, err := i.db.ResolveIntercept(pendingID, status, action, reason)
+	resolved, err := i.db.ResolveIntercept(pendingID, status, action, reason, grants...)
 	if err != nil {
 		return err
 	}
 	if !resolved {
 		return ErrAlreadyDecided
+	}
+	if len(grants) > 0 {
+		i.Invalidate()
 	}
 	i.pending.resolve(pendingID, allowed)
 	return nil

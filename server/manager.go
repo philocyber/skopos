@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	actool "github.com/Autumn-27/norma/tool"
 	"github.com/Philocyber/skopos/agent"
 	pgdb "github.com/Philocyber/skopos/db"
 	"github.com/Philocyber/skopos/diagnostic"
@@ -23,7 +24,6 @@ import (
 	"github.com/Philocyber/skopos/locale"
 	"github.com/Philocyber/skopos/privatefs"
 	"github.com/Philocyber/skopos/traffic"
-	actool "github.com/Autumn-27/norma/tool"
 )
 
 // Task is one engagement: a description + goal + its own exploration store,
@@ -1194,7 +1194,14 @@ func (m *Manager) ApplyTaskAdmission(id, expectedStatus, status string, queued b
 
 	var queuedAt, completedAt, firstRunAt, deadlineAt sql.NullTime
 	var committedMode string
-	err = m.pg.QueryRow(`UPDATE tasks
+	err = m.pg.QueryRow(`WITH eligible AS (
+ SELECT id FROM tasks WHERE id=$1 AND deleted_at IS NULL AND status=$6
+ AND NOT EXISTS(SELECT 1 FROM intercept_pending WHERE task_id=$1::bigint::text AND deferred_task AND status='pending') FOR UPDATE
+), closed_hold AS (
+ UPDATE task_approval_holds SET ended_at=now(),outcome=CASE WHEN outcome='waiting' THEN 'resolved' ELSE outcome END
+ WHERE task_id IN(SELECT id FROM eligible) AND ended_at IS NULL RETURNING started_at
+)
+UPDATE tasks
 	SET status=$2,
 	    completed_at=CASE
 	        WHEN $2 IN ('done','failed','timeout') THEN COALESCE(completed_at, now())
@@ -1218,9 +1225,9 @@ func (m *Manager) ApplyTaskAdmission(id, expectedStatus, status string, queued b
 	    END,
 	    deadline_at=CASE
 	        WHEN $6='timeout' AND $2 NOT IN ('done','failed','timeout') THEN NULL
-	        ELSE deadline_at
+	        ELSE deadline_at + COALESCE((SELECT now()-started_at FROM closed_hold), interval '0')
 	    END
-	WHERE id=$1 AND deleted_at IS NULL AND status=$6
+	WHERE id IN(SELECT id FROM eligible)
 	RETURNING queued_at, queue_mode, completed_at, first_run_at, deadline_at`, n, status, queued, mode, preservePosition, expectedStatus).
 		Scan(&queuedAt, &committedMode, &completedAt, &firstRunAt, &deadlineAt)
 	if errors.Is(err, sql.ErrNoRows) {

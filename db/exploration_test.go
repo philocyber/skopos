@@ -294,3 +294,61 @@ func TestNodesPageQueryMatchesID(t *testing.T) {
 		t.Fatalf("non-existent id: total=%d nodes=%+v, want empty", total, nodes)
 	}
 }
+
+func TestIntentOrdinalsRestartPerExploration(t *testing.T) {
+	d, err := Open(testDSN(t))
+	if err != nil {
+		t.Skipf("postgres unavailable (%v) — skipping", err)
+	}
+	defer d.Close()
+
+	firstExp, err := d.CreateExploration("ordinal-a", "goal")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer d.Exec(`DELETE FROM explorations WHERE id=$1`, firstExp)
+	secondExp, err := d.CreateExploration("ordinal-b", "goal")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer d.Exec(`DELETE FROM explorations WHERE id=$1`, secondExp)
+
+	firstStore := d.Exploration(firstExp)
+	older, err := firstStore.AddIntent(map[string]any{"summary": "first"}, 1, nil, "planner")
+	if err != nil {
+		t.Fatal(err)
+	}
+	newer, err := firstStore.AddIntent(map[string]any{"summary": "second"}, 1, nil, "planner")
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondStore := d.Exploration(secondExp)
+	if _, err := secondStore.AddIntent(map[string]any{"summary": "other task"}, 1, nil, "planner"); err != nil {
+		t.Fatal(err)
+	}
+
+	nodes, err := firstStore.ListByKind("intent", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := firstStore.FillIntentOrdinals(nodes); err != nil {
+		t.Fatal(err)
+	}
+	got := map[int64]int{}
+	for _, node := range nodes {
+		got[node.ID] = node.WorkerNo
+	}
+	if got[older] != 1 || got[newer] != 2 {
+		t.Fatalf("ordinals=%v, want %d=1 %d=2", got, older, newer)
+	}
+	other, err := secondStore.ListByKind("intent", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := secondStore.FillIntentOrdinals(other); err != nil {
+		t.Fatal(err)
+	}
+	if len(other) != 1 || other[0].WorkerNo != 1 {
+		t.Fatalf("second exploration ordinals=%+v, want worker 1", other)
+	}
+}

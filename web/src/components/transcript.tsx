@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { ApprovalDetail } from "@/components/approval-records";
+import { ApprovalDetail, ApprovalGrantButtons, type ApprovalGrant } from "@/components/approval-records";
 import { Markdown } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -247,11 +247,11 @@ function InterceptCard({ step, getDetail }: { step: Activity; getDetail: (seq: n
     };
   }, [pendingId, retry]);
 
-  async function decide(decision: "allowed" | "denied") {
+  async function decide(decision: "allowed" | "denied", grant?: ApprovalGrant) {
     if (step.inherited || !pendingId || deciding) return;
     setDeciding(true);
     try {
-      await api.interceptDecide(pendingId, decision);
+      await api.interceptDecide(pendingId, decision, grant);
       setDecided(decision);
       toast.success(decision === "allowed" ? swt("interface.m2142") : swt("interface.m2143"));
     } catch (e) {
@@ -314,6 +314,14 @@ function InterceptCard({ step, getDetail }: { step: Activity; getDetail: (seq: n
               <CheckIcon className="h-3 w-3" />
               {swt("interface.m0617")}
             </Button>
+            <ApprovalGrantButtons
+              taskId={pending?.task_id}
+              toolName={pending?.tool_name || toolName}
+              input={pending?.tool_input}
+              busy={deciding || !pendingId}
+              compact
+              onGrant={(grant) => void decide("allowed", grant)}
+            />
             <Button
               size="sm"
               variant="destructive"

@@ -23,7 +23,7 @@ export const ASSET_INTERCEPT_KIND_OPTIONS: {
     get label() {
       return swt("interface.m0664");
     },
-    placeholder: "example.gov.cn",
+    placeholder: "example.gov",
   },
   {
     value: "exact_ip",
@@ -44,7 +44,7 @@ export const ASSET_INTERCEPT_KIND_OPTIONS: {
     get label() {
       return swt("interface.m0667");
     },
-    placeholder: ".gov.cn",
+    placeholder: ".gov",
   },
   {
     value: "fuzzy_ip",

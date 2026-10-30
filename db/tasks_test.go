@@ -667,7 +667,8 @@ RETURNING id`, domainB, companyB).Scan(&companyAssetB); err != nil {
 
 // TestListTasksOrderByIDDesc pins list ordering to id-descending. created_at is
 // deliberately not the sort key: tasks created in the same instant share a
-// timestamp and would reorder between polls; id is unique and monotonic.
+// timestamp and would reorder between polls. Sequential creates here receive
+// non-decreasing ids because each one takes the lowest free id.
 func TestListTasksOrderByIDDesc(t *testing.T) {
 	d, err := Open(testDSN(t))
 	if err != nil {
@@ -704,5 +705,66 @@ func TestListTasksOrderByIDDesc(t *testing.T) {
 	// Newest (largest id) first.
 	if seen[0] != ids[2] || seen[1] != ids[1] || seen[2] != ids[0] {
 		t.Fatalf("order=%v, want descending %v", seen, []int64{ids[2], ids[1], ids[0]})
+	}
+}
+
+func TestDeletedTaskIDIsReusedWithoutHistory(t *testing.T) {
+	d, err := Open(testDSN(t))
+	if err != nil {
+		t.Skipf("postgres unavailable (%v) — skipping", err)
+	}
+	defer d.Close()
+
+	first, err := d.CreateTask("reuse-first", "goal", nil, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = d.DeleteTask(first.ID) })
+	second, err := d.CreateTask("reuse-second", "goal", nil, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = d.DeleteTask(second.ID) })
+	skill := fmt.Sprintf("__id_reuse_%d__", time.Now().UnixNano())
+	if _, err := d.Exec(`INSERT INTO skill_usage(skill, task_id) VALUES ($1, $2)`, skill, first.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := d.Exec(`INSERT INTO task_tool_grants(task_id, scope, tool_name) VALUES ($1, 'tool', $2)`, fmt.Sprint(first.ID), skill); err != nil {
+		t.Fatal(err)
+	}
+	if err := d.DeleteTask(first.ID); err != nil {
+		t.Fatal(err)
+	}
+	reused, err := d.CreateTask("reuse-again", "goal", nil, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = d.DeleteTask(reused.ID) })
+	if reused.ID != first.ID {
+		t.Fatalf("deleted task id %d was not reused, got %d", first.ID, reused.ID)
+	}
+	var skills, grants, detached int
+	if err := d.QueryRow(`SELECT count(*) FROM skill_usage WHERE task_id=$1`, reused.ID).Scan(&skills); err != nil {
+		t.Fatal(err)
+	}
+	if err := d.QueryRow(`SELECT count(*) FROM task_tool_grants WHERE task_id=$1`, fmt.Sprint(reused.ID)).Scan(&grants); err != nil {
+		t.Fatal(err)
+	}
+	if err := d.QueryRow(`SELECT count(*) FROM skill_usage WHERE skill=$1 AND task_id IS NULL`, skill).Scan(&detached); err != nil {
+		t.Fatal(err)
+	}
+	if skills != 0 || grants != 0 || detached != 1 {
+		t.Fatalf("reused id inherited history: skills=%d grants=%d detached=%d", skills, grants, detached)
+	}
+	if err := d.DeleteTask(second.ID); err != nil {
+		t.Fatal(err)
+	}
+	interior, err := d.CreateTask("reuse-interior", "goal", nil, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = d.DeleteTask(interior.ID) })
+	if interior.ID != second.ID {
+		t.Fatalf("deleted task id %d was not reused, got %d", second.ID, interior.ID)
 	}
 }

@@ -20,6 +20,8 @@ func init() {
 	Register("[Skopos platform control, not target defense] This call was blocked by the platform. ", "[Skopos platform control, not target defense] This call was blocked by the platform. ")
 	Register("Reason: ", "Reason: ")
 	Register(". This operation is prohibited.", ". This operation is prohibited.")
+	Register(" This call did not run because it is waiting for tool approval. This is not the scan pause, and the target did not respond. After the operator approves it and continues the task, repeat this exact tool call with the same arguments if it was approved. Do not change the call to get around the approval, and do not record this wait as a fact, finding, or finished assessment.", " This call did not run because it is waiting for tool approval. This is not the scan pause, and the target did not respond. After the operator approves it and continues the task, repeat this exact tool call with the same arguments if it was approved. Do not change the call to get around the approval, and do not record this wait as a fact, finding, or finished assessment.")
+	Register("Could not verify whether the task is paused for tool permission", "Could not verify whether the task is paused for tool permission")
 	Register("[enrich] dnsx initialization failed; DNS resolution disabled: %v", "[enrich] dnsx initialization failed; DNS resolution disabled: %v")
 	Register("[enrich] Queue full; dropping job kind=%d id=%d", "[enrich] Queue full; dropping job kind=%d id=%d")
 	Register("LLM failover: all profiles are unavailable", "LLM failover: all profiles are unavailable")

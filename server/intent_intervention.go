@@ -125,6 +125,11 @@ func (s *Server) sendWorkerMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	taskID, _ := strconv.ParseInt(t.ID, 10, 64)
+	if err := s.m.pg.RecordTaskOperatorInstruction(taskID, "worker_message", message); err != nil {
+		writeError(w, 500, err)
+		return
+	}
 	// runDetachedIntent transitions paused->running, emits the user turn and starts a
 	// dedicated run. Root the run at s.ctx so a disconnected browser cannot strand it
 	// while task pause/delete/shutdown still stop it.

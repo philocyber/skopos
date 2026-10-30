@@ -368,6 +368,7 @@ CREATE TABLE IF NOT EXISTS llm_profiles (
     model            TEXT NOT NULL,
     api_key          TEXT,
     api_key_hint     TEXT,
+    subscription_id  TEXT NOT NULL DEFAULT '',
     rate_per_second  DOUBLE PRECISION NOT NULL DEFAULT 0,
     rate_per_minute  DOUBLE PRECISION NOT NULL DEFAULT 0,
     context_window_k INTEGER NOT NULL DEFAULT 0,
@@ -433,6 +434,8 @@ ALTER TABLE llm_profiles DROP CONSTRAINT IF EXISTS llm_profiles_max_tokens_check
 ALTER TABLE llm_profiles ADD  CONSTRAINT llm_profiles_max_tokens_check
     CHECK (max_tokens >= 0);
 -- Add custom session header name to older databases; default '' omits it and preserves behavior.
+ALTER TABLE llm_profiles ADD COLUMN IF NOT EXISTS subscription_id TEXT NOT NULL DEFAULT '';
+
 ALTER TABLE llm_profiles ADD COLUMN IF NOT EXISTS session_header_key TEXT NOT NULL DEFAULT '';
 
 -- Per-profile retry overrides (see LLM retry design): three attempt/fixed-interval pairs.
@@ -1055,7 +1058,7 @@ CREATE TABLE IF NOT EXISTS intercept_rules (
     name            TEXT NOT NULL,
     enabled         BOOLEAN NOT NULL DEFAULT true,
     priority        INTEGER NOT NULL DEFAULT 0,
-    match_target    TEXT NOT NULL CHECK (match_target IN ('tool_name', 'tool_input')),
+    match_target    TEXT NOT NULL CHECK (match_target IN ('tool_name', 'tool_input', 'tool_call')),
     match_type      TEXT NOT NULL CHECK (match_type IN ('string', 'regex')),
     pattern         TEXT NOT NULL,
     action          TEXT NOT NULL CHECK (action IN ('allow', 'deny', 'ask')),
@@ -1404,3 +1407,56 @@ CREATE INDEX IF NOT EXISTS idx_notification_deliveries_batch
     ON notification_deliveries(batch_id) WHERE batch_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_notification_deliveries_channel
     ON notification_deliveries(channel_id, id DESC);
+
+-- Task-scoped tool approvals chosen from an approval prompt.
+-- scope input remembers complete arguments, command remembers legacy shell text,
+-- tool remembers one tool name,
+-- all remembers every tool. Global deny rules are evaluated first and still win.
+CREATE TABLE IF NOT EXISTS task_tool_grants (
+    id         BIGSERIAL PRIMARY KEY,
+    task_id    TEXT NOT NULL,
+    scope      TEXT NOT NULL CHECK (scope IN ('command', 'tool', 'all')),
+    tool_name  TEXT NOT NULL DEFAULT '',
+    command    TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_task_tool_grants_identity
+    ON task_tool_grants (task_id, scope, tool_name, command);
+
+-- Retire country-specific built-ins. Preserve user-created block rules.
+DELETE FROM asset_intercept_rules
+WHERE builtin=true AND kind='fuzzy_domain' AND pattern IN ('.gov.cn', '.edu.cn');
+ALTER TABLE intercept_rules DROP CONSTRAINT IF EXISTS intercept_rules_match_target_check;
+ALTER TABLE intercept_rules ADD CONSTRAINT intercept_rules_match_target_check
+    CHECK (match_target IN ('tool_name', 'tool_input', 'tool_call'));
+ALTER TABLE task_tool_grants DROP CONSTRAINT IF EXISTS task_tool_grants_scope_check;
+ALTER TABLE task_tool_grants ADD CONSTRAINT task_tool_grants_scope_check
+    CHECK (scope IN ('command', 'input', 'tool', 'all'));
+
+ALTER TABLE llm_profiles ADD COLUMN IF NOT EXISTS cyber_access_program TEXT NOT NULL DEFAULT '';
+
+-- Task-wide permission holds stop execution and exclude human wait time from budgets.
+CREATE TABLE IF NOT EXISTS task_approval_holds (
+ id BIGSERIAL PRIMARY KEY,
+ task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+ started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ ended_at TIMESTAMPTZ,
+ outcome TEXT NOT NULL DEFAULT 'waiting'
+);
+CREATE UNIQUE INDEX IF NOT EXISTS task_approval_hold_active ON task_approval_holds(task_id) WHERE ended_at IS NULL;
+CREATE TABLE IF NOT EXISTS task_approval_replays (
+ pending_id BIGINT PRIMARY KEY REFERENCES intercept_pending(id) ON DELETE CASCADE,
+ task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+ tool_name TEXT NOT NULL,
+ tool_input JSONB NOT NULL,
+ consumed_at TIMESTAMPTZ
+);
+ALTER TABLE intercept_pending ADD COLUMN IF NOT EXISTS deferred_task BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE intercept_pending ADD COLUMN IF NOT EXISTS approval_expires_at TIMESTAMPTZ;
+ALTER TABLE intercept_pending ADD COLUMN IF NOT EXISTS approval_timeout_action TEXT NOT NULL DEFAULT 'deny';
+
+CREATE INDEX IF NOT EXISTS task_approval_expiry ON intercept_pending(approval_expires_at)
+ WHERE deferred_task AND status='pending';
+
+-- Only authenticated human entry points populate this authorization history.
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS operator_instructions JSONB NOT NULL DEFAULT '[]'::jsonb;

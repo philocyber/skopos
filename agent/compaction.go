@@ -27,9 +27,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Philocyber/skopos/db"
 	"github.com/Autumn-27/norma/llm"
 	"github.com/Autumn-27/norma/transcript"
+	"github.com/Philocyber/skopos/db"
 )
 
 // Compactor performs background cold-node compaction for many explorations.
@@ -65,7 +65,7 @@ func NewCompactor(prov llm.Provider, model string) *Compactor {
 // OnPlannerRound is the single entry the planner calls each wake-up. It bumps the
 // round, maintains the cold stamps synchronously, then (if a threshold is hit and
 // no compaction is running / cooling down) launches a background compaction that
-// outlives this planner round.
+// outlives this planner round while respecting task pause and shutdown.
 func (c *Compactor) OnPlannerRound(ctx context.Context, ts *db.ExplorationStore) {
 	if c == nil || c.prov == nil || ts == nil {
 		return
@@ -85,7 +85,7 @@ func (c *Compactor) OnPlannerRound(ctx context.Context, ts *db.ExplorationStore)
 	}
 	go func() {
 		defer c.finish(ts.ID())
-		bg, cancel := context.WithTimeout(context.WithoutCancel(ctx), c.maxDur)
+		bg, cancel := context.WithTimeout(ctx, c.maxDur)
 		defer cancel()
 		// Compaction calls prov.Complete directly, outside the agentcore session loop,
 		// so ctx lacks a session ID. Gateways using session headers for prompt caching

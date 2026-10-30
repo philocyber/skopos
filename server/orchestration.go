@@ -243,12 +243,13 @@ func (s *Server) toolListLLMProfiles(langs ...locale.Lang) actool.CoreTool {
 
 func (s *Server) toolSpawnTask(langs ...locale.Lang) actool.CoreTool {
 	return wrTool("spawn_task",
-		locale.Text(locale.First(langs), "Create a child task and start its exploration engine, returning task_id. Delegate one objective as an independent task. Optional parent_ref associates it with the current parent task."),
+		locale.Text(locale.First(langs), "Create a child task and start its exploration engine, returning task_id. The new task is isolated: do not reuse another task's assets, findings, or conclusions. Optional parent_ref records a parent link only and does not share context."),
 		objSchema(map[string]any{
 			"description":            strParam(locale.Text(locale.First(langs), "Task description, a short title")),
 			"goal":                   strParam(locale.Text(locale.First(langs), "Task objective: the outcome to achieve")),
 			"parent_ref":             strParam(locale.Text(locale.First(langs), "Optional parent task ID for parent-child association")),
-			"source_task_ids":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": fmt.Sprintf(locale.Text(locale.First(langs), "Optional read-only source task IDs, at most %d. The child may reference their established assets/conclusions as starting context. Unlike parent_ref, this is content inheritance."), db.MaxTaskSourceCount)},
+			"share_context":          map[string]any{"type": "boolean", "description": locale.Text(locale.First(langs), "Default false. Set true only when the user explicitly asks this task to reuse another task's assets, findings, or conclusions. Leave false for a similar or repeated objective.")},
+			"source_task_ids":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": fmt.Sprintf(locale.Text(locale.First(langs), "Ignored unless share_context is true. At most %d task IDs whose assets and conclusions the user explicitly asked to reuse. A similar objective or the same targets is not permission to share context."), db.MaxTaskSourceCount)},
 			"llm_profile_id":         map[string]any{"type": "integer", "description": locale.Text(locale.First(langs), "Optional LLM profile ID for this child's planner/worker, from list_llm_profiles; otherwise inherit the parent's profile, then the globally active profile")},
 			"timeout_seconds":        map[string]any{"type": "integer", "description": locale.Text(locale.First(langs), "Optional task timeout in seconds; triggers graceful settlement and terminal timeout state. Omitted/0 means unlimited.")},
 			"plan_heartbeat_seconds": map[string]any{"type": "integer", "description": locale.Text(locale.First(langs), "Optional planner heartbeat in seconds: if no trigger arrives since the last planning round/task start, wake planning to avoid stalls and supervise workers. Omitted/0 uses the configured default.")},
@@ -259,6 +260,7 @@ func (s *Server) toolSpawnTask(langs ...locale.Lang) actool.CoreTool {
 				Description          string          `json:"description"`
 				Goal                 string          `json:"goal"`
 				ParentRef            string          `json:"parent_ref"`
+				ShareContext         bool            `json:"share_context"`
 				SourceTaskIDs        []string        `json:"source_task_ids"`
 				LLMProfileID         json.RawMessage `json:"llm_profile_id"`
 				TimeoutSeconds       int             `json:"timeout_seconds"`
@@ -274,6 +276,10 @@ func (s *Server) toolSpawnTask(langs ...locale.Lang) actool.CoreTool {
 			}
 			if a.TimeoutSeconds < 0 {
 				a.TimeoutSeconds = 0
+			}
+			// A new task stays isolated unless the user explicitly asked to share context.
+			if !a.ShareContext {
+				a.SourceTaskIDs = nil
 			}
 			// Validate read-only inheritance sources: count limit and valid, unique, existing IDs, matching HTTP task creation.
 			if len(a.SourceTaskIDs) > db.MaxTaskSourceCount {

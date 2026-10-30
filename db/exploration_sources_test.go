@@ -429,3 +429,67 @@ func TestTaskAssetContextUsesDirectSourceScopeAndAnchors(t *testing.T) {
 		t.Fatalf("anchored-only source asset missing from coverage graph: %+v", graph.Nodes)
 	}
 }
+
+func TestCoverageGraphOmitsForeignHintAnchors(t *testing.T) {
+	d, err := Open(testDSN(t))
+	if err != nil {
+		t.Skipf("postgres unavailable (%v) - skipping", err)
+	}
+	defer d.Close()
+
+	other, err := d.CreateTask("foreign owner", "foreign goal", nil, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, err := d.CreateTask("scoped source", "scoped goal", nil, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	current, err := d.CreateTaskWithOptions("scoped current", "scoped goal", TaskCreateOptions{SourceTaskIDs: []int64{source.ID}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_ = d.DeleteTask(current.ID)
+		_ = d.DeleteTask(source.ID)
+		_ = d.DeleteTask(other.ID)
+	})
+	assets := d.Assets()
+	foreignRoot := fmt.Sprintf("foreign-%d.invalid", other.ID)
+	foreignDomain := "csgo." + foreignRoot
+	scopedDomain := fmt.Sprintf("chef-%d.scoped.invalid", source.ID)
+	foreignID, err := assets.UpsertSubdomain(UpsertSubdomainReq{Domain: foreignDomain, TaskID: other.ID})
+	if err != nil {
+		t.Fatal(err)
+	}
+	scopedID, err := assets.UpsertSubdomain(UpsertSubdomainReq{Domain: scopedDomain, TaskID: source.ID})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _, _ = assets.DeleteByIDs([]int64{foreignID, scopedID}) })
+	if _, err := assets.AddAgentScope(source.ID, "subdomain", scopedDomain, "operator scope", "agent"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := d.Exploration(source.ExplorationID).AddNode(KindHint, map[string]any{"text": "note about the scoped host"}, 0, "active", "human", []int64{foreignID}); err != nil {
+		t.Fatal(err)
+	}
+
+	graph, err := assets.BuildCoverageGraph(current.ID, current.ExplorationID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, node := range graph.Nodes {
+		if node.AssetID == foreignID || node.Domain == foreignDomain || node.Domain == foreignRoot || node.Label == foreignDomain || node.Label == foreignRoot {
+			t.Fatalf("foreign hint anchor entered the coverage graph: %+v", node)
+		}
+	}
+	seenScoped := false
+	for _, node := range graph.Nodes {
+		if node.AssetID == scopedID && node.InScope {
+			seenScoped = true
+		}
+	}
+	if !seenScoped {
+		t.Fatalf("scoped asset missing from coverage graph: %+v", graph.Nodes)
+	}
+}

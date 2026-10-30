@@ -289,9 +289,7 @@ func (d *DB) seedDefaultAssetInterceptRules() error {
 		note    string
 	}{
 		{"fuzzy_domain", ".gov", "[Built-in] Government websites (.gov)"},
-		{"fuzzy_domain", ".gov.cn", "[Built-in] Government websites (.gov.cn)"},
 		{"fuzzy_domain", ".edu", "[Built-in] Education websites (.edu)"},
-		{"fuzzy_domain", ".edu.cn", "[Built-in] Education websites (.edu.cn)"},
 	}
 	for _, r := range rules {
 		if _, err := d.Exec(`

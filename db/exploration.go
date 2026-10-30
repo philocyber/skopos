@@ -81,6 +81,9 @@ type Node struct {
 	CreatedAt     time.Time       `json:"created_at"`
 	SourceTaskID  int64           `json:"source_task_id,omitempty"`
 	Inherited     bool            `json:"inherited,omitempty"`
+	// WorkerNo is the 1-based creation order of an intent inside its own
+	// exploration. It is filled for session display and is not a stored column.
+	WorkerNo int `json:"worker_no,omitempty"`
 }
 
 // Activity is one worker execution step (= old task_activity).
@@ -214,6 +217,44 @@ VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
 		}
 	}
 	return id, tx.Commit()
+}
+
+// FillIntentOrdinals sets WorkerNo to each intent's 1-based position in this
+// exploration, ordered by creation. Numbers restart for every exploration, so
+// the session list does not show the global node id.
+func (s *ExplorationStore) FillIntentOrdinals(nodes []*Node) error {
+	if len(nodes) == 0 {
+		return nil
+	}
+	rows, err := s.db.Query(`
+SELECT id, ROW_NUMBER() OVER (ORDER BY id)
+FROM exploration_nodes
+WHERE exploration_id=$1 AND kind='intent'`, s.expID)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	ordinals := make(map[int64]int, len(nodes))
+	for rows.Next() {
+		var id int64
+		var ordinal int
+		if err := rows.Scan(&id, &ordinal); err != nil {
+			return err
+		}
+		ordinals[id] = ordinal
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	for _, node := range nodes {
+		if node == nil {
+			continue
+		}
+		if ordinal, ok := ordinals[node.ID]; ok {
+			node.WorkerNo = ordinal
+		}
+	}
+	return nil
 }
 
 // AddIntent is a convenience: an open intent.

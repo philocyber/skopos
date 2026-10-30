@@ -56,6 +56,11 @@ func (s *Server) addGoal(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, "Goal text must not be empty")
 		return
 	}
+	taskID, _ := strconv.ParseInt(t.ID, 10, 64)
+	if err := s.m.pg.RecordTaskOperatorInstruction(taskID, "user_goal", text); err != nil {
+		writeError(w, 500, err)
+		return
+	}
 	payload := map[string]any{"text": text}
 	if vc := strings.TrimSpace(body.VulnClass); vc != "" {
 		payload["vulnclass"] = vc
@@ -117,6 +122,11 @@ func (s *Server) editGoal(w http.ResponseWriter, r *http.Request) {
 	}
 	if node == nil || node.Kind != db.KindGoal {
 		writeErr(w, 404, "Goal not found")
+		return
+	}
+	taskID, _ := strconv.ParseInt(t.ID, 10, 64)
+	if err := s.m.pg.RecordTaskOperatorInstruction(taskID, "user_goal", text); err != nil {
+		writeError(w, 500, err)
 		return
 	}
 	oldText := goalDTO(node).Text

@@ -31,37 +31,38 @@ func rawString(raw json.RawMessage) string {
 
 // ---- Task (frontend "Task") ---- created_at as RFC3339, plus a derived status.
 type TaskDTO struct {
-	ID                 string             `json:"id"`
-	ExplorationID      int64              `json:"exploration_id"`
-	Name               string             `json:"name"` // Optional task name; empty means unnamed.
-	CategoryID         *int64             `json:"category_id,omitempty"`
-	CategoryName       string             `json:"category_name,omitempty"`
-	Pinned             bool               `json:"pinned"`
-	PinnedAt           string             `json:"pinned_at,omitempty"`
-	Description        string             `json:"description"`
-	Goal               string             `json:"goal"`
-	Status             string             `json:"status"` // created | running | paused | done | failed
-	CreatedAt          string             `json:"created_at"`
-	CreatedUnix        int64              `json:"created_unix"`       // created_at as unix seconds (for run-duration calc)
-	CompletedAt        string             `json:"completed_at"`       // RFC3339 finish time (done/failed); "" if unfinished
-	CompletedUnix      int64              `json:"completed_unix"`     // completed_at as unix seconds (0 if unfinished)
-	LastActivity       int64              `json:"last_activity_unix"` // unix seconds of the last activity (0 if none)
-	Paused             bool               `json:"paused"`
-	Queued             bool               `json:"queued"`
-	Tokens             TokenTotalDTO      `json:"tokens"` // whole-task token consumption
-	GoalsTotal         int                `json:"goals_total"`
-	GoalsMet           int                `json:"goals_met"`
-	InFlight           int                `json:"in_flight"`                // Number of running workers (intents with state=running).
-	Findings           FindingSeverityDTO `json:"findings"`                 // Registered findings for this task, grouped by severity.
-	LLMProfileID       *int64             `json:"llm_profile_id,omitempty"` // LLM profile used for this task; nil = default
-	LLMProfileIDs      []int64            `json:"llm_profile_ids"`
-	ActiveLLMProfileID *int64             `json:"active_llm_profile_id,omitempty"`
-	LLMFailoverState   string             `json:"llm_failover_state"`
-	LLMFailoverReason  string             `json:"llm_failover_reason,omitempty"`
-	SourceTaskIDs      []string           `json:"source_task_ids"`
-	ArchiveBlockedBy   string             `json:"archive_blocked_by_task_id,omitempty"`
-	CompanyIDs         []int64            `json:"company_ids"`
-	CoverageEnabled    bool               `json:"coverage_enabled"` // Asset-coverage feature flag, fixed at creation.
+	ApprovalState      db.TaskApprovalState `json:"approval_state"`
+	ID                 string               `json:"id"`
+	ExplorationID      int64                `json:"exploration_id"`
+	Name               string               `json:"name"` // Optional task name; empty means unnamed.
+	CategoryID         *int64               `json:"category_id,omitempty"`
+	CategoryName       string               `json:"category_name,omitempty"`
+	Pinned             bool                 `json:"pinned"`
+	PinnedAt           string               `json:"pinned_at,omitempty"`
+	Description        string               `json:"description"`
+	Goal               string               `json:"goal"`
+	Status             string               `json:"status"` // created | running | paused | done | failed
+	CreatedAt          string               `json:"created_at"`
+	CreatedUnix        int64                `json:"created_unix"`       // created_at as unix seconds (for run-duration calc)
+	CompletedAt        string               `json:"completed_at"`       // RFC3339 finish time (done/failed); "" if unfinished
+	CompletedUnix      int64                `json:"completed_unix"`     // completed_at as unix seconds (0 if unfinished)
+	LastActivity       int64                `json:"last_activity_unix"` // unix seconds of the last activity (0 if none)
+	Paused             bool                 `json:"paused"`
+	Queued             bool                 `json:"queued"`
+	Tokens             TokenTotalDTO        `json:"tokens"` // whole-task token consumption
+	GoalsTotal         int                  `json:"goals_total"`
+	GoalsMet           int                  `json:"goals_met"`
+	InFlight           int                  `json:"in_flight"`                // Number of running workers (intents with state=running).
+	Findings           FindingSeverityDTO   `json:"findings"`                 // Registered findings for this task, grouped by severity.
+	LLMProfileID       *int64               `json:"llm_profile_id,omitempty"` // LLM profile used for this task; nil = default
+	LLMProfileIDs      []int64              `json:"llm_profile_ids"`
+	ActiveLLMProfileID *int64               `json:"active_llm_profile_id,omitempty"`
+	LLMFailoverState   string               `json:"llm_failover_state"`
+	LLMFailoverReason  string               `json:"llm_failover_reason,omitempty"`
+	SourceTaskIDs      []string             `json:"source_task_ids"`
+	ArchiveBlockedBy   string               `json:"archive_blocked_by_task_id,omitempty"`
+	CompanyIDs         []int64              `json:"company_ids"`
+	CoverageEnabled    bool                 `json:"coverage_enabled"` // Asset-coverage feature flag, fixed at creation.
 }
 
 // FindingSeverityDTO counts task findings by critical/high/medium/low severity.
@@ -110,7 +111,22 @@ func taskDTO(t *Task, status string) TaskDTO {
 		sourceIDs = append(sourceIDs, i64s(id))
 	}
 	profileIDs := append(make([]int64, 0, len(llmState.ProfileIDs)), llmState.ProfileIDs...)
+	approval := db.TaskApprovalState{Holds: []db.TaskApprovalHold{}, Pending: []db.TaskApprovalRequest{}}
+	if t.Store != nil {
+		id, _ := strconv.ParseInt(t.ID, 10, 64)
+		if state, err := t.Store.TaskApprovalState(id); err == nil {
+			approval = state
+		}
+	}
+	if approval.Active() != nil && !isTerminalStatus(status) {
+		if len(approval.Pending) > 0 {
+			status = "waiting_approval"
+		} else {
+			status = "paused"
+		}
+	}
 	return TaskDTO{
+		ApprovalState:      approval,
 		ID:                 t.ID,
 		ExplorationID:      t.ExpID,
 		Name:               lifecycle.Name,
@@ -188,6 +204,7 @@ type TaskNodeDTO struct {
 	SourceTaskID string `json:"source_task_id,omitempty"`
 	Inherited    bool   `json:"inherited,omitempty"`
 	DeleteReason string `json:"delete_reason,omitempty"` // Deletion reason when an intent is soft-deleted (state='deleted').
+	WorkerNo     int    `json:"worker_no,omitempty"`
 }
 
 func taskNodeDTO(n *db.Node) TaskNodeDTO {
@@ -200,6 +217,7 @@ func taskNodeDTO(n *db.Node) TaskNodeDTO {
 		State:        n.State,
 		Origin:       n.Origin,
 		TS:           rfc3339(n.CreatedAt),
+		WorkerNo:     n.WorkerNo,
 	}
 	if n.SourceTaskID > 0 {
 		d.SourceTaskID = i64s(n.SourceTaskID)
@@ -591,19 +609,21 @@ func agentDTOs(in []*db.Agent, langs ...locale.Lang) []AgentDTO {
 // ---- LLMProfile (frontend "LLMProfile") — string id ----
 
 type LLMProfileDTO struct {
-	ID              string  `json:"id"`
-	Name            string  `json:"name"`
-	Format          string  `json:"format"`
-	BaseURL         string  `json:"base_url,omitempty"`
-	Proxy           string  `json:"proxy,omitempty"`
-	Model           string  `json:"model"`
-	APIKeyHint      string  `json:"api_key_hint,omitempty"`
-	RatePerSecond   float64 `json:"rate_per_second"`
-	RatePerMinute   float64 `json:"rate_per_minute"`
-	ContextWindowK  int     `json:"context_window_k"`
-	ThinkingType    string  `json:"thinking_type"`
-	ReasoningEffort string  `json:"reasoning_effort"`
-	IsDefault       bool    `json:"is_default"`
+	CyberAccessProgram string  `json:"cyber_access_program,omitempty"`
+	SubscriptionID     string  `json:"subscription_id,omitempty"`
+	ID                 string  `json:"id"`
+	Name               string  `json:"name"`
+	Format             string  `json:"format"`
+	BaseURL            string  `json:"base_url,omitempty"`
+	Proxy              string  `json:"proxy,omitempty"`
+	Model              string  `json:"model"`
+	APIKeyHint         string  `json:"api_key_hint,omitempty"`
+	RatePerSecond      float64 `json:"rate_per_second"`
+	RatePerMinute      float64 `json:"rate_per_minute"`
+	ContextWindowK     int     `json:"context_window_k"`
+	ThinkingType       string  `json:"thinking_type"`
+	ReasoningEffort    string  `json:"reasoning_effort"`
+	IsDefault          bool    `json:"is_default"`
 	// Failover parameters: higher priority is selected first; the active profile always heads the chain.
 	// pool_exclude prevents failover selection but still allows explicit agent/task binding.
 	Priority    int  `json:"priority"`
@@ -626,13 +646,14 @@ type LLMProfileDTO struct {
 
 func llmProfileDTO(p *db.LLMProfile) LLMProfileDTO {
 	return LLMProfileDTO{
-		ID:               i64s(p.ID),
-		Name:             p.Name,
-		Format:           p.Format,
-		BaseURL:          p.BaseURL,
-		Proxy:            p.Proxy,
-		Model:            p.Model,
-		APIKeyHint:       p.APIKeyHint,
+		ID:             i64s(p.ID),
+		Name:           p.Name,
+		Format:         p.Format,
+		BaseURL:        p.BaseURL,
+		Proxy:          p.Proxy,
+		Model:          p.Model,
+		APIKeyHint:     p.APIKeyHint,
+		SubscriptionID: p.SubscriptionID, CyberAccessProgram: p.CyberAccessProgram,
 		RatePerSecond:    p.RatePerSecond,
 		RatePerMinute:    p.RatePerMinute,
 		ContextWindowK:   p.ContextWindowK,

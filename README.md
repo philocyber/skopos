@@ -143,6 +143,8 @@ which saves you from collecting the same data twice:
 
 ## Installation
 
+For a self-hosted GPU endpoint, follow [RunPod setup for Skopos](#runpod-setup-for-skopos), also available in **Documentation → RunPod setup** with copyable snippets.
+
 ### GLM and other model providers
 
 The **LLM → New** form includes GLM-5.3 configuration templates for Z.ai's General API and a
@@ -298,6 +300,179 @@ SKOPOS_TARGETS=linux/amd64,windows/amd64 ./build.sh --release
 
 ---
 
+## RunPod setup for Skopos
+
+<!-- runpod-guide:start -->
+One Secure Cloud GPU, one volume, one vLLM server. Skopos and CyberStrike both call it. They share the base URL and `VLLM_API_KEY`. They do not share a model id.
+
+| Client | Model id | When it works |
+| :---- | :---- | :---- |
+| Skopos | `Qwen/Qwen3.6-35B-A3B` | As soon as `GET /v1/models` returns that id with `max_model_len` 131072 |
+| CyberStrike | `cyberstrike-offsec` | Only after the adapter is loaded. The same API key does not create that id |
+
+This guide incorporates the supplied [RunPod order for Skopos](https://docs.google.com/document/d/1Jivhk3i_VKY_hwTPGDVPuRZgynxq4DMBmoNTvdp9oIU/edit) notes. It supersedes the start command under **How to Deploy / The Dual-Harness Multi-LoRA Deployment** in [Custom LLM Inference Deployment](https://docs.google.com/document/d/1SDVmqsG0o7-X5yb3l32fAH3kbISMucvr9_uh6A3sA8c/edit). The source notes report that the app could not overwrite the original Drive file. The corrected configuration is reproduced here; this guide does not edit either external document.
+
+Skopos does not work with the old start command. Do these steps in order. Stop the pod when the test is over.
+
+The local default Skopos UI is [http://127.0.0.1:8787](http://127.0.0.1:8787). Docker installations use [https://localhost:8787](https://localhost:8787); use your configured management URL.
+
+> **Deployment reference:** hardware, availability, prices and capacity observations below come from the supplied deployment notes, not a current pricing quote or a guarantee for other GPUs. Check RunPod before provisioning. Replace every secret and pod-id placeholder with your own value.
+
+[Jump to the Skopos profile](#runpod-profile) · [Troubleshooting](#runpod-troubleshooting) · [Optional CyberStrike adapter](#runpod-cyberstrike)
+
+### 1. Volume, once
+
+Storage, then Network Volumes. 100 GB, a US region (US-NC-1 is the one we used). About $7/month even while the pod is off. It mounts at `/workspace`. Do not create a second volume. Do not delete it when you stop the GPU.
+
+### 2. One Secure Cloud pod
+
+Pods, then Deploy, then Secure Cloud. Not Community Cloud. Attach the volume from step 1. One GPU. The pod we got serving was 1x H200 SXM in US-NC-1 ($5.29/h). An H100 80GB with `--quantization fp8` is the smaller option when it is available. Do not start a second GPU because the first one looks idle or because a host was taken: migrate that pod, or stop it, then deploy the replacement.
+
+### 3. Container, before you start it
+
+- Image: `vllm/vllm-openai:v0.30.0`. Do not switch to `latest` in the middle of a test.
+- Container disk: 20 GB.
+- Expose HTTP port: `8000`.
+- Environment:
+
+```dotenv
+HF_HOME=/workspace/hf_cache
+HF_HUB_ENABLE_HF_TRANSFER=1
+VLLM_API_KEY=REPLACE_WITH_YOUR_OWN_SECRET
+VLLM_ALLOW_RUNTIME_LORA_UPDATING=1
+```
+
+`VLLM_API_KEY` is the only key. Skopos and CyberStrike both send it as `Authorization: Bearer`. `VLLM_ALLOW_RUNTIME_LORA_UPDATING` does not load an adapter. It only allows a later load without another restart.
+
+- Container start command. Arguments only:
+
+```text
+--model Qwen/Qwen3.6-35B-A3B --quantization fp8 --enable-lora --max-lora-rank 32 --host 0.0.0.0 --port 8000 --max-model-len 131072 --gpu-memory-utilization 0.90 --enable-prefix-caching --enable-auto-tool-choice --tool-call-parser qwen3_xml
+```
+
+No `--lora-modules`.
+
+### 4. Start, then wait
+
+The first boot downloads the weights onto the volume. Later boots read that cache and still compile CUDA graphs, which is the slow part. Port 8000 stays Initializing and the proxy returns 502 until vLLM is listening. Do not open a Skopos task yet, and do not point CyberStrike at the adapter id yet.
+
+### 5. Prove the API
+
+Run these commands in your local terminal. Set the key to the same secret configured on the pod; setting it in RunPod does not export it into your local shell. Replace the pod id after each migration.
+
+```sh
+export VLLM_API_KEY='REPLACE_WITH_YOUR_OWN_SECRET'
+export RUNPOD_BASE_URL='https://<pod-id>-8000.proxy.runpod.net/v1'
+```
+
+```sh
+curl --fail-with-body -sS -H "Authorization: Bearer $VLLM_API_KEY" \
+  "$RUNPOD_BASE_URL/models"
+```
+
+HTTP 200, id `Qwen/Qwen3.6-35B-A3B`, `max_model_len` 131072. That response is what Skopos needs. It does not list `cyberstrike-offsec` until the adapter section below. If you migrated, the pod id in that host changed. Update both clients. Leave the old pod Stopped. Do not Terminate it.
+
+<a id="runpod-profile"></a>
+
+### 6. Skopos profile, then make it the active one
+
+[http://127.0.0.1:8787](http://127.0.0.1:8787), then LLM, then New, then Set active. Saving the row does not reload a process that is already running.
+
+| Field | Value |
+| :---- | :---- |
+| Format | OpenAI (Chat Completions). Not Responses API. |
+| Model | `Qwen/Qwen3.6-35B-A3B` |
+| Base URL | `https://<pod-id>-8000.proxy.runpod.net/v1` |
+| API key | the same value as `VLLM_API_KEY` |
+| Context window (K) | `96` |
+| Output limit | `8192` |
+| Proxy, thinking, reasoning effort | leave unset |
+
+### 7. Approvals, per task
+
+A prompt offers four allows: this call only, this exact command for this task, this tool for this task, or every tool for this task. Standing choices are listed on that task's interception tab and can be revoked. Built-in deny rules still win. Do not insert global allow rules for Bash, shell, WebFetch, or web search. Those would apply to every task.
+
+### 8. When you stop
+
+Stop the running pod. Leave the volume. Leave stopped pods stopped. Terminate removes the container. The H200 we used bills $5.29/h until you stop it.
+
+<a id="runpod-cyberstrike"></a>
+
+### CyberStrike, same key, second model id
+
+Do this only after step 5 returns the base model.
+
+The merged weights on the main branch are not the adapter. The adapter is only on the Hugging Face branch `adapter` of `oyildirim/CyberStrike-OffSec-35B`. Download that revision onto the volume, for example `/workspace/hf_cache/cyberstrike-offsec`, and confirm `adapter_config.json` is there. For example, in the pod terminal, download the adapter revision with the Hugging Face CLI (install it first if it is not available):
+
+```sh
+hf download oyildirim/CyberStrike-OffSec-35B \
+  --revision adapter \
+  --local-dir /workspace/hf_cache/cyberstrike-offsec
+test -f /workspace/hf_cache/cyberstrike-offsec/adapter_config.json
+```
+
+Then POST `/v1/load_lora_adapter` with the same bearer token:
+
+```json
+{"lora_name":"cyberstrike-offsec","lora_path":"/workspace/hf_cache/cyberstrike-offsec"}
+```
+
+From the local terminal configured in step 5:
+
+```sh
+curl --fail-with-body -sS -X POST \
+  -H "Authorization: Bearer $VLLM_API_KEY" \
+  -H 'Content-Type: application/json' \
+  --data '{"lora_name":"cyberstrike-offsec","lora_path":"/workspace/hf_cache/cyberstrike-offsec"}' \
+  "$RUNPOD_BASE_URL/load_lora_adapter"
+curl --fail-with-body -sS -H "Authorization: Bearer $VLLM_API_KEY" \
+  "$RUNPOD_BASE_URL/models"
+```
+
+Runtime adapter registration belongs to the running server. After a restart, check the model list again and reload the adapter if it is missing.
+
+`GET /v1/models` must then list both ids. Point CyberStrike at:
+
+| Field | Value |
+| :---- | :---- |
+| Base URL | `https://<pod-id>-8000.proxy.runpod.net/v1` |
+| API key | the same `VLLM_API_KEY` Skopos uses |
+| Model | `cyberstrike-offsec` |
+
+Skopos stays on `Qwen/Qwen3.6-35B-A3B`. If that POST is refused, stop the pod, add `--lora-modules cyberstrike-offsec=/workspace/hf_cache/cyberstrike-offsec` (a local path, no `@`), and start once.
+
+<a id="runpod-troubleshooting"></a>
+
+### Troubleshooting: what the old command did
+
+1. `--lora-modules cyberstrike-offsec=oyildirim/CyberStrike-OffSec-35B@adapter` crash-loops vLLM 0.30.0. The base weights load, then vLLM passes that whole string to Hugging Face as a repo id. `@` is illegal, and the container exits. Do not put a LoRA in the start command. Load the adapter afterwards, from a directory on the volume.
+2. `--max-model-len 32768` is the whole window: prompt plus reply. It is not an output cap, and it is not the Context window (K) field in Skopos. Once the tool schemas are attached, the worker prompt is already about 29,000 tokens. A 29,000-token prompt plus an 8,192-token reply totals about 37,192 tokens, exceeding 32,768, and vLLM returns HTTP 400. Even a 24,577-token prompt plus that reply exceeds the window by one token (32,769). Compaction cannot delete the tool definitions, so the worker ends in `prompt_too_long`. Dropping the reply to 4,096 fails the same way as soon as the prompt grows past 28,672. The checkpoint allows 262,144. On the H200 FP8 pod the KV cache held about 3.5 million tokens, so 131,072 is one sequence, not a memory problem.
+3. Output limit `0` in Skopos omits `max_tokens`. vLLM then asks for the entire `--max-model-len` as the reply and returns 400 even for a short chat.
+4. Context window (K) is only Skopos's local compaction budget. Anything under 32 is raised to 32. It does not subtract the reply. With `--max-model-len 131072` and an output limit of 8192, set Context window (K) to 96 so compaction stays under `131072 - 8192`.
+5. The Responses API template in the new-profile form does not match this server. The format is OpenAI Chat Completions.
+6. The image entrypoint is already `vllm serve`. The RunPod field is arguments only. Do not prefix `vllm serve` or a shell.
+7. Migrating a pod creates a new pod id. The old proxy URL returns an empty HTTP 404. 502 means the route exists and vLLM is not listening yet, which is normal while it boots. 401 means `VLLM_API_KEY` did not stick. Both clients see that 401.
+8. Saving an edit on a running pod resets the container. The network volume keeps the weights. The container disk does not, so CUDA graphs compile again. That is several minutes of GPU time with no API. Wait until port 8000 says Ready and `GET /v1/models` shows `max_model_len` 131072 before pointing either client at it.
+
+### Do not
+
+- Do not prefix the start command with `vllm serve`.
+- Do not put `repo@revision` in the start command.
+- Do not set `--max-model-len 32768` for Skopos.
+- Do not leave Output limit at 0.
+- Do not set Context window (K) to 32 and expect that to be the API window.
+- Do not use the Responses API profile template.
+- Do not leave either client pointed at a stopped or migrated pod id.
+- Do not give CyberStrike a different API key. The server has one.
+- Do not call model `cyberstrike-offsec` before `GET /v1/models` lists it.
+- Do not deploy a second pod or a second volume while one GPU is billing.
+- Do not Terminate a stopped pod to clean up during a test.
+
+The source notes also identify an outdated golden rule 1 in the original document’s sizing section. It says to set `--max-model-len 32768`. That is the instruction that produced the 400s. Use 131072, and keep Skopos's reply cap at 8192.
+<!-- runpod-guide:end -->
+
+---
+
 ## Updating
 
 > Updates swap the program only; your data stays put. The Postgres volume `pgdata`, `./data`
@@ -407,7 +582,8 @@ internal agents and model configuration intact.
 
 **LLM**: `export ANTHROPIC_API_KEY=sk-...` (or `OPENAI_API_KEY`), or set it on the UI's "LLM
 configuration" page. Optional: `SKOPOS_LLM_PROVIDER` / `SKOPOS_LLM_MODEL` / `SKOPOS_LLM_BASE_URL` /
-`SKOPOS_LLM_PROXY`.
+`SKOPOS_LLM_PROXY`. The self-hosted pod is one vLLM server: Skopos and CyberStrike share its base URL and `VLLM_API_KEY`. Skopos calls `Qwen/Qwen3.6-35B-A3B`. CyberStrike calls `cyberstrike-offsec` after that adapter is loaded. Profile fields and the RunPod start command are in the
+[RunPod vLLM profile](docs/llm-providers.md#self-hosted-vllm-on-runpod).
 
 **Concurrency**: the number of work agents per task is set in "System settings" (default 3).
 

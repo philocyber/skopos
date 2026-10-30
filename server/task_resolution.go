@@ -34,7 +34,7 @@ func (s *Server) resolutionFromProfileForLanguage(p *db.LLMProfile, source strin
 		Model:     p.Model,
 		Source:    source,
 	}
-	if p.APIKey == "" {
+	if p.APIKey == "" && p.SubscriptionID == "" {
 		result.Reason = locale.Text(lang, "LLM profile has no API key")
 		return result
 	}

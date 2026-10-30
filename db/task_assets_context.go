@@ -9,6 +9,10 @@ import (
 
 // directTaskContextCTE is the current task plus exactly its explicitly related
 // source tasks. It is deliberately non-recursive.
+//
+// Anchored assets join that set only when one of those tasks owns them.
+// A hint or note that cites another task's asset must not pull that asset,
+// or its parent domain, into this task's coverage graph.
 const directTaskContextCTE = `
 context_tasks AS (
   SELECT t.id AS task_id, t.exploration_id
@@ -44,6 +48,7 @@ target AS (
 	JOIN exploration_anchors ea ON ea.asset_id=a.id
 	JOIN exploration_nodes en ON en.id=ea.node_id
 	JOIN context_tasks ctx ON ctx.exploration_id=en.exploration_id
+	WHERE EXISTS (SELECT 1 FROM context_tasks owner WHERE owner.task_id = ANY(a.task_ids))
 ),
 tested AS (
   SELECT DISTINCT ea.asset_id
@@ -232,6 +237,8 @@ context_assets AS (
   FROM exploration_anchors ea
   JOIN exploration_nodes en ON en.id=ea.node_id
   JOIN context_tasks ctx ON ctx.exploration_id=en.exploration_id
+  JOIN assets anchored ON anchored.id=ea.asset_id
+  WHERE EXISTS (SELECT 1 FROM context_tasks owner WHERE owner.task_id = ANY(anchored.task_ids))
   UNION
   SELECT DISTINCT a.id
   FROM assets a

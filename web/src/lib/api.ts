@@ -1,6 +1,8 @@
 import { localizedFetch as fetch } from "@/i18n/request";
 import { localizedUrl, translate as swt } from "@/i18n/runtime";
 
+import type { ChatGPTAccount, ChatGPTLogin, ChatGPTModel } from "./types";
+
 // Real backend client. /api/* is proxied to the Go backend (next.config rewrites).
 // Returns the domain types in lib/types.ts. Shapes match the backend handlers;
 // a few fields the backend serializes differently (e.g. created_at as a unix int)
@@ -99,6 +101,7 @@ import type {
   TaskNode,
   TaskScopeRow,
   TaskTemplate,
+  TaskToolGrant,
   TokenTotal,
   TokenUsage,
   Tool,
@@ -937,6 +940,8 @@ export const api = {
     profile_id?: number,
     streaming = true, // Test the profile's actual transport mode so nonstreaming failures are caught before conversations.
     session_header_key = "", // Nonempty sends this custom header on test requests with a one-time session ID.
+    subscription_id = "",
+    cyber_access_program = "standard",
   ) =>
     // reply contains truncated actual model output; an entirely empty response fails the backend test.
     post<{ ok: boolean; error?: string; latency_ms?: number; model?: string; reply?: string }>("/llm/test", {
@@ -950,7 +955,13 @@ export const api = {
       profile_id,
       streaming,
       session_header_key,
+      subscription_id,
+      cyber_access_program,
     }),
+  chatGPTAccounts: () => get<{ accounts: ChatGPTAccount[] }>("/llm/subscription/accounts").then((r) => arr(r.accounts)),
+  startChatGPTLogin: (subscription_id = "") => post<ChatGPTLogin>("/llm/subscription/start", { subscription_id }),
+  chatGPTLoginStatus: (id: string) => get<ChatGPTLogin>(`/llm/subscription/attempts/${id}`),
+  cancelChatGPTLogin: (id: string) => del<{ ok: boolean }>(`/llm/subscription/attempts/${id}`),
   llmProfiles: () => get<{ profiles: LLMProfile[] }>("/llm/profiles").then((r) => arr(r.profiles)),
   saveLLMProfile: (p: {
     id?: number; // omit/0 = create; set = update that profile
@@ -960,6 +971,8 @@ export const api = {
     base_url?: string;
     proxy?: string;
     api_key?: string; // blank on update keeps the existing key
+    subscription_id?: string;
+    cyber_access_program?: string;
     rate_per_second?: number;
     rate_per_minute?: number;
     context_window_k?: number;
@@ -982,8 +995,16 @@ export const api = {
   // Global count/interval settings for five retry layers; all zeros use built-in defaults.
   llmRetryPolicy: () => get<LLMRetryPolicy>("/llm/retry-policy"),
   saveLLMRetryPolicy: (p: LLMRetryPolicy) => post<LLMRetryPolicy>("/llm/retry-policy", p),
-  fetchLLMModels: (provider: string, base_url: string, api_key: string, proxy = "", profile_id?: number) =>
-    post<{ ok: boolean; error?: string; models?: string[] }>("/llm/models", {
+  fetchLLMModels: (
+    provider: string,
+    base_url: string,
+    api_key: string,
+    proxy = "",
+    profile_id?: number,
+    subscription_id = "",
+  ) =>
+    post<{ ok: boolean; error?: string; models?: string[]; model_choices?: ChatGPTModel[] }>("/llm/models", {
+      subscription_id,
       provider,
       base_url,
       api_key,
@@ -1210,8 +1231,16 @@ export const api = {
   // ---- intercept pending (ask) ----
   interceptPending: () => get<{ pending: InterceptPending[] }>("/intercept/pending").then((r) => arr(r.pending)),
   interceptGetOne: (id: number) => get<InterceptPending>(`/intercept/pending/${id}`),
-  interceptDecide: (id: number, decision: "allowed" | "denied") =>
-    post<{ ok: boolean }>(`/intercept/pending/${id}/decide`, { decision }),
+  interceptDecide: (
+    id: number,
+    decision: "allowed" | "denied",
+    grant?: "once" | "command" | "input" | "tool" | "all",
+  ) => post<{ ok: boolean }>(`/intercept/pending/${id}/decide`, { decision, grant }),
+  toolGrants: () => get<{ grants: TaskToolGrant[] }>("/intercept/grants").then((r) => arr(r.grants)),
+  taskToolGrants: (taskId: string) =>
+    get<{ grants: TaskToolGrant[] }>(`/intercept/task/${encodeURIComponent(taskId)}/grants`).then((r) => arr(r.grants)),
+  revokeTaskToolGrant: (taskId: string, id: number) =>
+    del<{ ok: boolean }>(`/intercept/task/${encodeURIComponent(taskId)}/grants/${id}`),
   interceptExecution: (id: number, conversationId?: number) =>
     get<import("@/lib/types").InterceptExecution>(
       `/intercept/history/${id}/execution${conversationId ? `?conversation=${conversationId}` : ""}`,

@@ -11,12 +11,12 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/Autumn-27/norma/harness"
+	"github.com/Autumn-27/norma/llm"
 	"github.com/Philocyber/skopos/agent"
 	"github.com/Philocyber/skopos/db"
 	"github.com/Philocyber/skopos/intercept"
 	"github.com/Philocyber/skopos/locale"
-	"github.com/Autumn-27/norma/harness"
-	"github.com/Autumn-27/norma/llm"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -92,6 +92,8 @@ func retryableWorkerModelError(reason harness.TerminalReason, err error) bool {
 // (re)installed at runtime (LLM configured from the UI); the loops always run
 // but idle until an LLM is set.
 type Engine struct {
+	approvalFinalCancel sync.Map // task ID -> context.CancelCauseFunc for timeout assessment
+
 	m        *Manager
 	debounce time.Duration
 
@@ -1220,7 +1222,7 @@ func taskExecutionPaused(cause error) bool {
 	}
 	switch abort.Code {
 	case "paused_by_user", "paused_by_orchestrator", "paused_on_reload", "paused_race_guard",
-		"queued_for_admission", "llm_unavailable_queued", "task_deleted":
+		"queued_for_admission", "llm_unavailable_queued", "task_deleted", "waiting_for_approval":
 		return true
 	default:
 		return false

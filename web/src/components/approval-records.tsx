@@ -35,6 +35,7 @@ import type {
   InterceptDetail,
   InterceptPending,
   InterceptReviewInput,
+  TaskToolGrant,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -121,24 +122,63 @@ function StatusBadge({ status }: { status: string }) {
   return <Badge variant={variant}>{labels[status] ?? status}</Badge>;
 }
 
-function MatchCell({ row, showReason = true }: { row: InterceptApprovalRow; showReason?: boolean }) {
+function cleanApprovalText(value?: string) {
+  return value?.replace(/^\[(?:模型|Model)\]\s*/, "").trim() ?? "";
+}
+
+function standingApprovalTitle(text: string, swt: ReturnType<typeof useI18n>["t"]) {
+  const value = text.toLowerCase();
+  if (!value) return "";
+  if (value.includes("every tool")) return swt("interface.m2881");
+  const namedTool =
+    text.match(/standing approval for (.+) in this task/i) ?? text.match(/^Human allowed (.+) for this task$/);
+  if (namedTool && !/every tool/i.test(namedTool[1])) return swt("interface.m2875", { p0: namedTool[1] });
+  if (value.includes("exact command") || value.includes("this command")) return swt("interface.m2882");
+  if (value.includes("exact parameter")) return swt("interface.m2886");
+  if (value.includes("this call once")) return swt("interface.m2885");
+  if (value.includes("task approval grant") || value.includes("standing approval")) return swt("interface.m2887");
+  return "";
+}
+
+function approvalSummary(
+  row: InterceptApprovalRow,
+  audit: InterceptAudit | null | undefined,
+  swt: ReturnType<typeof useI18n>["t"],
+) {
+  const reason = cleanApprovalText(row.reason);
+  const decision = cleanApprovalText(audit?.decision_reason);
+  const scope = audit?.grant_scope ? grantScopeLabel(audit.grant_scope, row.tool_name, swt) : "";
+  const standing =
+    scope ||
+    standingApprovalTitle(decision, swt) ||
+    standingApprovalTitle(reason, swt) ||
+    standingApprovalTitle(row.rule_name, swt) ||
+    standingApprovalTitle(audit?.rule_name ?? "", swt);
+  if (standing) return { title: standing, detail: "" };
+  if (source(row) === "model") return { title: swt("interface.m2052"), detail: reason };
+  if (row.rule_name) return { title: row.rule_name, detail: reason && reason !== row.rule_name ? reason : "" };
+  return { title: reason || swt("interface.m2105"), detail: "" };
+}
+
+function MatchCell({ row }: { row: InterceptApprovalRow }) {
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
-
-  const reason = row.reason?.replace(/^\[(?:模型|Model)\]\s*/, "");
+  const summary = approvalSummary(row, undefined, swt);
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      {source(row) === "model" ? (
+      {source(row) === "model" && !summary.detail ? (
         <Badge variant="outline">
           <BotIcon />
-          {swt("interface.m2052")}
+          {summary.title}
         </Badge>
       ) : (
-        <span className="truncate">{row.rule_name || swt("interface.m2053")}</span>
+        <span className="truncate" title={summary.title}>
+          {summary.title}
+        </span>
       )}
-      {showReason ? (
-        <p className="truncate text-muted-foreground text-xs" title={reason}>
-          {reason || swt("interface.m2054")}
+      {summary.detail ? (
+        <p className="truncate text-muted-foreground text-xs" title={summary.detail}>
+          {summary.detail}
         </p>
       ) : null}
     </div>
@@ -325,7 +365,139 @@ function ModelReviewContext({ input }: { input: InterceptReviewInput }) {
   );
 }
 
-type Decide = (id: number, decision: "allowed" | "denied") => Promise<void>;
+export type ApprovalGrant = "once" | "command" | "input" | "tool" | "all";
+
+type Decide = (id: number, decision: "allowed" | "denied", grant?: ApprovalGrant) => Promise<void>;
+
+export function approvalCommand(tool: string, input?: Record<string, unknown> | null): string {
+  if (!input) return "";
+  let value: unknown;
+  if (tool === "shell_send") value = input.text;
+  else if (tool === "Bash" || tool === "shell_open") value = input.command;
+  else return "";
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export function ApprovalGrantButtons({
+  taskId,
+  toolName,
+  input,
+  busy,
+  compact = false,
+  onGrant,
+}: {
+  taskId?: string | null;
+  toolName: string;
+  input?: Record<string, unknown> | null;
+  busy: boolean;
+  compact?: boolean;
+  onGrant: (grant: Exclude<ApprovalGrant, "once">) => void;
+}) {
+  "use no memo";
+  const { t: swt } = useI18n();
+  if (!taskId) return null;
+  const className = compact ? "h-6 px-2 text-xs" : undefined;
+  return (
+    <>
+      {input ? (
+        <Button
+          size="sm"
+          variant="outline"
+          className={className}
+          disabled={busy}
+          title={JSON.stringify(input)}
+          onClick={() => onGrant("input")}
+        >
+          Allow these exact parameters for this task
+        </Button>
+      ) : null}
+      <Button size="sm" variant="outline" className={className} disabled={busy} onClick={() => onGrant("tool")}>
+        {swt("interface.m2875", { p0: toolName })}
+      </Button>
+      <Button size="sm" variant="outline" className={className} disabled={busy} onClick={() => onGrant("all")}>
+        {swt("interface.m2876")}
+      </Button>
+    </>
+  );
+}
+
+function grantScopeLabel(scope: string, tool: string, swt: ReturnType<typeof useI18n>["t"]) {
+  if (scope === "all") return swt("interface.m2881");
+  if (scope === "tool") return swt("interface.m2875", { p0: tool });
+  if (scope === "input") return swt("interface.m2886");
+  if (scope === "command") return swt("interface.m2882");
+  if (scope === "once") return swt("interface.m2885");
+  return scope;
+}
+
+function grantText(grant: TaskToolGrant, swt: ReturnType<typeof useI18n>["t"]) {
+  if (grant.scope === "all") return swt("interface.m2881");
+  if (grant.scope === "tool") return swt("interface.m2875", { p0: grant.tool_name });
+  if (grant.scope === "input") return `${grant.tool_name}: ${grant.command}`;
+  return `${swt("interface.m2882")}: ${grant.command}`;
+}
+
+function TaskGrants({ taskId }: { taskId?: string }) {
+  "use no memo";
+  const { t: swt, locale: swLocale } = useI18n();
+  const [grants, setGrants] = React.useState<TaskToolGrant[]>([]);
+  const [busy, setBusy] = React.useState(false);
+
+  const load = React.useCallback(async () => {
+    setGrants(await (taskId ? api.taskToolGrants(taskId) : api.toolGrants()));
+  }, [swLocale, taskId]);
+
+  React.useEffect(() => {
+    let live = true;
+    void load().catch(() => {
+      if (live) setGrants([]);
+    });
+    const stop = pollWhileVisible(() => {
+      void load().catch(() => undefined);
+    }, 5000);
+    return () => {
+      live = false;
+      stop();
+    };
+  }, [load]);
+
+  async function revoke(grant: TaskToolGrant) {
+    setBusy(true);
+    try {
+      await api.revokeTaskToolGrant(grant.task_id, grant.id);
+      await load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="flex flex-col gap-2 rounded-lg border p-3">
+      <h2 className="text-sm font-medium">{swt("interface.m2877")}</h2>
+      <p className="text-muted-foreground text-sm">{swt("interface.m2878")}</p>
+      <p className="text-muted-foreground text-xs">{swt("interface.m2883")}</p>
+      {grants.length === 0 ? (
+        <p className="text-muted-foreground text-sm">{swt("interface.m2879")}</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {grants.map((grant) => (
+            <li key={grant.id} className="flex flex-wrap items-center justify-between gap-2">
+              <code className="min-w-0 break-all text-xs">
+                {!taskId ? `Task ${grant.task_id}: ` : ""}
+                {grantText(grant, swt)}
+              </code>
+              <Button size="sm" variant="outline" disabled={busy} onClick={() => void revoke(grant)}>
+                {swt("interface.m2880")}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
 
 function DecisionActions({ row, busy, decide }: { row: InterceptApprovalRow; busy: boolean; decide: Decide }) {
   "use no memo";
@@ -334,10 +506,17 @@ function DecisionActions({ row, busy, decide }: { row: InterceptApprovalRow; bus
   if (row.status !== "pending") return null;
   return (
     <div className="flex flex-wrap gap-2">
-      <Button size="sm" disabled={busy} onClick={() => void decide(row.id, "allowed")}>
+      <Button size="sm" disabled={busy} onClick={() => void decide(row.id, "allowed", "once")}>
         <CheckIcon data-icon="inline-start" />
         {swt("interface.m0617")}
       </Button>
+      <ApprovalGrantButtons
+        taskId={row.task_id}
+        toolName={row.tool_name}
+        input={row.tool_input}
+        busy={busy}
+        onGrant={(grant) => void decide(row.id, "allowed", grant)}
+      />
       <Button size="sm" variant="destructive" disabled={busy} onClick={() => void decide(row.id, "denied")}>
         <XIcon data-icon="inline-start" />
         {swt("interface.m2063")}
@@ -398,6 +577,7 @@ export function ApprovalDetail({
   // Row updates are authoritative until the lazy detail has caught up.
   const current = detail?.status === row.status ? detail : row;
   const audit = detail?.audit;
+  const summary = approvalSummary(current, audit, swt);
   let execution = audit ? executionLabels[audit.execution_status] : swt("interface.m2057");
   if (row.status === "pending") execution = swt("interface.m2064");
   if (audit && audit.correlation !== "exact" && audit.effective_action === "allow") execution = swt("interface.m2095");
@@ -437,16 +617,11 @@ export function ApprovalDetail({
           </h3>
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={current.status} />
-            <MatchCell row={current} showReason={false} />
+            <span className="font-medium text-sm">{summary.title}</span>
           </div>
-          <p className="whitespace-pre-wrap break-words text-sm leading-7 [overflow-wrap:anywhere]">
-            {current.reason?.replace(/^\[(?:模型|Model)\]\s*/, "") || swt("interface.m2105")}
-          </p>
-          {audit?.decision_reason ? <p className="text-sm">{audit.decision_reason}</p> : null}
-          {audit?.effective_action ? (
-            <p className="text-sm">
-              {swt("interface.m2106")}
-              {actionLabels[audit.effective_action]}
+          {summary.detail ? (
+            <p className="whitespace-pre-wrap break-words text-sm leading-7 [overflow-wrap:anywhere]">
+              {summary.detail}
             </p>
           ) : null}
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-xs">
@@ -458,12 +633,6 @@ export function ApprovalDetail({
             <dd>{fmtTime(row.created_at)}</dd>
             <dt className="text-muted-foreground">{swt("interface.m2108")}</dt>
             <dd>{fmtTime(current.decided_at)}</dd>
-            {audit?.rule_name ? (
-              <>
-                <dt className="text-muted-foreground">{swt("interface.m2109")}</dt>
-                <dd>{audit.rule_name}</dd>
-              </>
-            ) : null}
             {audit?.profile_id ? (
               <>
                 <dt className="text-muted-foreground">{swt("interface.m2110")}</dt>
@@ -845,12 +1014,12 @@ export function ApprovalRecords({ taskId }: { taskId?: string }) {
     setLoading(true);
   };
 
-  const decide: Decide = async (id, decision) => {
+  const decide: Decide = async (id, decision, grant) => {
     if (decisionLock.current) return;
     decisionLock.current = true;
     setDeciding(true);
     try {
-      await api.interceptDecide(id, decision);
+      await api.interceptDecide(id, decision, grant);
       // Invalidate a list request started before this decision.
       request.current++;
       // Optimistically drop the decided item from the independent pending queue
@@ -901,6 +1070,12 @@ export function ApprovalRecords({ taskId }: { taskId?: string }) {
         </Button>
       </div>
       <p className="text-muted-foreground text-sm">{swt("interface.m2146")}</p>
+      <TaskGrants taskId={taskId} />
+      {!taskId ? (
+        <a className="text-sm underline" href="/system/intercept/">
+          Manage tool and parameter approval rules
+        </a>
+      ) : null}
       <FieldGroup className="flex-row flex-wrap items-end gap-3" aria-label={swt("interface.m2147")}>
         <Field className="w-full sm:w-40">
           <FieldLabel htmlFor={`${filterID}-status`}>{swt("interface.m2148")}</FieldLabel>

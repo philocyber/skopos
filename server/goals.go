@@ -130,6 +130,28 @@ func (s *Server) admitTaskWhen(t *Task, mode string, requirePaused bool) (queued
 	}
 	defer s.engine.decInflight(t.ID)
 	lifecycle := t.lifecycleSnapshot()
+	taskNum, _ := strconv.ParseInt(t.ID, 10, 64)
+	approval, err := s.m.pg.TaskApprovalState(taskNum)
+	if err != nil {
+		return false, err
+	}
+	if len(approval.Pending) > 0 {
+		return false, locale.Errorf("Task is waiting for tool permission. Resolve every pending request before resuming")
+	}
+	if approval.Active() != nil {
+		if s.engine.inflightCount(t.ID) > 1 {
+			return false, locale.Errorf("Task workers are still stopping for the permission request; retry Resume shortly")
+		}
+		s.chatMu.Lock()
+		busy := s.chatBusy[t.ID]
+		s.chatMu.Unlock()
+		if busy {
+			return false, locale.Errorf("The main agent is still stopping for the permission request; retry Resume shortly")
+		}
+		if err := s.m.pg.RefreshTaskApprovalReplays(taskNum); err != nil {
+			return false, err
+		}
+	}
 	if requirePaused {
 		if isTerminalStatus(lifecycle.Status) {
 			return false, locale.Errorf("Terminal tasks cannot be resumed")
@@ -192,6 +214,9 @@ func (s *Server) admitTaskWhen(t *Task, mode string, requirePaused bool) (queued
 			s.engine.Resume(t)
 		}
 		return false, err
+	}
+	if approval.Active() != nil {
+		s.engine.deadline.Delete(t.ID)
 	}
 	if lifecycle.Status == "timeout" && status == "running" {
 		// ApplyTaskAdmission reset this timed-out run's persisted clock. Clear the

@@ -16,8 +16,8 @@ func TestMatchAssetInterceptRules(t *testing.T) {
 		want    bool
 		wantVal string
 	}{
-		{"Built-in partial government-domain match", []AssetInterceptRule{rule("fuzzy_domain", ".gov.cn", true)},
-			[]string{"www.beijing.gov.cn"}, nil, nil, true, "www.beijing.gov.cn"},
+		{"Built-in partial government-domain match", []AssetInterceptRule{rule("fuzzy_domain", ".gov", true)},
+			[]string{"www.agency.gov"}, nil, nil, true, "www.agency.gov"},
 		{"Partial education-domain match", []AssetInterceptRule{rule("fuzzy_domain", ".edu", true)},
 			[]string{"mit.edu"}, nil, nil, true, "mit.edu"},
 		{"Exact domain matching is case insensitive", []AssetInterceptRule{rule("exact_domain", "Example.com", true)},
@@ -32,15 +32,15 @@ func TestMatchAssetInterceptRules(t *testing.T) {
 			nil, []string{"192.168.5.20"}, nil, true, "192.168.5.20"},
 		{"CIDR miss", []AssetInterceptRule{rule("cidr", "192.168.0.0/16", true)},
 			nil, []string{"10.0.0.1"}, nil, false, ""},
-		{"Exact URL match", []AssetInterceptRule{rule("exact_url", "https://a.gov.cn/login", true)},
-			nil, nil, []string{"https://a.gov.cn/login"}, true, "https://a.gov.cn/login"},
+		{"Exact URL match", []AssetInterceptRule{rule("exact_url", "https://a.gov/login", true)},
+			nil, nil, []string{"https://a.gov/login"}, true, "https://a.gov/login"},
 		{"Partial URL path match", []AssetInterceptRule{rule("fuzzy_url", "/admin", true)},
 			nil, nil, []string{"https://x.com/admin/panel"}, true, "https://x.com/admin/panel"},
-		{"Disabled rule does not match", []AssetInterceptRule{rule("fuzzy_domain", ".gov.cn", false)},
-			[]string{"www.gov.cn"}, nil, nil, false, ""},
-		{"No rules means no match", nil, []string{"www.gov.cn"}, nil, nil, false, ""},
+		{"Disabled rule does not match", []AssetInterceptRule{rule("fuzzy_domain", ".gov", false)},
+			[]string{"www.gov"}, nil, nil, false, ""},
+		{"No rules means no match", nil, []string{"www.gov"}, nil, nil, false, ""},
 		{"Empty pattern does not match", []AssetInterceptRule{rule("fuzzy_domain", "  ", true)},
-			[]string{"www.gov.cn"}, nil, nil, false, ""},
+			[]string{"www.gov"}, nil, nil, false, ""},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -56,11 +56,11 @@ func TestMatchAssetInterceptRules(t *testing.T) {
 }
 
 func TestEvaluateAssetGate(t *testing.T) {
-	block := []AssetInterceptRule{rule("fuzzy_domain", ".gov.cn", true)}
+	block := []AssetInterceptRule{rule("fuzzy_domain", ".gov", true)}
 	allow := []AssetInterceptRule{rule("fuzzy_domain", "example.com", true)}
 
 	// 1. A block match rejects the asset; the block reason takes precedence.
-	if d := EvaluateAssetGate(block, allow, []string{"www.gov.cn"}, nil, nil); d.Allowed {
+	if d := EvaluateAssetGate(block, allow, []string{"www.gov"}, nil, nil); d.Allowed {
 		t.Fatal("A block-rule match must be denied")
 	}
 
@@ -91,9 +91,9 @@ func TestEvaluateAssetGate(t *testing.T) {
 
 	// 6. Blocking takes precedence: matching both block and allow rules rejects the target.
 	if d := EvaluateAssetGate(
-		[]AssetInterceptRule{rule("fuzzy_domain", ".gov.cn", true)},
-		[]AssetInterceptRule{rule("fuzzy_domain", ".gov.cn", true)},
-		[]string{"www.gov.cn"}, nil, nil,
+		[]AssetInterceptRule{rule("fuzzy_domain", ".gov", true)},
+		[]AssetInterceptRule{rule("fuzzy_domain", ".gov", true)},
+		[]string{"www.gov"}, nil, nil,
 	); d.Allowed {
 		t.Fatal("Blocking must take precedence over allowing")
 	}
@@ -101,21 +101,21 @@ func TestEvaluateAssetGate(t *testing.T) {
 
 func TestAssetInterceptCandidates(t *testing.T) {
 	// A URL-only service asset's host becomes a domain candidate and can match fuzzy_domain.
-	a := &Asset{Type: "service", URL: "https://portal.beijing.gov.cn:8443/app"}
+	a := &Asset{Type: "service", URL: "https://portal.agency.gov:8443/app"}
 	domains, _, urls := a.interceptCandidates()
 	if len(urls) != 1 || urls[0] != a.URL {
 		t.Fatalf("urls = %v", urls)
 	}
 	found := false
 	for _, d := range domains {
-		if d == "portal.beijing.gov.cn" {
+		if d == "portal.agency.gov" {
 			found = true
 		}
 	}
 	if !found {
 		t.Fatalf("URL host missing from domain candidates: %v", domains)
 	}
-	r, _, ok := MatchAssetInterceptRules([]AssetInterceptRule{rule("fuzzy_domain", ".gov.cn", true)}, domains, nil, urls)
+	r, _, ok := MatchAssetInterceptRules([]AssetInterceptRule{rule("fuzzy_domain", ".gov", true)}, domains, nil, urls)
 	if !ok {
 		t.Fatalf("URL-only government service asset must match fuzzy_domain, rule=%+v", r)
 	}

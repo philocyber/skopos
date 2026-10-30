@@ -75,10 +75,12 @@ const PRESET_LABEL: Record<LLMProfilePresetId, MessageKey> = {
   "bedrock-claude": "providers.bedrockClaude",
   "bedrock-open-models": "providers.bedrockOpen",
 };
-import type { LLMPoolMember, LLMPoolStatus, LLMProfile, LLMRetryOverride } from "@/lib/types";
+
+import type { ChatGPTModel, LLMPoolMember, LLMPoolStatus, LLMProfile, LLMRetryOverride } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import { ProfileRetryFields, RetryPolicyPanel, ZERO_OVERRIDE } from "./_components/retry";
+import { SubscriptionConnection } from "./_components/subscription";
 
 // thinking.type and reasoning_effort are independent fields and must be set separately;
 // some APIs have no thinking field and enable reasoning through effort alone.
@@ -178,7 +180,7 @@ function cooldownText(secs: number) {
 // other states come from rotation circuit records. With rotation off, Healthy means no known failures.
 type Health = { label: string; cls: string; hint?: string };
 function healthOf(p: LLMProfile, m?: LLMPoolMember): Health {
-  if (!p.api_key_hint) {
+  if (!p.api_key_hint && !p.subscription_id) {
     return {
       label: swt("interface.m1334"),
       cls: "border-muted-foreground/40 text-muted-foreground",
@@ -414,16 +416,23 @@ function ProfileSheet({
   open,
   onOpenChange,
   onSaved,
+  initialSubscription = false,
 }: {
   profile: LLMProfile | null; // Null means creation.
   open: boolean;
   onOpenChange: (o: boolean) => void;
   onSaved: (id: string) => void;
+  initialSubscription?: boolean;
 }) {
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
 
   const isNew = !profile;
+  const [useSubscription, setUseSubscription] = React.useState(false);
+  const [subscriptionId, setSubscriptionId] = React.useState("");
+  const [cyberProgram, setCyberProgram] = React.useState("standard");
+  const daybreakProgram = (choice?: ChatGPTModel) =>
+    choice?.cyber_programs?.find((program) => program === "daybreakBlue" || program === "daybreakRed");
   const [preset, setPreset] = React.useState<LLMProfilePresetId | "">("");
   const [vendor, setVendor] = React.useState<LLMVendorId | "">("");
   const [region, setRegion] = React.useState<string>(DEFAULT_BEDROCK_REGION);
@@ -449,6 +458,8 @@ function ProfileSheet({
   const [testing, setTesting] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [models, setModels] = React.useState<string[]>([]);
+  const [subscriptionModels, setSubscriptionModels] = React.useState<ChatGPTModel[]>([]);
+  const [subscriptionModelsRefresh, setSubscriptionModelsRefresh] = React.useState(0);
   const [loadingModels, setLoadingModels] = React.useState(false);
   const [modelsOpen, setModelsOpen] = React.useState(false);
 
@@ -456,31 +467,65 @@ function ProfileSheet({
   // Closing and reopening starts fresh without stale values from another profile.
   React.useEffect(() => {
     if (!open) return;
+    setUseSubscription(!!profile?.subscription_id || initialSubscription);
+    setSubscriptionId(profile?.subscription_id ?? "");
+    setCyberProgram(profile?.cyber_access_program || "standard");
     setPreset("");
     setVendor("");
     setRegion(DEFAULT_BEDROCK_REGION);
     setName(profile?.name ?? "");
-    setFormat(profile?.format === "openai" || profile?.format === "openai-responses" ? profile.format : "anthropic");
+    setFormat(
+      initialSubscription && !profile
+        ? "openai-responses"
+        : profile?.format === "openai" || profile?.format === "openai-responses"
+          ? profile.format
+          : "anthropic",
+    );
     setModel(profile?.model ?? "");
-    setBaseUrl(profile?.base_url ?? "");
-    setProxy(profile?.proxy ?? "");
+    setBaseUrl(profile?.base_url ?? (initialSubscription ? "https://api.openai.com/v1" : ""));
+    setProxy(profile?.subscription_id ? "" : (profile?.proxy ?? ""));
     setRps(String(profile?.rate_per_second ?? 0));
     setRpm(String(profile?.rate_per_minute ?? 0));
     setCw(String(profile?.context_window_k ?? 0));
-    setThinkingType(fromStore(profile?.thinking_type));
+    setThinkingType(profile?.subscription_id ? NONE : fromStore(profile?.thinking_type));
     setEffort(fromStore(profile?.reasoning_effort));
     setPriority(String(profile?.priority ?? 0));
     setPoolExclude(profile?.pool_exclude ?? false);
     setStreaming(profile?.streaming ?? true);
-    setMaxTokens(String(profile?.max_tokens ?? 0));
+    setMaxTokens(profile?.subscription_id ? "0" : String(profile?.max_tokens ?? 0));
     setMaxTokensField(fromStore(profile?.max_tokens_field));
-    setSessionHeaderKey(profile?.session_header_key ?? "");
+    setSessionHeaderKey(profile?.subscription_id ? "" : (profile?.session_header_key ?? ""));
     setRetry(profile?.retry ?? ZERO_OVERRIDE);
     setApiKey("");
     setKeyHint(profile?.api_key_hint ?? "");
     setModels([]);
+    setSubscriptionModels([]);
     setModelsOpen(false);
-  }, [open, profile]);
+  }, [open, profile, initialSubscription]);
+
+  React.useEffect(() => {
+    if (!open || !useSubscription || !subscriptionId) return;
+    let active = true;
+    setLoadingModels(true);
+    void api
+      .fetchLLMModels("openai-responses", "https://api.openai.com/v1", "", "", undefined, subscriptionId)
+      .then((result) => {
+        if (!active) return;
+        if (!result.ok) throw new Error(result.error || "Could not load ChatGPT models");
+        const choices = result.model_choices ?? (result.models ?? []).map((slug) => ({ slug, display_name: slug }));
+        setSubscriptionModels(choices);
+        setModel((current) => (choices.some((choice) => choice.slug === current) ? current : (choices[0]?.slug ?? "")));
+      })
+      .catch((error: Error) => {
+        if (active) toast.error(error.message);
+      })
+      .finally(() => {
+        if (active) setLoadingModels(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [open, useSubscription, subscriptionId, subscriptionModelsRefresh]);
 
   // Picking a vendor applies its first template at once, so one click fills the whole form.
   function applyVendor(v: string) {
@@ -505,7 +550,11 @@ function ProfileSheet({
     setFormat(next.format);
     setModel(next.model);
     // Bedrock templates keep the Region already chosen instead of resetting to the default.
-    setBaseUrl(vendorOfPreset(id) === "bedrock" ? bedrockBaseUrlForRegion(next.base_url, bedrockRegion ?? region) : next.base_url);
+    setBaseUrl(
+      vendorOfPreset(id) === "bedrock"
+        ? bedrockBaseUrlForRegion(next.base_url, bedrockRegion ?? region)
+        : next.base_url,
+    );
     setThinkingType(fromStore(next.thinking_type));
     setEffort(fromStore(next.reasoning_effort));
     setCw(String(next.context_window_k));
@@ -519,11 +568,22 @@ function ProfileSheet({
   const endpointWarnings = llmEndpointWarnings(format, baseUrl, model);
 
   async function loadModels() {
+    if (useSubscription && !subscriptionId) {
+      toast.error(swt("providers.subscriptionSignInFirst"));
+      return;
+    }
     if (loadingModels) return;
     setLoadingModels(true);
     setModels([]);
     try {
-      const r = await api.fetchLLMModels(format, baseUrl, apiKey, proxy, profileId);
+      const r = await api.fetchLLMModels(
+        format,
+        baseUrl,
+        apiKey,
+        proxy,
+        useSubscription ? undefined : profileId,
+        useSubscription ? subscriptionId : "",
+      );
       if (r.ok && r.models && r.models.length > 0) {
         setModels(r.models);
         setModelsOpen(true);
@@ -539,6 +599,10 @@ function ProfileSheet({
   }
 
   async function testConnection() {
+    if (useSubscription && !subscriptionId) {
+      toast.error(swt("providers.subscriptionSignInFirst"));
+      return;
+    }
     if (testing) return;
     setTesting(true);
     try {
@@ -549,12 +613,14 @@ function ProfileSheet({
         model,
         baseUrl,
         apiKey,
-        proxy,
-        toStore(thinkingType),
+        useSubscription ? "" : proxy,
+        useSubscription ? "" : toStore(thinkingType),
         toStore(effort),
-        profileId,
+        useSubscription ? undefined : profileId,
         streaming,
-        sessionHeaderKey.trim(),
+        useSubscription ? "" : sessionHeaderKey.trim(),
+        useSubscription ? subscriptionId : "",
+        useSubscription ? cyberProgram : "standard",
       );
       // Show response content to prove the model actually answered as it would in a conversation.
       if (r.ok)
@@ -574,6 +640,10 @@ function ProfileSheet({
       toast.error(swt("interface.m1379"));
       return;
     }
+    if (useSubscription && !subscriptionId) {
+      toast.error(swt("providers.subscriptionSignInFirst"));
+      return;
+    }
     if (saving) return;
     setSaving(true);
     try {
@@ -583,21 +653,23 @@ function ProfileSheet({
         format,
         model: model.trim(),
         base_url: baseUrl.trim(),
-        proxy: proxy.trim(),
-        api_key: apiKey,
+        proxy: useSubscription ? "" : proxy.trim(),
+        api_key: useSubscription ? "" : apiKey,
+        subscription_id: useSubscription ? subscriptionId : "",
+        cyber_access_program: useSubscription ? cyberProgram : "",
         rate_per_second: Number(rps) || 0,
         rate_per_minute: Number(rpm) || 0,
         context_window_k: Number(cw) || 0,
-        thinking_type: toStore(thinkingType),
+        thinking_type: useSubscription ? "" : toStore(thinkingType),
         reasoning_effort: toStore(effort),
         priority: Number(priority) || 0,
         pool_exclude: poolExclude,
         streaming,
-        max_tokens: Math.max(0, Number(maxTokens) || 0),
+        max_tokens: useSubscription ? 0 : Math.max(0, Number(maxTokens) || 0),
         // Output-field selection affects only OpenAI Chat Completions; other formats use defaults.
         // The backend normalizes again; this also prevents contradictory UI submissions.
         max_tokens_field: format === "openai" ? toStore(maxTokensField) : "",
-        session_header_key: sessionHeaderKey.trim(),
+        session_header_key: useSubscription ? "" : sessionHeaderKey.trim(),
         retry,
       });
       if (isNew) toast.success(swt("interface.m1380", { p0: name.trim() }));
@@ -630,7 +702,50 @@ function ProfileSheet({
         </SheetHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4">
-          {isNew && (
+          <div className="grid gap-2">
+            <Label>{swt("providers.authMethod")}</Label>
+            <Select
+              value={useSubscription ? "subscription" : "api"}
+              onValueChange={(v) => {
+                setUseSubscription(v === "subscription");
+                setModels([]);
+                setSubscriptionModels([]);
+                setApiKey("");
+                if (v === "subscription") {
+                  setFormat("openai-responses");
+                  setBaseUrl("https://api.openai.com/v1");
+                  setStreaming(true);
+                  setThinkingType(NONE);
+                  setMaxTokens("0");
+                  setProxy("");
+                  setCyberProgram("standard");
+                  setSessionHeaderKey("");
+                }
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="api">{swt("providers.apiKeyMethod")}</SelectItem>
+                <SelectItem value="subscription">{swt("providers.subscriptionMethod")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {open && useSubscription && (
+            <SubscriptionConnection
+              value={subscriptionId}
+              onChange={(id) => {
+                setSubscriptionId(id);
+                setSubscriptionModelsRefresh((count) => count + 1);
+                setCyberProgram("standard");
+                setModels([]);
+                setSubscriptionModels([]);
+                setModel("");
+              }}
+            />
+          )}
+          {isNew && !useSubscription && (
             <div className="grid gap-2 rounded-md border bg-muted/20 p-3">
               <Label htmlFor="p-vendor">{swt("providers.vendor")}</Label>
               <Select value={vendor} onValueChange={applyVendor}>
@@ -792,7 +907,11 @@ function ProfileSheet({
             </div>
             <div className="grid gap-2">
               <Label>{swt("interface.m1388")}</Label>
-              <Select value={format} onValueChange={(v) => setFormat(v as "anthropic" | "openai" | "openai-responses")}>
+              <Select
+                disabled={useSubscription}
+                value={format}
+                onValueChange={(v) => setFormat(v as "anthropic" | "openai" | "openai-responses")}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder={swt("interface.m1389")} />
                 </SelectTrigger>
@@ -807,108 +926,201 @@ function ProfileSheet({
 
           <div className="grid gap-2">
             <Label htmlFor="p-model">{swt("interface.m0627")}</Label>
-            <div className="flex gap-2">
-              <Input
-                id="p-model"
-                className="font-mono"
-                placeholder="claude-opus-5-5"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-              />
-              {/* This body-portaled Popover sits outside Sheet's scroll lock. modal gives it the top scroll lock so its list can scroll. */}
-              <Popover open={modelsOpen} onOpenChange={setModelsOpen} modal>
-                <PopoverTrigger asChild>
+            {useSubscription ? (
+              <>
+                <div className="flex gap-2">
+                  <Select
+                    value={model}
+                    onValueChange={(slug) => {
+                      setModel(slug);
+                      if (cyberProgram !== "standard")
+                        setCyberProgram(
+                          daybreakProgram(subscriptionModels.find((choice) => choice.slug === slug)) || "standard",
+                        );
+                    }}
+                    disabled={!subscriptionId || loadingModels || !subscriptionModels.length}
+                  >
+                    <SelectTrigger id="p-model" className="w-full">
+                      <SelectValue placeholder={swt("providers.subscriptionModelPlaceholder")}>
+                        {subscriptionModels.find((choice) => choice.slug === model)?.display_name}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {subscriptionModels.map((choice) => (
+                        <SelectItem
+                          key={choice.slug}
+                          value={choice.slug}
+                          disabled={cyberProgram !== "standard" && !daybreakProgram(choice)}
+                        >
+                          <span className="flex flex-col items-start">
+                            <span>{choice.display_name}</span>
+                            <span className="font-mono text-muted-foreground text-xs">{choice.slug}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
                     className="shrink-0"
-                    disabled={loadingModels}
-                    onClick={loadModels}
+                    disabled={!subscriptionId || loadingModels}
+                    onClick={() => setSubscriptionModelsRefresh((count) => count + 1)}
                     title={swt("interface.m1390")}
                   >
                     {loadingModels ? <Loader2Icon className="animate-spin" /> : <RefreshCwIcon />}
                   </Button>
-                </PopoverTrigger>
-                {models.length > 0 && (
-                  <PopoverContent className="max-h-72 w-72 gap-0 overflow-y-auto overscroll-contain p-1" align="end">
-                    {models.map((m) => (
-                      <button
-                        key={m}
-                        type="button"
-                        className="w-full shrink-0 rounded-md px-2 py-1.5 text-left font-mono text-xs hover:bg-accent hover:text-accent-foreground"
-                        onClick={() => {
-                          setModel(m);
-                          setModelsOpen(false);
-                        }}
-                      >
-                        {m}
-                      </button>
-                    ))}
-                  </PopoverContent>
+                </div>
+                {loadingModels && (
+                  <p className="text-muted-foreground text-xs">{swt("providers.subscriptionModelsLoading")}</p>
                 )}
-              </Popover>
+                <p className="text-muted-foreground text-xs">{swt("providers.subscriptionModelsHelp")}</p>
+                <div className="flex items-center justify-between rounded-md border px-3 py-2">
+                  <div>
+                    <Label htmlFor="p-daybreak">Daybreak</Label>
+                    <p className="text-muted-foreground text-xs">{swt("providers.subscriptionDaybreakHelp")}</p>
+                  </div>
+                  <Switch
+                    id="p-daybreak"
+                    checked={cyberProgram !== "standard"}
+                    disabled={
+                      loadingModels ||
+                      (cyberProgram === "standard" && !subscriptionModels.some((choice) => daybreakProgram(choice)))
+                    }
+                    onCheckedChange={(enabled) => {
+                      if (!enabled) {
+                        setCyberProgram("standard");
+                        return;
+                      }
+                      const choice =
+                        subscriptionModels.find((choice) => choice.slug === model && daybreakProgram(choice)) ||
+                        subscriptionModels.find((choice) => daybreakProgram(choice));
+                      if (choice) {
+                        setModel(choice.slug);
+                        setCyberProgram(daybreakProgram(choice)!);
+                      }
+                    }}
+                    aria-label="Daybreak"
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  id="p-model"
+                  className="font-mono"
+                  placeholder={useSubscription ? swt("providers.subscriptionModelPlaceholder") : "claude-opus-5-5"}
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                />
+                {/* This body-portaled Popover sits outside Sheet's scroll lock. modal gives it the top scroll lock so its list can scroll. */}
+                <Popover open={modelsOpen} onOpenChange={setModelsOpen} modal>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                      disabled={loadingModels}
+                      onClick={loadModels}
+                      title={swt("interface.m1390")}
+                    >
+                      {loadingModels ? <Loader2Icon className="animate-spin" /> : <RefreshCwIcon />}
+                    </Button>
+                  </PopoverTrigger>
+                  {models.length > 0 && (
+                    <PopoverContent className="max-h-72 w-72 gap-0 overflow-y-auto overscroll-contain p-1" align="end">
+                      {models.map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          className="w-full shrink-0 rounded-md px-2 py-1.5 text-left font-mono text-xs hover:bg-accent hover:text-accent-foreground"
+                          onClick={() => {
+                            setModel(m);
+                            setModelsOpen(false);
+                          }}
+                        >
+                          {m}
+                        </button>
+                      ))}
+                    </PopoverContent>
+                  )}
+                </Popover>
+              </div>
+            )}
+          </div>
+
+          {!useSubscription && (
+            <>
+              <div className="grid gap-2">
+                <Label htmlFor="p-base-url">{swt("interface.m1391")}</Label>
+                <Input
+                  disabled={useSubscription}
+                  id="p-base-url"
+                  className="font-mono"
+                  placeholder={format === "anthropic" ? "https://api.anthropic.com" : "https://api.openai.com/v1"}
+                  value={baseUrl}
+                  onChange={(e) => setBaseUrl(e.target.value)}
+                />
+                {endpointWarnings.map((w) => (
+                  <p key={w} role="alert" className="text-xs text-amber-700 dark:text-amber-400">
+                    {swt(`providers.${w}`)}
+                  </p>
+                ))}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="p-proxy">{swt("interface.m1392")}</Label>
+                <Input
+                  id="p-proxy"
+                  disabled={useSubscription}
+                  className="font-mono"
+                  placeholder="socks5://user:pass@127.0.0.1:1080 · http://127.0.0.1:8080"
+                  value={proxy}
+                  onChange={(e) => setProxy(e.target.value)}
+                />
+                <p className="text-muted-foreground text-xs">{swt("interface.m1393")}</p>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="p-session-header">{swt("interface.m1394")}</Label>
+                <Input
+                  id="p-session-header"
+                  disabled={useSubscription}
+                  className="font-mono"
+                  placeholder={swt("interface.m1395")}
+                  value={sessionHeaderKey}
+                  onChange={(e) => setSessionHeaderKey(e.target.value)}
+                />
+                <p className="text-muted-foreground text-xs">
+                  {swt("interface.m1396")}
+                  <b>{swt("interface.m1397")}</b>
+                  {swt("interface.m1398")}
+                </p>
+              </div>
+            </>
+          )}
+          {!useSubscription && (
+            <div className="grid gap-2">
+              <Label htmlFor="p-api-key">{swt("english.e100")}</Label>
+              <Input
+                id="p-api-key"
+                type="password"
+                placeholder={
+                  keyHint
+                    ? swt("interface.m1399", { p0: keyHint })
+                    : vendor === "bedrock"
+                      ? swt("providers.keyBedrock")
+                      : vendor === "vercel"
+                        ? swt("providers.keyVercel")
+                        : "sk-…"
+                }
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+              />
             </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="p-base-url">{swt("interface.m1391")}</Label>
-            <Input
-              id="p-base-url"
-              className="font-mono"
-              placeholder={format === "anthropic" ? "https://api.anthropic.com" : "https://api.openai.com/v1"}
-              value={baseUrl}
-              onChange={(e) => setBaseUrl(e.target.value)}
-            />
-            {endpointWarnings.map((w) => (
-              <p key={w} role="alert" className="text-xs text-amber-700 dark:text-amber-400">
-                {swt(`providers.${w}`)}
-              </p>
-            ))}
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="p-proxy">{swt("interface.m1392")}</Label>
-            <Input
-              id="p-proxy"
-              className="font-mono"
-              placeholder="socks5://user:pass@127.0.0.1:1080 · http://127.0.0.1:8080"
-              value={proxy}
-              onChange={(e) => setProxy(e.target.value)}
-            />
-            <p className="text-muted-foreground text-xs">{swt("interface.m1393")}</p>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="p-session-header">{swt("interface.m1394")}</Label>
-            <Input
-              id="p-session-header"
-              className="font-mono"
-              placeholder={swt("interface.m1395")}
-              value={sessionHeaderKey}
-              onChange={(e) => setSessionHeaderKey(e.target.value)}
-            />
-            <p className="text-muted-foreground text-xs">
-              {swt("interface.m1396")}
-              <b>{swt("interface.m1397")}</b>
-              {swt("interface.m1398")}
-            </p>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="p-api-key">{swt("english.e100")}</Label>
-            <Input
-              id="p-api-key"
-              type="password"
-              placeholder={keyHint ? swt("interface.m1399", { p0: keyHint }) : vendor === "bedrock"
-                    ? swt("providers.keyBedrock")
-                    : vendor === "vercel"
-                      ? swt("providers.keyVercel")
-                      : "sk-…"}
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-            />
-          </div>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="grid gap-2">
@@ -965,7 +1177,12 @@ function ProfileSheet({
                 <Label className="text-sm">{swt("interface.m1407")}</Label>
                 <p className="text-muted-foreground text-xs">{swt("interface.m1408")}</p>
               </div>
-              <Switch checked={streaming} onCheckedChange={setStreaming} aria-label={swt("interface.m1409")} />
+              <Switch
+                disabled={useSubscription}
+                checked={streaming}
+                onCheckedChange={setStreaming}
+                aria-label={swt("interface.m1409")}
+              />
             </div>
           </div>
 
@@ -979,6 +1196,7 @@ function ProfileSheet({
               </div>
               <Input
                 id="p-max-tokens"
+                disabled={useSubscription}
                 type="number"
                 min={0}
                 className="w-28 shrink-0"
@@ -1017,7 +1235,7 @@ function ProfileSheet({
                 <Label className="text-sm">{swt("interface.m1413")}</Label>
                 <p className="text-muted-foreground text-xs">{swt("interface.m1414")}</p>
               </div>
-              <Select value={thinkingType} onValueChange={setThinkingType}>
+              <Select value={thinkingType} onValueChange={setThinkingType} disabled={useSubscription}>
                 <SelectTrigger className="w-32 shrink-0">
                   <SelectValue />
                 </SelectTrigger>
@@ -1080,9 +1298,11 @@ export default function LLMPage() {
   const [poolOpen, setPoolOpen] = React.useState(false);
   // Store drawer visibility separately from editing data to avoid the closing animation changing
   // the title from Edit X to New. editing=null means creation.
+  const [initialSubscription, setInitialSubscription] = React.useState(false);
   const [editOpen, setEditOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<LLMProfile | null>(null);
-  const openEditor = React.useCallback((p: LLMProfile | null) => {
+  const openEditor = React.useCallback((p: LLMProfile | null, subscription = false) => {
+    setInitialSubscription(subscription);
     setEditing(p);
     setEditOpen(true);
   }, []);
@@ -1156,6 +1376,9 @@ export default function LLMPage() {
                 </Badge>
               )}
             </Button>
+            <Button size="sm" variant="outline" onClick={() => openEditor(null, true)}>
+              <PlugZapIcon /> {swt("providers.connectCodex")}
+            </Button>
             <Button size="sm" variant="outline" onClick={() => openEditor(null)}>
               <PlusIcon /> {swt("interface.m0728")}
             </Button>
@@ -1207,7 +1430,11 @@ export default function LLMPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 pl-6 text-muted-foreground text-xs">
-                      {p.api_key_hint && <span>{p.api_key_hint}</span>}
+                      {p.subscription_id ? (
+                        <span>{swt("providers.subscriptionMethod")}</span>
+                      ) : (
+                        p.api_key_hint && <span>{p.api_key_hint}</span>
+                      )}
                       <span>
                         {p.rate_per_second}
                         {swt("english.e102")}
@@ -1299,7 +1526,13 @@ export default function LLMPage() {
         </TabsContent>
       </Tabs>
 
-      <ProfileSheet profile={editing} open={editOpen} onOpenChange={setEditOpen} onSaved={() => void load()} />
+      <ProfileSheet
+        initialSubscription={initialSubscription}
+        profile={editing}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        onSaved={() => void load()}
+      />
       <PoolSheet open={poolOpen} onOpenChange={setPoolOpen} pool={pool} onReload={loadPool} />
     </div>
   );

@@ -41,7 +41,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -343,7 +342,8 @@ function TaskDetailInner() {
           base.paused = at.paused;
         }
         setTask(base);
-        setPaused(at?.paused ?? base.paused ?? false);
+        const approvalActive = base.approval_state?.holds.some((hold) => !hold.ended_at) ?? false;
+        setPaused(!approvalActive && (at?.paused ?? base.paused ?? false));
       })
       .catch(() => {
         // Keep the last rendered task state during a transient poll failure.
@@ -367,7 +367,19 @@ function TaskDetailInner() {
     try {
       await api.controlTask(id, next ? "pause" : "resume");
       setPaused(next);
+      load();
       toast.success(next ? swt("interface.m0799") : swt("interface.m0800"));
+    } catch (e) {
+      toast.error(swt("interface.m0801") + (e as Error).message);
+    }
+  }
+
+  async function continueAfterApproval() {
+    try {
+      await api.controlTask(id, "resume");
+      setPaused(false);
+      load();
+      toast.success(swt("app.resumeScanAction"));
     } catch (e) {
       toast.error(swt("interface.m0801") + (e as Error).message);
     }
@@ -401,6 +413,9 @@ function TaskDetailInner() {
     );
   }
 
+  const approvalHold = task.approval_state?.holds.find((hold) => !hold.ended_at);
+  const approvalRequests = task.approval_state?.pending ?? [];
+  const waitingPermission = !!approvalHold && approvalRequests.length > 0;
   const completed = task.status === "done";
   const terminal = ["done", "failed", "timeout"].includes(task.status);
   const archiveLifecycleEligible = terminal || paused || task.status === "paused";
@@ -437,13 +452,12 @@ function TaskDetailInner() {
     <Tabs
       value={tab}
       onValueChange={changeTab}
-      className="flex h-dvh min-h-0 min-w-0 flex-none flex-col gap-0 overflow-hidden"
+      className="flex h-[calc(100dvh-var(--header-height))] min-h-0 min-w-0 flex-none flex-col gap-0 overflow-hidden"
     >
       {/* Top fixed area */}
       <header className="z-10 flex shrink-0 flex-col gap-2 border-b bg-card px-4 py-3 lg:px-6">
         <div className="flex items-center gap-2">
-          <SidebarTrigger className="-ml-1" />
-          <Button asChild variant="ghost" size="icon" className="size-7">
+          <Button asChild variant="ghost" size="icon" className="-ml-1 size-7">
             <Link href="/function/tasks">
               <ArrowLeftIcon />
             </Link>
@@ -456,7 +470,7 @@ function TaskDetailInner() {
           </code>
           <Separator orientation="vertical" className="mx-1 hidden h-4 sm:block" />
           <TaskLLMControl task={task} profiles={profiles} onUpdated={load} />
-          <StatusBadge domain={terminal ? "task" : "engine"} value={terminal ? task.status : engineMode} dot />
+          <StatusBadge domain={terminal || approvalHold ? "task" : "engine"} value={approvalHold ? "waiting_approval" : terminal ? task.status : engineMode} dot />
           <Button size="sm" variant="outline" asChild>
             <Link
               href={`/chat/?task=${encodeURIComponent(id)}${/^[1-9]\d*$/.test(searchParams.get("chat") ?? "") ? `&c=${searchParams.get("chat")}` : ""}`}
@@ -489,12 +503,50 @@ function TaskDetailInner() {
               <TooltipContent>{archiveDisabledReason}</TooltipContent>
             </Tooltip>
           )}
-          <Button size="sm" variant={controlVariant} onClick={togglePause} disabled={terminal}>
+          <Button size="sm" variant={controlVariant} onClick={togglePause} disabled={terminal || !!approvalHold}>
             {controlIcon}
             {controlLabel}
           </Button>
         </div>
         <p className="truncate text-xs text-muted-foreground">{task.goal}</p>
+        {approvalHold && (
+          <Alert className="border-amber-500/40 bg-amber-500/10" role="alert">
+            <CircleAlertIcon />
+            <AlertTitle>{waitingPermission ? swt("app.toolPermissionTitle") : swt("app.resumeScanTitle")}</AlertTitle>
+            <AlertDescription className="space-y-2">
+              {waitingPermission ? (
+                <>
+                  <p>{swt("app.toolPermissionStopped")}</p>
+                  {approvalRequests.slice(0, 3).map((request) => (
+                    <p key={request.id}>
+                      <strong>{request.tool}</strong> requested by {request.agent || "task agent"} (#{request.id}). {request.reason}
+                    </p>
+                  ))}
+                  {approvalRequests.length > 3 && (
+                    <p>{swt("app.toolPermissionMore", { count: approvalRequests.length - 3 })}</p>
+                  )}
+                  <p>{swt("app.toolPermissionReview")}</p>
+                  <Button size="sm" variant="outline" onClick={() => changeTab("intercept")}>
+                    {swt("app.reviewToolPermissions")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p>{swt("app.resumeScanBody")}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={() => void continueAfterApproval()}>
+                      <PlayIcon data-icon="inline-start" />
+                      {swt("app.resumeScanAction")}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => changeTab("intercept")}>
+                      {swt("app.reviewToolPermissions")}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
         {/* Tabs */}
         <div className="min-w-0">
           <TabsList
@@ -518,7 +570,7 @@ function TaskDetailInner() {
       {/* Tab content */}
       <div key={tab} ref={contentRef} className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4 lg:p-6">
         <TabsContent value="sessions" className="mt-0">
-          <SessionsTab taskId={id} />
+          <SessionsTab taskId={id} task={task} />
         </TabsContent>
         <TabsContent value="overview" className="mt-0">
           <OverviewTab taskId={id} />

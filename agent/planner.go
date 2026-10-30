@@ -9,14 +9,14 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Philocyber/skopos/db"
-	"github.com/Philocyber/skopos/guard"
-	"github.com/Philocyber/skopos/intercept"
 	"github.com/Autumn-27/norma/agentcore"
 	"github.com/Autumn-27/norma/llm"
 	"github.com/Autumn-27/norma/permission"
 	actool "github.com/Autumn-27/norma/tool"
 	"github.com/Autumn-27/norma/transcript"
+	"github.com/Philocyber/skopos/db"
+	"github.com/Philocyber/skopos/guard"
+	"github.com/Philocyber/skopos/intercept"
 )
 
 // Planner is the event-driven LLM planner (docs §4.3): each time the asset or
@@ -371,6 +371,8 @@ func (p *Planner) Plan(ctx context.Context, taskID int64, as *db.AssetStore, ts 
 	if p.wantConstraints() {
 		sysBody += constraintBlock(ts, locale.FromContext(ctx)) // Inject operating constraints to bound exploration.
 	}
+	ctx = withTaskOperatorAuthorization(ctx, ts, taskID)
+	sysBody += taskOperatorAuthorizationPrompt(ts, taskID)
 	system, boundary := deferredSystem(sysBody, def)
 	// Planner has no separate wall-clock budget. Clamp MaxDuration to the task's
 	// remaining time: timeout uses task settlement, MaxTurns uses per-run settlement.

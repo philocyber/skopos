@@ -88,6 +88,7 @@ const intent: Record<string, StatusMeta> = {
 };
 
 const task: Record<string, StatusMeta> = {
+  waiting_approval: { label: "Waiting for permission", tone: "amber" },
   created: {
     get label() {
       return swt("interface.m0826");

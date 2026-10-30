@@ -10,11 +10,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Autumn-27/norma/llm"
 	"github.com/Philocyber/skopos/db"
 	"github.com/Philocyber/skopos/guard"
 	"github.com/Philocyber/skopos/intercept"
 	"github.com/Philocyber/skopos/locale"
-	"github.com/Autumn-27/norma/llm"
 )
 
 // chatGuard returns a guard wired with the manager's interceptor, used for chat
@@ -350,6 +350,7 @@ func (s *Server) interceptDecide(w http.ResponseWriter, r *http.Request) {
 	}
 	var req struct {
 		Decision string `json:"decision"` // "allowed" | "denied"
+		Grant    string `json:"grant"`    // "once" | "input" | "command" | "tool" | "all"
 	}
 	if err := decode(r, &req); err != nil {
 		writeError(w, 400, err)
@@ -359,7 +360,33 @@ func (s *Server) interceptDecide(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, locale.Text(responseLanguage(w), "decision must be allowed or denied"))
 		return
 	}
-	if err := s.m.interceptor.Decide(id, req.Decision == "allowed"); err != nil {
+	if req.Grant == "" {
+		req.Grant = "once"
+	}
+	switch req.Grant {
+	case "once", "command", "input", "tool", "all":
+	default:
+		writeErr(w, 400, locale.Text(responseLanguage(w), "grant must be once, command, input, tool, or all"))
+		return
+	}
+	if req.Grant != "once" && req.Decision != "allowed" {
+		writeErr(w, 400, locale.Text(responseLanguage(w), "a standing grant requires an allow decision"))
+		return
+	}
+	var grant *db.TaskToolGrant
+	if req.Grant != "once" {
+		var err error
+		grant, err = s.buildTaskGrant(id, req.Grant)
+		if err != nil {
+			if errors.Is(err, intercept.ErrAlreadyDecided) {
+				writeError(w, 409, err)
+				return
+			}
+			writeError(w, 400, err)
+			return
+		}
+	}
+	if err := s.m.interceptor.Decide(id, req.Decision == "allowed", grant); err != nil {
 		if errors.Is(err, intercept.ErrAlreadyDecided) {
 			writeError(w, 409, err)
 			return
@@ -462,9 +489,9 @@ func validateInterceptRuleReq(req interceptRuleReq) error {
 		return locale.Errorf("name is required")
 	}
 	switch req.MatchTarget {
-	case "tool_name", "tool_input":
+	case "tool_name", "tool_input", "tool_call":
 	default:
-		return locale.Errorf("match_target must be tool_name or tool_input")
+		return locale.Errorf("match_target must be tool_name, tool_input, or tool_call")
 	}
 	switch req.MatchType {
 	case "string", "regex":
@@ -478,6 +505,14 @@ func validateInterceptRuleReq(req interceptRuleReq) error {
 	case "allow", "deny", "ask":
 	default:
 		return locale.Errorf("action must be allow, deny, or ask")
+	}
+	if req.MatchTarget == "tool_call" {
+		if req.MatchType != "string" {
+			return locale.Errorf("tool-call rules require structured matching")
+		}
+		if err := intercept.ValidateCallPattern(req.Pattern); err != nil {
+			return err
+		}
 	}
 	if req.MatchType == "regex" {
 		if _, err := regexp.Compile(req.Pattern); err != nil {
@@ -552,4 +587,108 @@ func (s *Server) interceptExecution(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, 200, map[string]any{"conversation_id": target.ConversationID, "task_id": target.TaskID, "session": target.Session, "seq": target.Seq, "items": activityDTOs(target.Items)})
+}
+
+func (s *Server) buildTaskGrant(pendingID int64, scope string) (*db.TaskToolGrant, error) {
+	detail, err := s.m.pg.GetInterceptDetail(pendingID)
+	if err != nil {
+		return nil, err
+	}
+	if detail == nil || detail.Status != "pending" {
+		return nil, intercept.ErrAlreadyDecided
+	}
+	if detail.TaskID == nil {
+		return nil, locale.Errorf("standing approvals belong to a task")
+	}
+	taskID, ok := canonicalTaskID(*detail.TaskID)
+	if !ok {
+		return nil, locale.Errorf("standing approvals belong to a task")
+	}
+	toolName, command := "", ""
+	switch scope {
+	case "tool":
+		toolName = detail.ToolName
+		if toolName == "" {
+			return nil, locale.Errorf("this approval has no tool name")
+		}
+	case "input":
+		toolName = detail.ToolName
+		var err error
+		command, err = intercept.CanonicalArguments(detail.ToolInput)
+		if err != nil || toolName == "" {
+			return nil, locale.Errorf("this approval has no valid tool arguments")
+		}
+	case "command":
+		toolName = detail.ToolName
+		command = intercept.CommandText(toolName, detail.ToolInput)
+		if command == "" {
+			return nil, locale.Errorf("this approval has no exact command")
+		}
+	}
+	return &db.TaskToolGrant{TaskID: taskID, Scope: scope, ToolName: toolName, Command: command}, nil
+}
+
+func (s *Server) interceptListTaskGrants(w http.ResponseWriter, r *http.Request) {
+	pg := s.pg(w)
+	if pg == nil {
+		return
+	}
+	taskID, ok := canonicalTaskID(r.PathValue("taskID"))
+	if !ok {
+		writeErr(w, 400, locale.Text(responseLanguage(w), "bad task id"))
+		return
+	}
+	grants, err := pg.ListTaskToolGrants(taskID)
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	if grants == nil {
+		grants = []db.TaskToolGrant{}
+	}
+	writeJSON(w, 200, map[string]any{"grants": grants})
+}
+
+func (s *Server) interceptDeleteTaskGrant(w http.ResponseWriter, r *http.Request) {
+	pg := s.pg(w)
+	if pg == nil {
+		return
+	}
+	taskID, ok := canonicalTaskID(r.PathValue("taskID"))
+	if !ok {
+		writeErr(w, 400, locale.Text(responseLanguage(w), "bad task id"))
+		return
+	}
+	grantID, ok := pathInt(r, "grantID")
+	if !ok {
+		writeErr(w, 400, locale.Text(responseLanguage(w), "bad grant id"))
+		return
+	}
+	deleted, err := pg.DeleteTaskToolGrant(taskID, grantID)
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	if !deleted {
+		writeErr(w, 404, locale.Text(responseLanguage(w), "grant not found"))
+		return
+	}
+	s.m.interceptor.Invalidate()
+	writeJSON(w, 200, map[string]any{"ok": true})
+}
+
+func (s *Server) interceptListGrants(w http.ResponseWriter, r *http.Request) {
+	pg := s.pg(w)
+	if pg == nil {
+		return
+	}
+	grants, err := pg.ListTaskToolGrants("")
+	if err != nil {
+		writeError(w, 500, err)
+		return
+	}
+	if grants == nil {
+		grants = []db.TaskToolGrant{}
+	}
+	writeJSON(w, 200, map[string]any{"grants": grants})
 }

@@ -122,6 +122,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { pollWhileVisible } from "@/hooks/use-polling";
 import { useI18n } from "@/i18n";
 import { getIntlLocale, translate as swt } from "@/i18n/runtime";
+import { activeDurationMs } from "@/lib/active-duration";
 import { api } from "@/lib/api";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 import { type SortDirection, useStoredSortPreference } from "@/lib/sort-preference";
@@ -200,7 +201,7 @@ function taskDuration(task: Task, nowSec: number): number {
       : task.completed_unix && task.completed_unix > 0
         ? task.completed_unix
         : (task.last_activity_unix ?? 0);
-  return end > start ? end - start : 0;
+  return Math.floor(activeDurationMs(start * 1000, end * 1000, task.approval_state?.holds) / 1000);
 }
 
 // deleteDetails takes only the countable part of the result so callers can pass an
@@ -1076,7 +1077,7 @@ export default function TasksPage() {
                       <TableHead className="hidden text-right 2xl:table-cell" title={swt("english.e052")}>
                         {swt("english.e077")}
                       </TableHead>
-                      <TableHead className="sticky right-0 z-10 bg-card text-right shadow-[-1px_0_0_0_hsl(var(--border))]">
+                      <TableHead className="sticky right-0 z-10 bg-[color-mix(in_srgb,var(--muted)_60%,var(--card))] text-right">
                         {swt("interface.m0228")}
                       </TableHead>
                     </TableRow>

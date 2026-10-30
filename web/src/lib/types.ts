@@ -1,7 +1,7 @@
 // Skopos domain model — types used across the UI.
 // Derived from functional specification section 7, key data shapes.
 
-export type TaskStatus = "created" | "queued" | "running" | "paused" | "done" | "failed" | "timeout";
+export type TaskStatus = "created" | "queued" | "running" | "waiting_approval" | "paused" | "done" | "failed" | "timeout";
 export type EngineMode = "exploring" | "paused" | "stalled" | "idle";
 
 export interface Task {
@@ -19,6 +19,10 @@ export interface Task {
   completed_at?: string; // RFC3339 finish time (done/failed); "" if unfinished
   completed_unix?: number; // completed_at as unix seconds (0/undef if unfinished)
   last_activity_unix?: number; // unix seconds of the last activity (0/undef if none)
+  approval_state?: {
+    holds: { id: number; started_at: string; ended_at: string | null; outcome: string }[];
+    pending: { id: number; tool: string; agent: string; reason: string }[];
+  };
   paused?: boolean;
   queued?: boolean;
   active?: boolean;
@@ -423,6 +427,7 @@ export interface TaskNode {
   source_task_id?: string;
   inherited?: boolean;
   delete_reason?: string; // Deletion reason for soft-deleted intents (state='deleted').
+  worker_no?: number; // 1-based worker order inside this task, not the global intent id.
 }
 
 // Broadcast page contains creation-ordered nodes, related edges, and opposite nodes indexed in refs,
@@ -855,6 +860,7 @@ export interface Session {
   live: boolean;
   last_activity: string;
   intent_id?: string;
+  worker_no?: number;
   source_task_id?: string;
   inherited?: boolean;
   seg?: number; // main-agent session: which conversation segment (0 = original)
@@ -1024,7 +1030,28 @@ export interface NotificationDelivery {
 }
 
 // ---- LLM config ----
+export interface ChatGPTAccount {
+  id: string;
+  email: string;
+  connected: boolean;
+}
+export interface ChatGPTModel {
+  cyber_programs?: string[];
+  slug: string;
+  display_name: string;
+}
+export interface ChatGPTLogin {
+  id: string;
+  url?: string;
+  status: "pending" | "exchanging" | "connected" | "failed" | "cancelled" | "expired";
+  error?: string;
+  account?: ChatGPTAccount;
+  expires_at: string;
+}
+
 export interface LLMProfile {
+  cyber_access_program?: string;
+  subscription_id?: string;
   id: string;
   name: string;
   format: "openai" | "anthropic" | "openai-responses";
@@ -1252,7 +1279,7 @@ export interface Stats {
 
 // ---- Intercept Rules ----
 export type InterceptAction = "allow" | "deny" | "ask";
-export type InterceptMatchTarget = "tool_name" | "tool_input";
+export type InterceptMatchTarget = "tool_name" | "tool_input" | "tool_call";
 export type InterceptMatchType = "string" | "regex";
 
 export interface InterceptRule {
@@ -1304,6 +1331,15 @@ export interface AssetInterceptRule {
   builtin: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface TaskToolGrant {
+  id: number;
+  task_id: string;
+  scope: "command" | "input" | "tool" | "all";
+  tool_name: string;
+  command: string;
+  created_at: string;
 }
 
 export interface InterceptPending {
@@ -1484,6 +1520,7 @@ export interface InterceptAudit {
   effective_action?: "allow" | "deny";
   decision_reason?: string;
   rule_name?: string;
+  grant_scope?: "once" | "command" | "input" | "tool" | "all" | "";
   config_digest?: string;
   profile_id?: number;
   execution_status: "not_started" | "not_executed" | "awaiting_result" | "succeeded" | "failed" | "unknown";

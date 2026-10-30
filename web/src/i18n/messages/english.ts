@@ -12,8 +12,6 @@ export const en = {
   e012: "Light",
   e013: "Switch to dark mode",
   e014: "Dark",
-  e015: "Use system theme",
-  e016: "System",
   e017: "Page layout",
   e018: "Use centered layout",
   e019: "Centered",

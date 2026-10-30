@@ -6,14 +6,14 @@ import (
 	"github.com/Philocyber/skopos/locale"
 	"strconv"
 
-	"github.com/Philocyber/skopos/db"
-	"github.com/Philocyber/skopos/guard"
-	"github.com/Philocyber/skopos/intercept"
 	"github.com/Autumn-27/norma/agentcore"
 	"github.com/Autumn-27/norma/llm"
 	"github.com/Autumn-27/norma/permission"
 	actool "github.com/Autumn-27/norma/tool"
 	"github.com/Autumn-27/norma/transcript"
+	"github.com/Philocyber/skopos/db"
+	"github.com/Philocyber/skopos/guard"
+	"github.com/Philocyber/skopos/intercept"
 )
 
 // MainAgent is the thin human-interface orchestrator (docs §4.2 / §7). The human
@@ -134,7 +134,7 @@ func (m *MainAgent) Chat(ctx context.Context, taskID int64, mainSeg int, as *db.
 	// Create this task's working directory: <workDir>/tasks/<taskID>.
 	mainDir := ensureRunDir(m.workDir, taskID, 0)
 	ctx = intercept.WithReviewWorkingDirectory(ctx, mainDir)
-	system, boundary := deferredSystem(mainAgentSystem(goal, m.workDir, mainDir, locale.FromContext(ctx)), def)
+	system, boundary := deferredSystem(mainAgentSystem(goal, m.workDir, mainDir, locale.FromContext(ctx))+taskOperatorAuthorizationPrompt(ts, taskID), def)
 	opts := agentcore.Options{
 		Provider:        m.prov,
 		SystemPrompt:    append(system, outputLanguageInstruction(locale.FromContext(ctx))),

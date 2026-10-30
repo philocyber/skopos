@@ -1,4 +1,6 @@
 "use client";
+import { useEffect, useState } from "react";
+
 import { Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,7 @@ import { applyContentLayout, applySidebarCollapsible, applySidebarVariant } from
 import { PREFERENCE_DEFAULTS } from "@/lib/preferences/preferences-config";
 import { persistPreference } from "@/lib/preferences/preferences-storage";
 import type { ThemeMode } from "@/lib/preferences/theme";
+import { systemThemeMode } from "@/lib/preferences/theme-utils";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 export function LayoutControls() {
@@ -20,12 +23,21 @@ export function LayoutControls() {
 
   const themeMode = usePreferencesStore((s) => s.themeMode);
   const setThemeMode = usePreferencesStore((s) => s.setThemeMode);
+  const [themeOrder, setThemeOrder] = useState<ThemeMode[]>(["light", "dark"]);
   const contentLayout = usePreferencesStore((s) => s.contentLayout);
   const setContentLayout = usePreferencesStore((s) => s.setContentLayout);
   const variant = usePreferencesStore((s) => s.sidebarVariant);
   const setSidebarVariant = usePreferencesStore((s) => s.setSidebarVariant);
   const collapsible = usePreferencesStore((s) => s.sidebarCollapsible);
   const setSidebarCollapsible = usePreferencesStore((s) => s.setSidebarCollapsible);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => setThemeOrder(media.matches ? ["dark", "light"] : ["light", "dark"]);
+    apply();
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, []);
 
   const onThemeModeChange = (mode: ThemeMode | "") => {
     if (!mode) return;
@@ -55,7 +67,7 @@ export function LayoutControls() {
   };
 
   const handleRestore = () => {
-    onThemeModeChange(PREFERENCE_DEFAULTS.theme_mode);
+    onThemeModeChange(systemThemeMode());
     onContentLayoutChange(PREFERENCE_DEFAULTS.content_layout);
     onSidebarStyleChange(PREFERENCE_DEFAULTS.sidebar_variant);
     onSidebarCollapseModeChange(PREFERENCE_DEFAULTS.sidebar_collapsible);
@@ -85,15 +97,15 @@ export function LayoutControls() {
                 value={themeMode}
                 onValueChange={onThemeModeChange}
               >
-                <ToggleGroupItem value="light" aria-label={swt("english.e011")}>
-                  {swt("english.e012")}
-                </ToggleGroupItem>
-                <ToggleGroupItem value="dark" aria-label={swt("english.e013")}>
-                  {swt("english.e014")}
-                </ToggleGroupItem>
-                <ToggleGroupItem value="system" aria-label={swt("english.e015")}>
-                  {swt("english.e016")}
-                </ToggleGroupItem>
+                {themeOrder.map((mode) => (
+                  <ToggleGroupItem
+                    key={mode}
+                    value={mode}
+                    aria-label={swt(mode === "light" ? "english.e011" : "english.e013")}
+                  >
+                    {swt(mode === "light" ? "english.e012" : "english.e014")}
+                  </ToggleGroupItem>
+                ))}
               </ToggleGroup>
             </div>
 

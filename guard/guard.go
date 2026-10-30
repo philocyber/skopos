@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Philocyber/skopos/intercept"
 	"github.com/Autumn-27/norma/hook"
+	"github.com/Philocyber/skopos/intercept"
 )
 
 // AuditEntry records one gated tool call.
@@ -56,6 +56,19 @@ func newGuard(ic *intercept.Interceptor) *Guard {
 func (g *Guard) Hooks() *hook.Registry { return g.reg }
 
 func (g *Guard) preToolUse(ctx context.Context, ev hook.Event) hook.Result {
+	if ctx.Err() != nil {
+		return g.block(ev.ToolName, "Work was stopped before tool execution", "")
+	}
+	if g.interceptor != nil {
+		held, err := g.interceptor.TaskHeld(ctx)
+		if err != nil {
+			return g.block(ev.ToolName, systemBlockMessage(locale.Text(locale.FromContext(ctx), "Could not verify whether the task is paused for tool permission")), "")
+		}
+		if held {
+			return g.block(ev.ToolName, intercept.ApprovalDeferredMessage(locale.FromContext(ctx)), "")
+		}
+	}
+
 	// Extract the shell-command surface for the audit log: Bash + the interactive-shell
 	// tools (shell_open's command, shell_send's text). Destructive/exfil gating is no
 	// longer hard-coded here — it now lives in the DB intercept rules, evaluated by
@@ -97,6 +110,45 @@ func (g *Guard) applyIntercept(ctx context.Context, ev hook.Event) hook.Result {
 	}
 	ctx = intercept.WithCall(ctx, ev.ToolName, ev.Input)
 	dec, matched := g.interceptor.MatchNames(names, ev.Input, locale.FromContext(ctx))
+	if !matched || dec.Action != "deny" {
+		if allowed, err := g.interceptor.ReplayApproved(ctx, ev.ToolName, ev.Input, dec); err != nil {
+			return g.block(ev.ToolName, "Could not verify the saved tool permission", "")
+		} else if allowed {
+			return hook.Result{}
+		}
+	}
+	// A concrete user request is already the authorization for its task. Route
+	// generic shell uncertainty through the normal effect reviewer instead of
+	// asking the same permission for every command. Explicit ask/deny rules win.
+	if matched && dec.Action == "ask" && dec.RuleID == 0 && !dec.ModelFallback {
+		authorization, err := g.interceptor.TaskOperatorAuthorization(ctx)
+		if err != nil {
+			return g.block(ev.ToolName, "Could not load the task's user authorization", "")
+		}
+		if authorization.Approved() {
+			if verdict, reviewed := g.interceptor.Judge(ctx, ev.ToolName, ev.Input); reviewed {
+				dec = verdict
+			} else {
+				dec = intercept.Decision{Action: "allow", RuleName: "Prior user authorization", Message: "Authorized by the user's task request and scope"}
+			}
+		}
+	}
+	// A task grant covers the synthetic "ask for every shell" prompt and tools
+	// with no matching rule and legacy whole-tool prompts. Explicit denials and
+	// input-specific or structured human-approval rules still win.
+	if !matched || (dec.Action == "ask" && (dec.RuleID == 0 || dec.RememberAllowed)) {
+		if standing, ok := g.interceptor.MatchingTaskGrant(ctx, names, ev.Input); ok {
+			name, message := intercept.GrantRecord(locale.FromContext(ctx), standing)
+			grant := intercept.Decision{
+				Action:     "allow",
+				RuleName:   name,
+				GrantScope: standing.Scope,
+				Message:    message,
+			}
+			g.interceptor.Log(ctx, intercept.ConvIDFromContext(ctx), grant, ev.ToolName, ev.Input, "allowed")
+			return hook.Result{}
+		}
+	}
 	if !matched {
 		// No rule matched. Ask the LLM fallback judge (if enabled); when it is off
 		// or unwired, keep current behavior and allow.
@@ -125,7 +177,11 @@ func (g *Guard) applyIntercept(ctx context.Context, ev hook.Event) hook.Result {
 		}
 		convID := intercept.ConvIDFromContext(ctx)
 		if !g.interceptor.HandleAsk(ctx, convID, dec, ev.ToolName, ev.Input) {
-			return g.block(ev.ToolName, systemBlockMessage(locale.Text(locale.FromContext(ctx), "Human approval was not granted (denied or timed out)")), "")
+			held, err := g.interceptor.TaskHeld(ctx)
+			if err == nil && held {
+				return g.block(ev.ToolName, intercept.ApprovalDeferredMessage(locale.FromContext(ctx)), "")
+			}
+			return g.block(ev.ToolName, systemBlockMessage(locale.Text(locale.FromContext(ctx), "Tool execution is waiting for human permission or was denied. If the task is paused, resolve its pending requests and click Resume. Do not retry or bypass this control")), "")
 		}
 		return hook.Result{}
 	}

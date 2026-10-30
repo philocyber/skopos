@@ -33,7 +33,7 @@ const KIND_OPTIONS: { value: AssetInterceptKind; label: string; group: string; p
     get group() {
       return swt("interface.m1152");
     },
-    placeholder: "example.gov.cn",
+    placeholder: "example.gov",
   },
   {
     value: "exact_ip",
@@ -53,7 +53,7 @@ const KIND_OPTIONS: { value: AssetInterceptKind; label: string; group: string; p
     get group() {
       return swt("interface.m1152");
     },
-    placeholder: "https://example.gov.cn/login",
+    placeholder: "https://example.gov/login",
   },
   {
     value: "fuzzy_domain",
@@ -63,7 +63,7 @@ const KIND_OPTIONS: { value: AssetInterceptKind; label: string; group: string; p
     get group() {
       return swt("interface.m1156");
     },
-    placeholder: ".gov.cn",
+    placeholder: ".gov",
   },
   {
     value: "fuzzy_ip",

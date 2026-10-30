@@ -135,7 +135,9 @@ JSON
   if command -v npm >/dev/null 2>&1; then
     info "$(msg 'Building the frontend static output…' '프런트엔드 정적 산출물을 빌드합니다…')"
     ( cd web && npm ci && npm run build:static )
-    rm -rf server/webui/dist && cp -r web/out server/webui/dist
+    rm -rf server/webui/dist
+    mkdir -p server/webui/dist
+    cp -R web/out/. server/webui/dist/
     info "$(msg 'Compiling the single binary with the frontend embedded…' '프런트엔드가 내장된 단일 바이너리를 컴파일합니다…')"
     CGO_ENABLED=0 go build -tags embedui -trimpath -o skopos ./cmd/skopos
   else

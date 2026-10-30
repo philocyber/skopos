@@ -1,4 +1,28 @@
 export const en = {
+  subscriptionModelPlaceholder: "Choose a model after sign-in",
+  subscriptionModelsLoading: "Loading models for this ChatGPT account…",
+  subscriptionModelsHelp:
+    "Models come from the native Codex catalog. A successful connection test confirms workspace access.",
+  subscriptionDaybreakHelp:
+    "Uses the selected model’s advertised Codex access program. Unavailable models are disabled while Daybreak is on. OpenAI verifies workspace approval on each request.",
+  authMethod: "Connection type",
+  apiKeyMethod: "API key",
+  subscriptionMethod: "Codex / ChatGPT subscription",
+  connectCodex: "Connect Codex",
+  continueChatGPT: "Continue with ChatGPT",
+  subscriptionAccount: "ChatGPT account",
+  subscriptionNewAccount: "Add a ChatGPT account",
+  subscriptionHelp:
+    "Use your ChatGPT account through the local Codex runtime, including Enterprise workspaces with Codex access enabled. Complete browser sign-in, select a model, and save. The Codex CLI must be installed on the backend host. Open Skopos on that same computer for browser sign-in.",
+  subscriptionWaiting: "Waiting for browser sign-in…",
+  subscriptionCancel: "Cancel",
+  subscriptionOpenBrowser: "Reopen sign-in",
+  subscriptionUsage: "Manage ChatGPT usage and app access",
+  subscriptionConnected: "ChatGPT subscription connected. Choose a model and save the profile.",
+  subscriptionDisconnected: "Disconnected",
+  subscriptionSignInFirst: "Connect a ChatGPT account before saving this profile.",
+  popupBlocked: "Your browser blocked the sign-in window. Allow popups for Skopos and try again.",
+  loginCancelled: "ChatGPT sign-in was cancelled or expired.",
   template: "Configuration template (new profile only)",
   chooseTemplate: "Choose a template…",
   general: "Z.ai GLM-5.3 · General API (recommended)",
@@ -36,8 +60,7 @@ export const en = {
   vendorVercel: "Vercel AI Gateway (one key, many models)",
   vendorBedrock: "Amazon Bedrock (one key, many models)",
   region: "AWS Region",
-  regionHelp:
-    "Must match the Region the Bedrock API key was created in. Other Regions: edit the Base URL below.",
+  regionHelp: "Must match the Region the Bedrock API key was created in. Other Regions: edit the Base URL below.",
   getKey: "Get a {p0} API key",
   keyBedrock: "Bedrock API key",
   keyVercel: "AI Gateway API key",
@@ -58,7 +81,8 @@ export const en = {
     "The Base URL still has a region placeholder. Replace it with your AWS Region, for example us-east-1, matching the Region your Bedrock API key was created in.",
   warnVercelAnthropicPath:
     "For Vercel AI Gateway with the Anthropic format, the Base URL must be https://ai-gateway.vercel.sh with no path (a trailing /v1 would become /v1/v1/messages).",
-  warnVercelOpenAIPath: "For Vercel AI Gateway with an OpenAI format, the Base URL must be https://ai-gateway.vercel.sh/v1.",
+  warnVercelOpenAIPath:
+    "For Vercel AI Gateway with an OpenAI format, the Base URL must be https://ai-gateway.vercel.sh/v1.",
   warnVercelModel:
     "Vercel AI Gateway model IDs use provider/model, for example anthropic/claude-sonnet-5. Use Load models for the exact IDs.",
   warnBedrockAnthropicPath:

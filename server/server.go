@@ -29,6 +29,7 @@ import (
 	"github.com/Philocyber/skopos/llmrec"
 	"github.com/Philocyber/skopos/locale"
 	"github.com/Philocyber/skopos/report"
+	"github.com/Philocyber/skopos/subscription"
 	"github.com/Philocyber/skopos/traffic"
 )
 
@@ -40,9 +41,10 @@ var BuildVersion = "dev"
 // Server exposes the ARTEX backend over a JSON HTTP API for the shadcn/ui
 // frontend.
 type Server struct {
-	m      *Manager
-	engine *Engine
-	ctx    context.Context
+	subscriptions *subscription.Manager
+	m             *Manager
+	engine        *Engine
+	ctx           context.Context
 
 	skillDir string // root directory for skill subdirectories
 	dataDir  string // data directory for SQLite stores; also roots recontools' managed bin dir
@@ -149,7 +151,7 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 	if err != nil {
 		log.Fatalf("[auth] JWT key: %v", err)
 	}
-	s := &Server{m: m, engine: NewEngine(m), ctx: ctx, skillDir: skillDir, dataDir: dataDir, jwtKey: key, chatBusy: map[string]bool{},
+	s := &Server{subscriptions: subscription.New(keyDir), m: m, engine: NewEngine(m), ctx: ctx, skillDir: skillDir, dataDir: dataDir, jwtKey: key, chatBusy: map[string]bool{},
 		chatCancel: map[string]context.CancelCauseFunc{}, triggerQ: map[string][]triggeredRun{},
 		triggerActive: map[string]int{}, triggerCfg: map[string]triggerBehavior{},
 		profChatAgents: map[int64]*agent.ChatAgent{},
@@ -256,7 +258,13 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 	} else {
 		log.Printf("[engine] no LLM provider configured — engine idle until set via /api/llm or env")
 	}
+	if m.pg != nil && m.interceptor != nil {
+		m.interceptor.SetTaskApprovalHandler(s.holdTaskForApproval)
+	}
 	s.restoreTaskRuntimes()
+	if m.pg != nil {
+		go s.runApprovalTimeouts(s.ctx)
+	}
 	go s.reconcileConcurrency()
 	s.startTaskArchiveWorker()
 	s.wireInterceptReviewer() // LLM fallback approval judges commands that match no interception rule.
@@ -270,6 +278,15 @@ func (s *Server) restoreTaskRuntimes() {
 	// reload tasks persisted on disk so the task list survives a restart, and
 	// restore persisted paused state (so a task paused before restart stays paused).
 	for _, t := range m.LoadExisting() {
+		// Recover approvals left by an older process before any worker can run.
+		taskNum, _ := strconv.ParseInt(t.ID, 10, 64)
+		if state, err := m.pg.TaskApprovalState(taskNum); err == nil {
+			for _, request := range state.Pending {
+				if _, err := s.holdTaskForApproval(t.ID, request.ID, nil, "deny"); err != nil {
+					log.Printf("[approval] recover task %s: %v", t.ID, err)
+				}
+			}
+		}
 		lifecycle := t.lifecycleSnapshot()
 		// clear stale 'running' intents from a prior crash/restart (no live worker
 		// owns them) so they re-claim instead of spinning forever in the UI.
@@ -334,11 +351,15 @@ func (s *Server) loadLLMConfig() (agent.Config, bool) {
 	cfg.ContextWindowK = p.ContextWindowK
 	cfg.ThinkingType = p.ThinkingType
 	cfg.ReasoningEffort = p.ReasoningEffort
+	cfg.CyberAccessProgram = p.CyberAccessProgram
 	cfg.Stream = p.Streaming
 	cfg.MaxTokens, cfg.MaxTokensField = p.MaxTokens, p.MaxTokensField
 	cfg.SessionHeaderKey = p.SessionHeaderKey
 	s.applyProfileRetry(&cfg, p)
-	if cfg.APIKey == "" {
+	if err := s.configureSubscription(&cfg, p.SubscriptionID); err != nil {
+		return cfg, false
+	}
+	if cfg.APIKey == "" && cfg.SubscriptionNative == nil {
 		return cfg, false
 	}
 	s.cfgMu.Lock()
@@ -376,7 +397,7 @@ func (s *Server) saveLLMConfig(cfg agent.Config) error {
 	}
 	newID, err := s.m.pg.SaveProfile(&db.LLMProfile{
 		ID: id, Name: "default", Format: format, Model: cfg.Model, BaseURL: cfg.BaseURL, Proxy: cfg.Proxy,
-		APIKey: cfg.APIKey, RatePerSecond: cfg.RatePerSecond, RatePerMinute: cfg.RatePerMinute,
+		APIKey: cfg.APIKey, SubscriptionID: cfg.SubscriptionID, CyberAccessProgram: cfg.CyberAccessProgram, RatePerSecond: cfg.RatePerSecond, RatePerMinute: cfg.RatePerMinute,
 		ContextWindowK: cfg.ContextWindowK, ThinkingType: cfg.ThinkingType, ReasoningEffort: cfg.ReasoningEffort, IsDefault: true,
 		Priority: priority, PoolExclude: poolExclude, Streaming: streaming,
 		MaxTokens: maxTokens, MaxTokensField: maxTokensField, SessionHeaderKey: sessionHeaderKey,
@@ -505,11 +526,15 @@ func (s *Server) loadProfileConfig(id int64) (agent.Config, bool) {
 	cfg.ContextWindowK = p.ContextWindowK
 	cfg.ThinkingType = p.ThinkingType
 	cfg.ReasoningEffort = p.ReasoningEffort
+	cfg.CyberAccessProgram = p.CyberAccessProgram
 	cfg.Stream = p.Streaming
 	cfg.MaxTokens, cfg.MaxTokensField = p.MaxTokens, p.MaxTokensField
 	cfg.SessionHeaderKey = p.SessionHeaderKey
 	s.applyProfileRetry(&cfg, p)
-	if cfg.APIKey == "" {
+	if err := s.configureSubscription(&cfg, p.SubscriptionID); err != nil {
+		return cfg, false
+	}
+	if cfg.APIKey == "" && cfg.SubscriptionNative == nil {
 		return cfg, false
 	}
 	return cfg, true
@@ -906,6 +931,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/visibility/skill/{name}", s.pgSkillVisibility)
 	mux.HandleFunc("POST /api/visibility/skill/toggle", s.pgToggleSkillVisibility)
 	// Multiple LLM profiles.
+	s.registerSubscriptionRoutes(mux)
 	mux.HandleFunc("GET /api/llm/profiles", s.pgListProfiles)
 	mux.HandleFunc("POST /api/llm/profiles", s.pgSaveProfile)
 	mux.HandleFunc("DELETE /api/llm/profiles/{id}", s.pgDeleteProfile)
@@ -937,6 +963,9 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/intercept/history/{id}", s.interceptDetail)
 	mux.HandleFunc("GET /api/intercept/history/{id}/execution", s.interceptExecution)
 	mux.HandleFunc("GET /api/intercept/task/{taskID}", s.interceptListTaskItems)
+	mux.HandleFunc("GET /api/intercept/task/{taskID}/grants", s.interceptListTaskGrants)
+	mux.HandleFunc("GET /api/intercept/grants", s.interceptListGrants)
+	mux.HandleFunc("DELETE /api/intercept/task/{taskID}/grants/{grantID}", s.interceptDeleteTaskGrant)
 	mux.HandleFunc("GET /api/intercept/tool-config", s.interceptGetToolConfig)
 	mux.HandleFunc("PUT /api/intercept/tool-config", s.interceptSetToolConfig)
 	mux.HandleFunc("GET /api/intercept/judge", s.interceptGetJudgeConfig)
@@ -1304,7 +1333,7 @@ func (s *Server) getLLM(w http.ResponseWriter, r *http.Request) {
 		"model":            s.llmCfg.Model,
 		"base_url":         s.llmCfg.BaseURL,
 		"proxy":            s.llmCfg.Proxy,
-		"key_set":          s.llmCfg.APIKey != "",
+		"key_set":          s.llmCfg.APIKey != "" || s.llmCfg.SubscriptionNative != nil,
 		"rate_per_second":  s.llmCfg.RatePerSecond,
 		"rate_per_minute":  s.llmCfg.RatePerMinute,
 		"context_window_k": s.llmCfg.ContextWindowK,
@@ -1375,16 +1404,18 @@ func (s *Server) setLLM(w http.ResponseWriter, r *http.Request) {
 // testLLM makes a real minimal completion to verify the config works.
 func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Provider         string `json:"provider"`
-		Model            string `json:"model"`
-		BaseURL          string `json:"base_url"`
-		Proxy            string `json:"proxy"`
-		APIKey           string `json:"api_key"`
-		ThinkingType     string `json:"thinking_type"`
-		ReasoningEffort  string `json:"reasoning_effort"`
-		ProfileID        *int64 `json:"profile_id"`         // Existing profile under test; an empty api_key uses its stored key.
-		Streaming        *bool  `json:"streaming"`          // Omitted means streaming, matching profile-save defaults.
-		SessionHeaderKey string `json:"session_header_key"` // Optional custom session header, also sent during testing with a fresh random session ID.
+		CyberAccessProgram string `json:"cyber_access_program"`
+		SubscriptionID     string `json:"subscription_id"`
+		Provider           string `json:"provider"`
+		Model              string `json:"model"`
+		BaseURL            string `json:"base_url"`
+		Proxy              string `json:"proxy"`
+		APIKey             string `json:"api_key"`
+		ThinkingType       string `json:"thinking_type"`
+		ReasoningEffort    string `json:"reasoning_effort"`
+		ProfileID          *int64 `json:"profile_id"`         // Existing profile under test; an empty api_key uses its stored key.
+		Streaming          *bool  `json:"streaming"`          // Omitted means streaming, matching profile-save defaults.
+		SessionHeaderKey   string `json:"session_header_key"` // Optional custom session header, also sent during testing with a fresh random session ID.
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, 400, err)
@@ -1395,6 +1426,7 @@ func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 	// reasoning_effort/thinking field fails the test too (no false "test ok, run 400").
 	cfg.ThinkingType = req.ThinkingType
 	cfg.ReasoningEffort = req.ReasoningEffort
+	cfg.CyberAccessProgram = req.CyberAccessProgram
 	// Test the profile's chosen transport mode so endpoints supporting only one mode fail here,
 	// rather than passing the test but failing in an actual conversation.
 	if req.Streaming != nil {
@@ -1417,12 +1449,21 @@ func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	if cfg.APIKey == "" {
+	if req.SubscriptionID == "" && req.ProfileID != nil && req.APIKey == "" {
+		if p, err := s.m.pg.ProfileByID(*req.ProfileID); err == nil && p != nil {
+			req.SubscriptionID = p.SubscriptionID
+		}
+	}
+	if err := s.configureSubscription(&cfg, req.SubscriptionID); err != nil {
+		writeJSON(w, 200, map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+	if cfg.APIKey == "" && cfg.SubscriptionNative == nil {
 		s.cfgMu.Lock()
 		cfg.APIKey = s.llmCfg.APIKey
 		s.cfgMu.Unlock()
 	}
-	if cfg.APIKey == "" {
+	if cfg.APIKey == "" && cfg.SubscriptionNative == nil {
 		writeJSON(w, 200, map[string]any{"ok": false, "error": locale.Text(responseLanguage(w), "API key was not provided")})
 		return
 	}
@@ -1526,8 +1567,9 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	t, err := s.m.CreateTaskWithOptions(req.Description, req.Goal, db.TaskCreateOptions{
-		Language: locale.FromRequest(r),
-		Name:     strings.TrimSpace(req.Name), CategoryID: req.CategoryID,
+		OperatorRequest: req.Description + "\n" + req.Goal,
+		Language:        locale.FromRequest(r),
+		Name:            strings.TrimSpace(req.Name), CategoryID: req.CategoryID,
 		SourceTaskIDs: sourceIDs, CompanyIDs: req.CompanyIDs, LLMProfileIDs: req.LLMProfileIDs,
 		TimeoutSeconds: req.TimeoutSeconds, PlanHeartbeatSeconds: req.PlanHeartbeatSeconds,
 		CoverageEnabled: req.CoverageEnabled,
@@ -2403,6 +2445,10 @@ func (s *Server) intents(w http.ResponseWriter, r *http.Request) {
 			writeError(w, 500, err)
 			return
 		}
+		if err := t.Store.FillIntentOrdinals(in); err != nil {
+			writeError(w, 500, err)
+			return
+		}
 		writeJSON(w, 200, taskNodeDTOs(in))
 		return
 	}
@@ -2417,6 +2463,10 @@ func (s *Server) intents(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 500, err)
 		return
 	}
+	if err := t.Store.FillIntentOrdinals(in); err != nil {
+		writeError(w, 500, err)
+		return
+	}
 	sources, err := t.Store.DirectSourceStores()
 	if err != nil {
 		writeError(w, 500, err)
@@ -2426,6 +2476,10 @@ func (s *Server) intents(w http.ResponseWriter, r *http.Request) {
 		items, sourceMore, sourceErr := taskIntentHistoryPage(source.Store, before, limit, true, source.Task.TaskID)
 		if sourceErr != nil {
 			writeError(w, 500, sourceErr)
+			return
+		}
+		if err := source.Store.FillIntentOrdinals(items); err != nil {
+			writeError(w, 500, err)
 			return
 		}
 		in = append(in, items...)
@@ -3707,6 +3761,10 @@ func (s *Server) chat(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 409, locale.Text(responseLanguage(w), "Task is being deleted; new messages cannot be sent"))
 		return
 	}
+	if s.taskApprovalHeld(t.ID) {
+		writeErr(w, 409, "Task is waiting for tool permission. Resolve its pending requests and click Resume before sending more work")
+		return
+	}
 	// Pausing a task does not prohibit main-agent conversations. They are independent of planner/worker pause;
 	// pause cancels only the currently active main-agent round (see control), and later conversation may continue.
 	var req struct {
@@ -3737,7 +3795,20 @@ func (s *Server) chat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ctx, cancel := context.WithCancelCause(backgroundLanguage(s.ctx, r.Context()))
+	if s.taskApprovalHeld(t.ID) {
+		s.chatMu.Unlock()
+		cancel(abortWaitingForApproval)
+		writeErr(w, 409, "Task is waiting for tool permission; resolve the requests and click Resume")
+		return
+	}
 	ctx = intercept.WithReviewContext(ctx, "", intercept.ReviewBackground{Source: intercept.BackgroundUserMessage, Text: req.Message})
+	taskID, _ := strconv.ParseInt(t.ID, 10, 64)
+	if err := s.m.pg.RecordTaskOperatorInstruction(taskID, "user_message", req.Message); err != nil {
+		s.chatMu.Unlock()
+		cancel(err)
+		writeError(w, 500, err)
+		return
+	}
 	s.chatBusy[t.ID] = true
 	s.chatCancel[t.ID] = cancel
 	s.chatMu.Unlock()

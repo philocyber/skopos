@@ -6,7 +6,7 @@ import { type StoreApi, useStore } from "zustand";
 import { useI18n } from "@/i18n";
 import { CONTENT_LAYOUT_VALUES, SIDEBAR_COLLAPSIBLE_VALUES, SIDEBAR_VARIANT_VALUES } from "@/lib/preferences/layout";
 import { THEME_MODE_VALUES } from "@/lib/preferences/theme";
-import { applyThemeMode, subscribeToSystemTheme } from "@/lib/preferences/theme-utils";
+import { applyThemeMode } from "@/lib/preferences/theme-utils";
 
 import { createPreferencesStore, type PreferencesState } from "./preferences-store";
 
@@ -65,19 +65,9 @@ export const PreferencesStoreProvider = ({
   }, [store]);
 
   useEffect(() => {
-    let unsubscribeMedia: (() => void) | undefined;
-
     const applyFromMode = (mode: PreferencesState["themeMode"]) => {
-      unsubscribeMedia?.();
       const resolved = applyThemeMode(mode);
       store.setState((prev) => ({ ...prev, resolvedThemeMode: resolved }));
-
-      if (mode === "system") {
-        unsubscribeMedia = subscribeToSystemTheme(() => {
-          const next = applyThemeMode("system");
-          store.setState((prev) => ({ ...prev, resolvedThemeMode: next }));
-        });
-      }
     };
 
     const startMode = domSnapshotRef.current?.themeMode ?? store.getState().themeMode;
@@ -88,7 +78,6 @@ export const PreferencesStoreProvider = ({
     });
 
     return () => {
-      unsubscribeMedia?.();
       unsubscribeStore();
     };
   }, [store]);

@@ -148,7 +148,7 @@ func (e *Engine) startDeadlineCoordinator(ctx context.Context, t *Task) {
 }
 
 // deadlineCoordinator waits until the task's absolute deadline, then runs the settle
-// sequence. Absolute wall-clock: it keeps counting through pauses.
+// sequence. Ordinary pauses count; recorded human permission holds freeze it.
 func (e *Engine) deadlineCoordinator(ctx context.Context, t *Task) {
 	for {
 		select {
@@ -158,6 +158,14 @@ func (e *Engine) deadlineCoordinator(ctx context.Context, t *Task) {
 		}
 		if isTerminalStatus(e.m.TaskStatus(t.ID)) {
 			return // already finished (goals met / failed) — nothing to time out
+		}
+		// Human approval holds freeze the task budget, including after restart.
+		// Treat a database failure as held rather than spending an unknown budget.
+		if held, err := e.m.pg.TaskApprovalHeld(t.ID); err != nil || held {
+			if sleepCtx(ctx, deadlinePollInterval) {
+				return
+			}
+			continue
 		}
 		dl := e.taskDeadline(t)
 		if dl <= 0 {
@@ -177,12 +185,23 @@ func (e *Engine) deadlineCoordinator(ctx context.Context, t *Task) {
 			continue
 		}
 		e.settleTask(ctx, t)
+		if held, err := e.m.pg.TaskApprovalHeld(t.ID); err != nil || held {
+			continue
+		}
 		return
 	}
 }
 
 // settleTask runs the ordered settle sequence once (§4 steps ①–⑥).
 func (e *Engine) settleTask(ctx context.Context, t *Task) {
+	if held, err := e.m.pg.TaskApprovalHeld(t.ID); err != nil || held {
+		return
+	}
+	defer func() {
+		if held, err := e.m.pg.TaskApprovalHeld(t.ID); err != nil || held {
+			e.settling.Delete(t.ID)
+		}
+	}()
 	if !e.markSettling(t.ID) {
 		return
 	}
@@ -204,7 +223,13 @@ func (e *Engine) settleTask(ctx context.Context, t *Task) {
 	}
 
 	// 5. Final planner round: task-timeout prompt, final goal assessment, no new intents.
+	if held, err := e.m.pg.TaskApprovalHeld(t.ID); err != nil || held {
+		return
+	}
 	met := e.runFinalPlannerRound(ctx, t)
+	if held, err := e.m.pg.TaskApprovalHeld(t.ID); err != nil || held {
+		return
+	}
 	if !e.beginTaskOperation(t.ID) {
 		return
 	}
@@ -248,7 +273,13 @@ func (e *Engine) runFinalPlannerRound(ctx context.Context, t *Task) (met bool) {
 		planner, _ = e.snapshotFor(t)
 	}
 	// Independent context avoids pause/hard-cancel interruption; Final injects the task-timeout prompt.
-	fctx := e.clockCtx(ctx, t, true)
+	fbase, cancel := context.WithCancelCause(ctx)
+	e.approvalFinalCancel.Store(t.ID, cancel)
+	defer func() { cancel(nil); e.approvalFinalCancel.Delete(t.ID) }()
+	if held, err := e.m.pg.TaskApprovalHeld(t.ID); err != nil || held {
+		return false
+	}
+	fctx := e.clockCtx(fbase, t, true)
 	if !e.beginTaskOperation(t.ID) {
 		return false
 	}

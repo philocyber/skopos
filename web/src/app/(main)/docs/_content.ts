@@ -3,6 +3,7 @@
 import {
   BookOpen,
   Brain,
+  Cloud,
   Compass,
   Cpu,
   LifeBuoy,
@@ -13,8 +14,12 @@ import {
   Wrench,
 } from "lucide-react";
 
+// Generated from the README RunPod section: node web/scripts/sync-runpod-docs.mjs
+import runpodGuide from "./_runpod.json";
+
 export type DocBlock =
   | { type: "p"; text: string }
+  | { type: "markdown"; text: string }
   | { type: "list"; items: string[] }
   | { type: "steps"; items: { title: string; body: string; href?: string }[] }
   | { type: "table"; head: string[]; rows: string[][] }
@@ -154,7 +159,7 @@ export const DOC_SECTIONS: DocSection[] = [
           [
             "Sufficient output budget",
             "Too small an output limit can cut reasoning off before an answer is produced.",
-            "Leave Output limit at 0 (provider default) unless you have a reason; use max_completion_tokens for OpenAI reasoning models.",
+            "Use the provider default only when supported. For RunPod/vLLM, set Output limit to 8192 explicitly; see RunPod setup. Use max_completion_tokens for OpenAI reasoning models.",
           ],
           [
             "Predictable cost and rate limits",
@@ -313,6 +318,13 @@ export const DOC_SECTIONS: DocSection[] = [
         text: "Enable profile rotation if a single provider is a risk. The active profile is tried first, then others by priority. A failed profile cools down (60 s, then 5 min, then 30 min) and rejoins automatically. Agents and tasks bound to a specific profile do not rotate unless you enable fallback for them.",
       },
     ],
+  },
+  {
+    id: "runpod",
+    title: "RunPod setup",
+    icon: Cloud,
+    summary: "One GPU, one persistent volume, one vLLM endpoint. Configure, verify and connect Skopos step by step.",
+    blocks: [{ type: "markdown", text: runpodGuide }],
   },
   {
     id: "features",

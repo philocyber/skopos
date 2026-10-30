@@ -234,7 +234,7 @@ const approvalRowColumns = `ip.id, ip.rule_id, ip.conversation_id, ip.task_id, i
        ip.tool_name, ip.tool_input, ip.status, ip.reason, ip.decided_at, ip.created_at, ` + approvalDecisionSource + `,
        COALESCE(c.title,'') AS conv_title,
        COALESCE(c.agent_key,'') AS conv_agent_key,
-       COALESCE(ir.name,'') AS rule_name`
+       COALESCE(NULLIF(ir.name,''), NULLIF(ip.audit->>'rule_name',''), '') AS rule_name`
 
 const approvalRowJoins = `
 FROM intercept_pending ip

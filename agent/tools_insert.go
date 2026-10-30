@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Philocyber/skopos/db"
 	actool "github.com/Autumn-27/norma/tool"
+	"github.com/Philocyber/skopos/db"
 )
 
 // assetInterceptCandidates extracts domain/IP/URL candidates from an asset insertion.
@@ -433,12 +433,12 @@ func (t *ToolSet) addCompanyScope() actool.CoreTool {
 }
 
 // addTaskScope lets the plan agent add test scope to THE CURRENT TASK — the coverage
-// denominator. These rows are proposals, not permission to read shared assets.
+// denominator. New agent-only rows are proposals. Targets supplied by the user are already approved.
 // Only an operator can approve a grant through the task's scope/assets controls.
 func (t *ToolSet) addTaskScope() actool.CoreTool {
 	return writeTool(
 		"add_task_scope",
-		locale.Text(t.language, "Propose coverage scope for THIS task. This does not authorize shared asset or credential reads; the operator must approve the scope in the task overview.\n")+
+		locale.Text(t.language, "Propose coverage scope for THIS task. Targets explicitly supplied by the user in the task prompt or scope are already authorized. This tool proposes additional coverage; agent-only additions do not expand the user authorization.\n")+
 			locale.Text(t.language, "Kinds: company (all company assets), root_domain (entire domain and subdomains), subdomain (one exact hostname), ip, cidr, icp, keyword.\n")+
 			locale.Text(t.language, "Worker discoveries are recorded automatically for coverage. Agent and automatic entries cannot expand operator read grants.\n")+
 			locale.Text(t.language, "value: existing company name/ID for company; domain for root_domain/subdomain; IP/network for ip/cidr; registration number/company keyword for icp/keyword.\n")+

@@ -9,6 +9,7 @@ import {
   HistoryIcon,
   ListChecksIcon,
   Loader2Icon,
+  MicIcon,
   MoreHorizontalIcon,
   PanelRightIcon,
   PaperclipIcon,
@@ -55,6 +56,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { useDictation } from "@/hooks/use-dictation";
 import { useSideQuestions } from "@/hooks/use-side-questions";
 import { useI18n } from "@/i18n";
 import { getIntlLocale, translate as swt } from "@/i18n/runtime";
@@ -171,7 +173,7 @@ function Composer({
 }: {
   value: string;
   onChange: (v: string) => void;
-  onSend: () => void;
+  onSend: (text?: string) => void;
   disabled: boolean;
   placeholder: string;
   leftSlot?: React.ReactNode;
@@ -190,15 +192,25 @@ function Composer({
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const atts = attachments ?? [];
+  const fieldLocked = disabled && !(running && allowBtw);
+  const dictation = useDictation(value, onChange, fieldLocked);
   // The send shortcut follows localStorage settings; Enter sends by default.
   const sendMode = useChatSendMode();
+  function submit() {
+    // Sending while the mic is open commits the transcript and runs it.
+    if (dictation.recording) {
+      onSend(dictation.finish());
+      return;
+    }
+    onSend();
+  }
   function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (!shouldSubmitOnKey(e, sendMode)) return;
     e.preventDefault();
-    onSend();
+    submit();
   }
   return (
-    <div className="border-t p-3">
+    <div className="shrink-0 border-t p-3">
       {atts.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1.5">
           {atts.map((a) => (
@@ -257,12 +269,24 @@ function Composer({
           rows={1}
           placeholder={placeholder}
           value={value}
-          disabled={disabled && !(running && allowBtw)}
+          disabled={fieldLocked}
           onValueChange={onChange}
           onKeyDown={onKeyDown}
         />
+        <Button
+          size="icon"
+          variant={dictation.recording ? "destructive" : "ghost"}
+          onClick={dictation.toggle}
+          disabled={fieldLocked}
+          aria-pressed={dictation.recording}
+          title={dictation.recording ? swt("interface.dictateStop") : swt("interface.dictateStart")}
+          aria-label={dictation.recording ? swt("interface.dictateStop") : swt("interface.dictateStart")}
+          className={cn(dictation.recording && "animate-pulse bg-destructive text-white hover:bg-destructive/90")}
+        >
+          <MicIcon />
+        </Button>
         {running && allowBtw && isBtwCommand(value) && (
-          <Button size="icon" onClick={onSend} aria-label={swt("interface.m0071")} title={swt("interface.m0071")}>
+          <Button size="icon" onClick={submit} aria-label={swt("interface.m0071")} title={swt("interface.m0071")}>
             <ArrowUpIcon />
           </Button>
         )}
@@ -281,7 +305,7 @@ function Composer({
         ) : (
           <Button
             size="icon"
-            onClick={onSend}
+            onClick={submit}
             disabled={disabled || (!value.trim() && atts.length === 0)}
             title={swt("interface.m0073")}
             aria-label={swt("interface.m0073")}
@@ -414,8 +438,8 @@ function DraftChat({
 
   const agent = agents.find((a) => a.key === agentKey);
 
-  async function send() {
-    const msg = input.trim();
+  async function send(override?: string) {
+    const msg = (override ?? input).trim();
     if (!msg || !agentKey || sending) return;
     setSending(true);
     try {
@@ -784,8 +808,8 @@ function ChatView({
     }
   }
 
-  async function send() {
-    const msg = input.trim();
+  async function send(override?: string) {
+    const msg = (override ?? input).trim();
     const atts = attachments;
     if (side.handleCommand(msg, () => setInput(""))) return;
     if ((!msg && atts.length === 0) || sending || running) return;
@@ -824,7 +848,7 @@ function ChatView({
   return (
     <SideQuestionWorkspace side={side} label={agent?.name ?? conv.agent_key} composerLayout="inline">
       {/* header: which agent + live + token meta */}
-      <div className="flex min-w-0 flex-wrap items-center gap-2 border-b px-4 py-2.5">
+      <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-2 border-b px-4 py-2.5">
         <Bot className="text-muted-foreground size-4 shrink-0" />
         <span className="min-w-0 max-w-48 truncate text-sm font-medium">{agent?.name ?? conv.agent_key}</span>
         <span className="text-muted-foreground hidden shrink-0 font-mono text-xs sm:inline">{conv.agent_key}</span>
@@ -1505,18 +1529,23 @@ export default function ChatPage() {
       />
       <div
         className={cn(
-          "console-chat-grid grid min-h-0 min-w-0 flex-1 gap-4",
-          historyOpen
-            ? "grid-cols-[14rem_minmax(0,1fr)]"
-            : contextOpen
-              ? "grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]"
-              : "grid-cols-1",
+          "console-chat-grid grid min-h-0 min-w-0 flex-1 grid-rows-[minmax(0,1fr)] gap-4",
+          historyOpen && contextOpen
+            ? "grid-cols-[14rem_minmax(0,1fr)_minmax(20rem,24rem)]"
+            : historyOpen
+              ? "grid-cols-[14rem_minmax(0,1fr)]"
+              : contextOpen
+                ? "grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)]"
+                : "grid-cols-1",
         )}
       >
         {/* left: conversation list */}
         <div
           id="chat-history"
-          className={cn("bg-card min-h-0 flex-col overflow-hidden rounded-lg border", historyOpen ? "flex" : "hidden")}
+          className={cn(
+            "bg-card h-full min-h-0 flex-col overflow-hidden rounded-lg border",
+            historyOpen ? "flex" : "hidden",
+          )}
         >
           <div className="flex flex-col gap-2 border-b p-2">
             <Button size="sm" className="w-full" onClick={() => selectConversation(null)}>
@@ -1671,7 +1700,7 @@ export default function ChatPage() {
         </div>
 
         {/* right: chat view */}
-        <div className="bg-card flex min-w-0 flex-col overflow-hidden rounded-lg border">
+        <div className="bg-card flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border">
           {selected ? (
             <ChatView
               key={selected.id}
@@ -1710,7 +1739,7 @@ export default function ChatPage() {
           )}
         </div>
         {contextOpen && (
-          <div id="chat-task-panel" className="flex min-h-0 min-w-0 [&>aside]:flex-1">
+          <div id="chat-task-panel" className="flex h-full min-h-0 min-w-0 [&>aside]:min-h-0 [&>aside]:flex-1">
             <TaskContextPanel
               key={selectedId ?? "draft"}
               conversationId={selectedId}

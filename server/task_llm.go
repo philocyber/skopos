@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Autumn-27/norma/llm"
+	"github.com/Autumn-27/norma/transcript"
 	"github.com/Philocyber/skopos/agent"
 	"github.com/Philocyber/skopos/db"
 	"github.com/Philocyber/skopos/llmrec"
-	"github.com/Autumn-27/norma/llm"
-	"github.com/Autumn-27/norma/transcript"
 )
 
 type taskAgentBundle struct {
@@ -109,6 +109,9 @@ type taskLLMStreamHooks struct {
 // The returned profile ID is nonzero only for task-chain routing. streamTaskLLM uses it to decide
 // whether quota errors advance task failover; bound/global routes preserve the existing task-chain state.
 func (r *taskLLMRuntime) current() (taskLLMSelection, error) {
+	if r.s.taskApprovalHeld(r.taskID) {
+		return taskLLMSelection{}, abortWaitingForApproval
+	}
 	taskNum, err := parseTaskID(r.taskID)
 	if err != nil {
 		return taskLLMSelection{}, err

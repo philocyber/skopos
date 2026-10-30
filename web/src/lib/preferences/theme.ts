@@ -12,12 +12,6 @@ export const THEME_MODE_OPTIONS = [
     },
     value: "dark",
   },
-  {
-    get label() {
-      return swt("english.e016");
-    },
-    value: "system",
-  },
 ] as const;
 
 export const THEME_MODE_VALUES = THEME_MODE_OPTIONS.map((o) => o.value);

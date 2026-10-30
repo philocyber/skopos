@@ -22,13 +22,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Philocyber/skopos/diagnostic"
-	"github.com/Philocyber/skopos/llmrec"
 	"github.com/Autumn-27/norma/agentcore"
 	"github.com/Autumn-27/norma/compaction"
 	"github.com/Autumn-27/norma/llm"
 	acperm "github.com/Autumn-27/norma/permission"
 	"github.com/Autumn-27/norma/transcript"
+	"github.com/Philocyber/skopos/diagnostic"
+	"github.com/Philocyber/skopos/llmrec"
 )
 
 // Config describes the LLM backend resolved from the environment.
@@ -36,7 +36,13 @@ type Config struct {
 	Format  llm.Format
 	BaseURL string
 	APIKey  string
-	Model   string
+	// SubscriptionNative delegates authentication and inference to the local Codex runtime.
+	SubscriptionNative interface {
+		Provider(string, string, string, string) (llm.Provider, error)
+	}
+	CyberAccessProgram string
+	SubscriptionID     string
+	Model              string
 	// Proxy routes all LLM requests through the given proxy URL (http/https/socks5,
 	// optionally with user:pass@ credentials). Empty means direct — it does NOT
 	// fall back to the standard *_PROXY environment variables.
@@ -257,6 +263,25 @@ func (c Config) Provider() string {
 // limiter lives on the single provider instance — so planner + all workers +
 // main agent (which share this provider) are bounded by one shared rate limit.
 func (c Config) NewProvider() (llm.Provider, error) {
+	if c.SubscriptionNative != nil {
+		provider, err := c.SubscriptionNative.Provider(c.SubscriptionID, c.Model, c.ReasoningEffort, c.CyberAccessProgram)
+		if err != nil {
+			return nil, err
+		}
+		var interval time.Duration
+		if c.RatePerSecond > 0 {
+			interval = time.Duration(float64(time.Second) / c.RatePerSecond)
+		}
+		if c.RatePerMinute > 0 {
+			if perMinute := time.Duration(float64(time.Minute) / c.RatePerMinute); perMinute > interval {
+				interval = perMinute
+			}
+		}
+		if interval > 0 {
+			return &nativePacedProvider{Provider: provider, interval: interval}, nil
+		}
+		return provider, nil
+	}
 	client, err := quotaAwareHTTPClient(c.Proxy, c.SessionHeaderKey)
 	if err != nil {
 		return nil, err

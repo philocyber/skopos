@@ -64,17 +64,18 @@ export function ThemeBootScript() {
           return value;
         }
 
-        var rawMode = readPreference("theme_mode", DEFAULTS.theme_mode);
+        var storedMode = readPreference("theme_mode", "");
         var rawContentLayout = readPreference("content_layout", DEFAULTS.content_layout);
         var rawSidebarVariant = readPreference("sidebar_variant", DEFAULTS.sidebar_variant);
         var rawSidebarCollapsible = readPreference("sidebar_collapsible", DEFAULTS.sidebar_collapsible);
 
-        var isValidMode = rawMode === "dark" || rawMode === "light" || rawMode === "system";
-        var mode = isValidMode ? rawMode : DEFAULTS.theme_mode;
-        var resolvedMode =
-          mode === "system" && window.matchMedia
-            ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-            : mode;
+        var systemMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        var mode = storedMode === "dark" || storedMode === "light" ? storedMode : systemMode;
+        if (storedMode !== mode) {
+          var expires = new Date(Date.now() + 7 * 864e5).toUTCString();
+          document.cookie = "theme_mode=" + mode + "; expires=" + expires + "; path=/";
+        }
+        var resolvedMode = mode;
         var contentLayout = rawContentLayout || DEFAULTS.content_layout;
         var sidebarVariant = rawSidebarVariant || DEFAULTS.sidebar_variant;
         var sidebarCollapsible = rawSidebarCollapsible || DEFAULTS.sidebar_collapsible;

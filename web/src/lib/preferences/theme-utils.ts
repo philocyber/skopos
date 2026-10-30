@@ -1,11 +1,12 @@
 import type { ResolvedThemeMode, ThemeMode } from "./theme";
 
 export function resolveThemeMode(mode: ThemeMode): ResolvedThemeMode {
-  if (mode === "system") {
-    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches;
-    return prefersDark ? "dark" : "light";
-  }
   return mode === "dark" ? "dark" : "light";
+}
+
+export function systemThemeMode(): ThemeMode {
+  if (typeof window === "undefined" || !window.matchMedia) return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 export function applyThemeMode(mode: ThemeMode): ResolvedThemeMode {
@@ -21,18 +22,3 @@ export function applyThemeMode(mode: ThemeMode): ResolvedThemeMode {
   return resolved;
 }
 
-export function subscribeToSystemTheme(onChange: (mode: ResolvedThemeMode) => void): () => void {
-  if (typeof window === "undefined") return () => undefined;
-  const media = window.matchMedia?.("(prefers-color-scheme: dark)");
-  if (!media) return () => undefined;
-
-  const listener = (event: MediaQueryListEvent) => {
-    onChange(event.matches ? "dark" : "light");
-  };
-
-  media.addEventListener("change", listener);
-
-  return () => {
-    media.removeEventListener("change", listener);
-  };
-}

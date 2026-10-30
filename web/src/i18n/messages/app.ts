@@ -3,7 +3,7 @@
 export const en = {
   metricValue: "{label} {value}",
   tokenSummary: "In {input} (including cache {cache}) · Out {output}",
-  cycleTheme: "Current theme: {theme}. Click to cycle themes",
+  cycleTheme: "Switch to {theme}",
   operator: "Operator",
   commandPalette: "Command palette",
   commandSearch: "Search for a command to run…",
@@ -21,6 +21,17 @@ export const en = {
   paletteMove: "Move",
   paletteOpen: "Open",
   paletteClose: "Close",
+  toolPermissionTitle: "Tool permission required",
+  toolPermissionStopped:
+    "Tool approval is waiting. This is not the scan pause. Workers stay held until you approve or deny the request and continue the task. Active duration and the task timeout stay frozen.",
+  toolPermissionReview:
+    "Approve or deny each request. Allowing every tool covers later calls in this task. Regex interception rules and the asset allowlist still apply. Approving does not continue the task by itself.",
+  toolPermissionMore: "{count} more requests are waiting in tool permissions.",
+  reviewToolPermissions: "Review tool permissions",
+  resumeScanTitle: "Continue after tool approval?",
+  resumeScanBody:
+    "The tool decision is saved. This hold is tool approval, not the scan pause. Continue the task so the approved calls can run. Regex interception rules and the asset allowlist still apply.",
+  resumeScanAction: "Continue task",
   metaTitle: "Skopos — Autonomous Penetration Testing Console",
   metaDescription: "Console for an LLM-driven autonomous penetration testing system",
   language: "Language",

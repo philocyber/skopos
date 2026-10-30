@@ -3,6 +3,7 @@ package intercept
 import (
 	"context"
 	"encoding/json"
+	"github.com/Philocyber/skopos/db"
 	"github.com/Philocyber/skopos/locale"
 	"strings"
 )
@@ -22,11 +23,12 @@ type ReviewBackground struct {
 // ReviewInput contains only the current call and explicitly selected background.
 // Execution history and call correlation belong to the separate audit record.
 type ReviewInput struct {
-	Version    int               `json:"version"`
-	WorkingDir string            `json:"working_directory,omitempty"`
-	Background *ReviewBackground `json:"background,omitempty"`
-	Tool       string            `json:"tool_name"`
-	Arguments  json.RawMessage   `json:"arguments"`
+	OperatorAuthorization *db.OperatorAuthorization `json:"operator_authorization,omitempty"`
+	Version               int                       `json:"version"`
+	WorkingDir            string                    `json:"working_directory,omitempty"`
+	Background            *ReviewBackground         `json:"background,omitempty"`
+	Tool                  string                    `json:"tool_name"`
+	Arguments             json.RawMessage           `json:"arguments"`
 }
 
 type reviewContextKey struct{}
@@ -65,6 +67,9 @@ func BuildReviewInput(ctx context.Context, tool string, arguments json.RawMessag
 			background.Truncated = background.Truncated || cut
 			in.Background = &background
 		}
+	}
+	if authorization := OperatorAuthorizationFromContext(ctx); authorization.Approved() {
+		in.OperatorAuthorization = &authorization
 	}
 	return in, nil
 }

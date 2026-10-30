@@ -74,7 +74,7 @@ type RuleForm = {
   name: string;
   enabled: boolean;
   priority: number;
-  match_target: "tool_name" | "tool_input";
+  match_target: "tool_name" | "tool_input" | "tool_call";
   match_type: "string" | "regex";
   pattern: string;
   action: InterceptAction;
@@ -546,6 +546,11 @@ export default function InterceptPage() {
     <div className="flex flex-1 flex-col gap-5">
       <PageHeader title={swt("interface.m1235")} description={swt("interface.m1236")} />
 
+      <p className="text-sm text-muted-foreground">
+        Blocks always win. Other rules use priority, highest first. Use an exact tool rule to allow all parameters, or
+        specify the complete parameters to allow only that call. Put sensitive human-approval rules above allow rules.
+        Task approvals can satisfy legacy tool-name prompts. Structured human-approval rules and blocks always apply.
+      </p>
       {/* Shared interception-scope strip: neither rules nor model fallback process out-of-scope tools. */}
       <div
         className={`flex items-center justify-between gap-3 rounded-lg border px-4 py-2.5 ${
@@ -633,7 +638,11 @@ export default function InterceptPage() {
                         </TableCell>
                         <TableCell>
                           <span className="text-xs text-muted-foreground">
-                            {rule.match_target === "tool_name" ? swt("interface.m1246") : swt("interface.m1247")}
+                            {rule.match_target === "tool_call"
+                              ? "Tool + parameters"
+                              : rule.match_target === "tool_name"
+                                ? swt("interface.m1246")
+                                : swt("interface.m1247")}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -712,47 +721,61 @@ export default function InterceptPage() {
             <Field label={swt("interface.m1254")}>
               <Select
                 value={form.match_target}
-                onValueChange={(v) => set({ match_target: v as RuleForm["match_target"] })}
+                onValueChange={(v) =>
+                  set({
+                    match_target: v as RuleForm["match_target"],
+                    ...(v === "tool_call" ? { match_type: "string", pattern: JSON.stringify({ tool: "Bash" }) } : {}),
+                  })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="tool_call">Tool and parameters (exact)</SelectItem>
                   <SelectItem value="tool_name">{swt("interface.m1255")}</SelectItem>
                   <SelectItem value="tool_input">{swt("interface.m1256")}</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
 
-            <Field label={swt("interface.m1178")}>
-              <Select value={form.match_type} onValueChange={(v) => set({ match_type: v as RuleForm["match_type"] })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="string">{swt("interface.m1257")}</SelectItem>
-                  <SelectItem value="regex">{swt("interface.m1258")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
+            {form.match_target === "tool_call" ? (
+              <CallRuleFields pattern={form.pattern} onChange={(pattern) => set({ pattern })} />
+            ) : (
+              <>
+                <Field label={swt("interface.m1178")}>
+                  <Select
+                    value={form.match_type}
+                    onValueChange={(v) => set({ match_type: v as RuleForm["match_type"] })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="string">{swt("interface.m1257")}</SelectItem>
+                      <SelectItem value="regex">{swt("interface.m1258")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
 
-            <Field label={swt("interface.m1244")}>
-              <Input
-                placeholder={form.match_type === "regex" ? "^Bash$" : "rm -rf"}
-                value={form.pattern}
-                onChange={(e) => set({ pattern: e.target.value })}
-                className={regexErr ? "border-destructive focus-visible:ring-destructive" : ""}
-              />
-              {regexErr && <p className="text-xs text-destructive mt-1">{regexErr}</p>}
-              {regexWarn && (
-                <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
-                  {swt("interface.m1259")}
-                  <code className="font-mono">(?i)</code>
-                  {swt("interface.m1260")}
-                </p>
-              )}
-            </Field>
-
+                <Field label={swt("interface.m1244")}>
+                  <Input
+                    placeholder={form.match_type === "regex" ? "^Bash$" : "rm -rf"}
+                    value={form.pattern}
+                    onChange={(e) => set({ pattern: e.target.value })}
+                    className={regexErr ? "border-destructive focus-visible:ring-destructive" : ""}
+                  />
+                  {regexErr && <p className="text-xs text-destructive mt-1">{regexErr}</p>}
+                  {regexWarn && (
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                      {swt("interface.m1259")}
+                      <code className="font-mono">(?i)</code>
+                      {swt("interface.m1260")}
+                    </p>
+                  )}
+                </Field>
+              </>
+            )}
             <Separator />
 
             <Field label={swt("interface.m1261")}>
@@ -907,6 +930,75 @@ export default function InterceptPage() {
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function CallRuleFields({ pattern, onChange }: { pattern: string; onChange: (pattern: string) => void }) {
+  const value = React.useMemo(() => {
+    try {
+      return JSON.parse(pattern) as { tool: string; arguments?: unknown };
+    } catch {
+      return { tool: "" };
+    }
+  }, [pattern]);
+  const [argumentsText, setArgumentsText] = React.useState(
+    value.arguments === undefined ? "" : JSON.stringify(value.arguments, null, 2),
+  );
+  const [error, setError] = React.useState("");
+  return (
+    <div className="space-y-3">
+      <Field label="Exact tool name">
+        <Input
+          value={value.tool}
+          placeholder="Bash"
+          onChange={(e) => onChange(JSON.stringify({ ...value, tool: e.target.value }))}
+        />
+      </Field>
+      <Field label="Parameters to remember">
+        <Select
+          value={value.arguments === undefined ? "any" : "exact"}
+          onValueChange={(mode) => {
+            setError("");
+            if (mode === "any") {
+              setArgumentsText("");
+              onChange(JSON.stringify({ tool: value.tool }));
+            } else {
+              setArgumentsText("{}");
+              onChange(JSON.stringify({ tool: value.tool, arguments: {} }));
+            }
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="any">Any parameters</SelectItem>
+            <SelectItem value="exact">Exact parameters</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
+      {value.arguments !== undefined && (
+        <Field label="Complete parameters (JSON)">
+          <Textarea
+            value={argumentsText}
+            placeholder={'{"command":"git status"}'}
+            onChange={(e) => {
+              setArgumentsText(e.target.value);
+              try {
+                const args = JSON.parse(e.target.value);
+                if (!args || Array.isArray(args) || typeof args !== "object") throw new Error();
+                setError("");
+                onChange(JSON.stringify({ tool: value.tool, arguments: args }));
+              } catch {
+                setError("Enter a valid JSON object before saving.");
+                onChange(JSON.stringify({ tool: value.tool, arguments: null }));
+              }
+            }}
+          />
+          <p className="text-xs text-destructive">{error}</p>
+        </Field>
+      )}
     </div>
   );
 }

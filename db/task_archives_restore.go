@@ -64,6 +64,11 @@ WHERE relation.source_task_id=$1 LIMIT 1`, taskID).Scan(&dependent)
 	if _, err := tx.Exec(`LOCK TABLE assets, exploration_anchors IN SHARE ROW EXCLUSIVE MODE`); err != nil {
 		return err
 	}
+	// The archive stores its remaining budget separately. Do not carry an open
+	// permission hold into a restored task and credit that same wait twice.
+	if _, err := tx.Exec(`UPDATE task_approval_holds SET ended_at=now(),outcome='archived' WHERE task_id=$1 AND ended_at IS NULL`, taskID); err != nil {
+		return err
+	}
 	if _, err := tx.Exec(`DELETE FROM intercept_pending WHERE COALESCE(task_id,'')=$1`, strconv.FormatInt(taskID, 10)); err != nil {
 		return err
 	}
@@ -119,7 +124,7 @@ AND NOT EXISTS (
 		return err
 	}
 	if _, err := tx.Exec(`UPDATE tasks SET
- name='',category_id=NULL,description='',goal='',paused=true,queued=false,queued_at=NULL,queue_mode='',
+ name='',category_id=NULL,description='',goal='',operator_instructions='[]'::jsonb,paused=true,queued=false,queued_at=NULL,queue_mode='',
  llm_profile_id=NULL,active_llm_profile_id=NULL,llm_chain_revision=llm_chain_revision+1,
  company_id=NULL,parent_ref=NULL,timeout_seconds=0,coverage_enabled=true,pinned_at=NULL,
  first_run_at=NULL,deadline_at=NULL,archived_at=now(),deleted_at=now()
@@ -317,6 +322,7 @@ func restoreTaskStub(tx *sql.Tx, row map[string]any, taskID, remaining int64) er
 	}
 	_, err = tx.Exec(`UPDATE tasks current SET
  name=archived.name,category_id=archived.category_id,description=archived.description,goal=archived.goal,
+ operator_instructions=COALESCE(archived.operator_instructions,'[]'::jsonb),
  status=archived.status,paused=archived.paused,queued=false,queued_at=NULL,queue_mode='',
  llm_profile_id=archived.llm_profile_id,active_llm_profile_id=archived.active_llm_profile_id,
  llm_chain_revision=archived.llm_chain_revision,company_id=archived.company_id,parent_ref=archived.parent_ref,
@@ -692,6 +698,13 @@ func restoreInterceptRows(tx *sql.Tx, raw json.RawMessage) error {
 		return err
 	}
 	for _, row := range rows {
+		// Pre-hold archives do not have these non-null approval lifecycle fields.
+		if row["deferred_task"] == nil {
+			row["deferred_task"] = false
+		}
+		if action, _ := row["approval_timeout_action"].(string); action == "" {
+			row["approval_timeout_action"] = "deny"
+		}
 		// Archives predating approval snapshots lack this NOT NULL column.
 		if source, _ := row["decision_source"].(string); source == "" {
 			source = "unknown"

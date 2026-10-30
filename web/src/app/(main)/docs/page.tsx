@@ -5,7 +5,10 @@ import * as React from "react";
 import Link from "next/link";
 
 import { AlertTriangleIcon, ArrowUpRightIcon, InfoIcon, SearchIcon } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
+import { CopyButton } from "@/components/copy-button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +22,7 @@ function blockText(b: DocBlock): string {
   switch (b.type) {
     case "p":
     case "code":
+    case "markdown":
       return b.text;
     case "list":
       return b.items.join(" ");
@@ -41,15 +45,96 @@ function sectionMatches(s: DocSection, q: string) {
   return q.split(/\s+/).every((w) => hay.includes(w));
 }
 
+function CodeSnippet({ text, language = "text" }: { text: string; language?: string }) {
+  return (
+    <div className="min-w-0 overflow-hidden rounded-lg border bg-muted/30">
+      <div className="flex items-center justify-between gap-3 border-b bg-muted/50 px-4 py-2">
+        <span className="font-mono text-muted-foreground text-xs">{language}</span>
+        <CopyButton text={text} label="Copy code" className="h-7 text-xs" />
+      </div>
+      <pre className="overflow-x-auto p-4 font-mono text-xs leading-6">
+        <code className={`language-${language}`}>{text}</code>
+      </pre>
+    </div>
+  );
+}
+
+function GuideMarkdown({ text }: { text: string }) {
+  return (
+    <div className="min-w-0 space-y-5 text-foreground/90 text-sm leading-relaxed">
+      <ReactMarkdown
+        skipHtml
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h3: ({ children }) => {
+            const title = String(children);
+            let id: string | undefined;
+            if (title.startsWith("6.")) id = "runpod-profile";
+            if (title.startsWith("CyberStrike,")) id = "runpod-cyberstrike";
+            if (title.startsWith("Troubleshooting:")) id = "runpod-troubleshooting";
+            return (
+              <h3 id={id} className="scroll-mt-20 border-t pt-6 font-semibold text-base tracking-tight">
+                {children}
+              </h3>
+            );
+          },
+          p: ({ children }) => <p className="leading-7">{children}</p>,
+          a: ({ href, children }) => (
+            <a href={href} className="text-primary underline underline-offset-4">
+              {children}
+            </a>
+          ),
+          ul: ({ children }) => <ul className="list-disc space-y-2 pl-5 marker:text-muted-foreground">{children}</ul>,
+          ol: ({ children }) => (
+            <ol className="list-decimal space-y-3 pl-5 marker:font-semibold marker:text-primary">{children}</ol>
+          ),
+          blockquote: ({ children }) => (
+            <blockquote className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-4">{children}</blockquote>
+          ),
+          table: ({ children }) => (
+            <div className="overflow-x-auto rounded-lg border">
+              <table className="w-full text-sm">{children}</table>
+            </div>
+          ),
+          thead: ({ children }) => <thead className="bg-muted/50 text-left">{children}</thead>,
+          th: ({ children }) => <th className="px-4 py-3 font-medium">{children}</th>,
+          td: ({ children }) => <td className="border-t px-4 py-3 align-top">{children}</td>,
+          pre: ({ children }) => {
+            const child = React.Children.toArray(children)[0];
+            if (React.isValidElement<{ children?: React.ReactNode; className?: string }>(child)) {
+              return (
+                <CodeSnippet
+                  text={String(child.props.children ?? "").replace(/\n$/, "")}
+                  language={child.props.className?.replace("language-", "")}
+                />
+              );
+            }
+            return <pre className="overflow-x-auto">{children}</pre>;
+          },
+          code: ({ children, className }) => (
+            <code className={className ?? "break-words rounded bg-muted px-1.5 py-0.5 font-mono text-xs"}>
+              {children}
+            </code>
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
 function Block({ block }: { block: DocBlock }) {
   switch (block.type) {
     case "p":
-      return <p className="text-sm leading-relaxed text-foreground/90">{block.text}</p>;
+      return <p className="text-foreground/90 text-sm leading-relaxed">{block.text}</p>;
     case "code":
-      return <pre className="overflow-x-auto rounded-md border bg-muted/50 p-3 font-mono text-xs">{block.text}</pre>;
+      return <CodeSnippet text={block.text} />;
+    case "markdown":
+      return <GuideMarkdown text={block.text} />;
     case "list":
       return (
-        <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-foreground/90 marker:text-muted-foreground">
+        <ul className="list-disc space-y-1.5 pl-5 text-foreground/90 text-sm leading-relaxed marker:text-muted-foreground">
           {block.items.map((i) => (
             <li key={i}>{i}</li>
           ))}
@@ -70,7 +155,7 @@ function Block({ block }: { block: DocBlock }) {
                     <Link
                       href={step.href}
                       prefetch={false}
-                      className="inline-flex items-center gap-0.5 text-xs font-normal text-primary underline-offset-4 hover:underline"
+                      className="inline-flex items-center gap-0.5 font-normal text-primary text-xs underline-offset-4 hover:underline"
                     >
                       Open <ArrowUpRightIcon className="size-3" />
                     </Link>
@@ -99,7 +184,7 @@ function Block({ block }: { block: DocBlock }) {
                   {row.map((cell, i) => (
                     <TableCell
                       key={`${row[0]}-${block.head[i]}`}
-                      className={cn("align-top whitespace-normal", i === 0 && "font-medium")}
+                      className={cn("whitespace-normal align-top", i === 0 && "font-medium")}
                     >
                       {cell}
                     </TableCell>
@@ -127,11 +212,11 @@ function Block({ block }: { block: DocBlock }) {
             <Link key={f.href} href={f.href} prefetch={false} className="group">
               <Card className="h-full transition-colors group-hover:border-primary/50">
                 <CardContent className="space-y-1 p-4">
-                  <div className="flex items-center justify-between text-sm font-medium">
+                  <div className="flex items-center justify-between font-medium text-sm">
                     {f.title}
                     <ArrowUpRightIcon className="size-3.5 text-muted-foreground transition-colors group-hover:text-primary" />
                   </div>
-                  <p className="text-xs leading-relaxed text-muted-foreground">{f.body}</p>
+                  <p className="text-muted-foreground text-xs leading-relaxed">{f.body}</p>
                 </CardContent>
               </Card>
             </Link>
@@ -144,7 +229,7 @@ function Block({ block }: { block: DocBlock }) {
           {block.items.map((f) => (
             <AccordionItem key={f.q} value={f.q}>
               <AccordionTrigger className="text-left text-sm">{f.q}</AccordionTrigger>
-              <AccordionContent className="text-sm leading-relaxed text-foreground/80">{f.a}</AccordionContent>
+              <AccordionContent className="text-foreground/80 text-sm leading-relaxed">{f.a}</AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
@@ -198,7 +283,7 @@ export default function DocsPage() {
                 href={`#${s.id}`}
                 aria-current={active === s.id ? "true" : undefined}
                 className={cn(
-                  "flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  "flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 text-muted-foreground text-sm transition-colors hover:bg-accent hover:text-foreground",
                   active === s.id && "bg-accent font-medium text-foreground",
                 )}
               >
@@ -211,12 +296,12 @@ export default function DocsPage() {
       </aside>
 
       <div className="min-w-0 space-y-12">
-        {sections.length === 0 && <p className="text-sm text-muted-foreground">No sections match “{query}”.</p>}
+        {sections.length === 0 && <p className="text-muted-foreground text-sm">No sections match “{query}”.</p>}
         {sections.map((s) => (
           <section key={s.id} id={s.id} className="scroll-mt-20 space-y-4">
             <header className="space-y-1">
-              <h2 className="text-xl font-semibold tracking-tight">{s.title}</h2>
-              <p className="text-sm text-muted-foreground">{s.summary}</p>
+              <h2 className="font-semibold text-xl tracking-tight">{s.title}</h2>
+              <p className="text-muted-foreground text-sm">{s.summary}</p>
             </header>
             {s.blocks.map((b) => (
               <Block key={`${s.id}-${blockText(b).slice(0, 48)}`} block={b} />

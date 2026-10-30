@@ -90,3 +90,80 @@ The form warns, before you click anything, when a gateway Base URL has the wrong
 Custom and self-hosted endpoints are never validated or rewritten, and the original error is always kept.
 
 Verified against official documentation on **2026-10-21**: [Vercel AI Gateway](https://vercel.com/docs/ai-gateway/authentication-and-byok), [Amazon Bedrock API keys](https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html), [Bedrock endpoints](https://docs.aws.amazon.com/bedrock/latest/userguide/endpoints.html). Gateway model catalogues, prices and Regions change; confirm your account's access before relying on a template.
+
+## Self-hosted vLLM on RunPod
+
+For the complete deployment sequence, API checks, approvals, troubleshooting and optional adapter setup, see [RunPod setup for Skopos](../README.md#runpod-setup-for-skopos). The same guide is available in **Documentation → RunPod setup**.
+
+Skopos and CyberStrike talk to this same server as a normal OpenAI Chat Completions endpoint. `VLLM_API_KEY` authenticates the server, not one application: both clients send that bearer token to the same base URL. Skopos selects the base model. CyberStrike selects the adapter id, and only after that adapter is loaded.
+
+This is the pod that served `Qwen/Qwen3.6-35B-A3B` at a 131,072-token context. Image `vllm/vllm-openai:v0.30.0`, HTTP port **8000**, one H200 SXM on Secure Cloud, and a network volume mounted at `/workspace`. The image entrypoint is already `vllm serve`, so the RunPod container start command is arguments only. Do not prefix `vllm serve` or a shell.
+
+```text
+--model Qwen/Qwen3.6-35B-A3B --quantization fp8 --enable-lora --max-lora-rank 32 --host 0.0.0.0 --port 8000 --max-model-len 131072 --gpu-memory-utilization 0.90 --enable-prefix-caching --enable-auto-tool-choice --tool-call-parser qwen3_xml
+```
+
+Environment on the pod:
+
+| Variable | Value |
+| --- | --- |
+| `HF_HOME` | `/workspace/hf_cache` |
+| `HF_HUB_ENABLE_HF_TRANSFER` | `1` |
+| `VLLM_API_KEY` | a key you choose |
+| `VLLM_ALLOW_RUNTIME_LORA_UPDATING` | `1` |
+
+`HF_HOME` on the network volume keeps the weights after a stop. The container disk does not, so the next boot recompiles CUDA graphs. `--max-model-len 131072` is the whole context window (prompt plus reply), not an output cap. The checkpoint allows 262144. A 32,768 window is too small for this agent: the tool-bearing prompt is already about 29,000 tokens, and vLLM rejects the call when prompt plus `max_tokens` exceeds the window. `--enable-lora` is on so another client can attach an adapter later. Do not add `--lora-modules` with a Hub repo and an `@revision`. vLLM 0.30 passes that string through as a repo id, the `@` is rejected, and the server exits after the base model has loaded.
+
+Once port 8000 is Ready, the base URL is `https://<pod-id>-8000.proxy.runpod.net/v1`. A migration creates a new pod id. Update the profile. An empty HTTP 404 from that host means that pod id is not serving the port.
+
+In Skopos open **LLM → New** and save this profile, then **Set active**. Use Chat Completions. The Responses API template does not match this server.
+
+| Field | Value |
+| --- | --- |
+| Format | OpenAI (Chat Completions) |
+| Model | `Qwen/Qwen3.6-35B-A3B` |
+| Base URL | `https://<pod-id>-8000.proxy.runpod.net/v1` |
+| API key | the same value as `VLLM_API_KEY` |
+| Context window (K) | `96` |
+| Output limit | `8192` |
+| Proxy, thinking, reasoning effort | leave unset |
+
+Context window (K) is only Skopos's local compaction budget. Output limit is what the request sends as `max_tokens`. Leave that at `0` and Skopos omits the field. vLLM then asks for the whole `--max-model-len` as output, the prompt no longer fits, and the call fails with 400. An unset or smaller Context window (K) is raised to 32, which is not enough once tools are attached: that prompt is already about 29,000 tokens, so `8192` of output overflows a 32,768 window and compaction cannot delete the tool definitions. `96` keeps the local budget under `131072 - 8192`.
+
+### CyberStrike on the same pod
+
+Use the same base URL and the same API key. Change only the model id.
+
+| Client | Model |
+| --- | --- |
+| Skopos | `Qwen/Qwen3.6-35B-A3B` |
+| CyberStrike | `cyberstrike-offsec` |
+
+`GET /v1/models` lists `cyberstrike-offsec` only after the adapter is loaded. The key is already valid before that. A request that names the adapter id early returns 404.
+
+The adapter is the Hugging Face branch `adapter` of `oyildirim/CyberStrike-OffSec-35B`, not the merged weights on `main`. Download that revision onto the volume, for example `/workspace/hf_cache/cyberstrike-offsec`, and confirm `adapter_config.json` is there. Then POST `/v1/load_lora_adapter`:
+
+```json
+{"lora_name":"cyberstrike-offsec","lora_path":"/workspace/hf_cache/cyberstrike-offsec"}
+```
+
+If that POST is refused, stop the pod, add `--lora-modules cyberstrike-offsec=/workspace/hf_cache/cyberstrike-offsec` to the start command, and start once. That value is a directory on the volume. Do not pass `repo@revision`. Skopos stays on the base model id.
+
+
+## Codex / ChatGPT subscription
+
+In **System > LLM**, click **Connect Codex**, then **Continue with ChatGPT**. Complete the native Codex browser sign-in, select a model, test, and save the profile. Activate it or bind it to an agent or task as usual. This replaces the earlier open-source subscription-sharing flow. Enterprise workspaces use their Codex permissions and approval settings.
+
+Install the Codex CLI on the backend host (`codex` on PATH), or set `SKOPOS_CODEX_BINARY` to its executable. Skopos uses `codex app-server --listen stdio://`, identifies itself as `skopos`, and enables the experimental protocol for dynamic tools and history injection. The connector was checked against CLI 0.156.1. New Enterprise clients may need registration with OpenAI, as described in the [app-server documentation](https://learn.chatgpt.com/docs/app-server). Workspace access is ultimately checked by OpenAI.
+
+Use a browser on the backend computer for its native loopback callback. A remote backend or container requires an appropriate loopback tunnel. Cancel the pending sign-in before starting another; attempts expire after five minutes.
+
+Skopos creates a private Codex home for each saved connection under `chatgpt-subscription/native-codex/<connection-id>/` beside its JWT key. Codex owns OAuth, refresh, and workspace routing. Credentials are never returned to the UI. The connector does not import the user's desktop/CLI login, configuration, skills, hooks, or API keys. Old subscription-sharing credentials remain untouched but are no longer used. Reconnect old profiles with **Continue with ChatGPT**. Run one Skopos backend per credential directory.
+
+Models come from native `model/list`, preserving names and ordering. The catalog may be cached and does not guarantee account entitlement; use **Test connection** to verify inference. Daybreak uses advertised `availableAccessPrograms.cyber` values. Models without an advertised Daybreak program are disabled when the switch is on. The selected program is saved per profile and explicitly sent on every turn. OpenAI still validates workspace and model approval; missing access is reported as an error without falling back silently.
+
+Inference uses ephemeral native threads, host instructions, and the supplied conversation history. Dynamic tool requests return to Skopos for its normal permission checks and execution, and tool results are replayed on the next request. Codex shell, apps, hooks, web search, and delegation are disabled. Unexpected native tool requests fail the request. Codex controls token refresh, transport, reasoning implementation, and output limits; the profile uses its reasoning-effort setting but clears incompatible HTTP proxy, session-header, thinking-type and output-cap overrides. Native runtime calls are serialized per connection to prevent concurrent credential refreshes. Token usage is recorded when Codex reports it; a tool handoff may precede the native usage event.
+
+Deleting a profile does not remove its shared connection. Native credentials and account access remain subject to the Codex and ChatGPT workspace controls.
+
+References: [native Codex authentication](https://learn.chatgpt.com/docs/auth), [Codex app-server](https://learn.chatgpt.com/docs/app-server).

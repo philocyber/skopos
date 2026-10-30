@@ -279,7 +279,14 @@ LIMIT 1`, taskID).Scan(&dependent)
 	}
 	remaining := int64(0)
 	if paused && deadline != nil {
-		remaining = int64(time.Until(*deadline).Seconds())
+		clockNow := time.Now()
+		var heldAt time.Time
+		if err := tx.QueryRow(`SELECT started_at FROM task_approval_holds WHERE task_id=$1 AND ended_at IS NULL`, taskID).Scan(&heldAt); err == nil {
+			clockNow = heldAt
+		} else if !errors.Is(err, sql.ErrNoRows) {
+			return nil, err
+		}
+		remaining = int64(deadline.Sub(clockNow).Seconds())
 		if remaining < 0 {
 			remaining = 0
 		}

@@ -143,6 +143,9 @@ func (d *DB) CreateTask(description, goal string, llmProfileID *int64, timeoutSe
 // TaskCreateOptions contains the task data that must be committed atomically
 // with the task/exploration row.
 type TaskCreateOptions struct {
+	// OperatorRequest is set only by human HTTP creation, never by model tools.
+	OperatorRequest string
+
 	// Language is persisted atomically in the existing settings table; empty preserves legacy callers.
 	Language             locale.Lang
 	Name                 string // Optional task name; empty means unnamed.
@@ -229,11 +232,24 @@ VALUES ($1, 'fact', $2, 0, 'origin', 'system')`, expID, string(originPayload)); 
 		TimeoutSeconds: opts.TimeoutSeconds, PlanHeartbeatSeconds: opts.PlanHeartbeatSeconds,
 		CoverageEnabled: coverageEnabled,
 	}
-	if err := tx.QueryRow(`
-INSERT INTO tasks(name, category_id, description, goal, exploration_id, llm_profile_id, active_llm_profile_id, timeout_seconds, plan_heartbeat_seconds, coverage_enabled)
-VALUES ($1,$2,$3,$4,$5,$6,$6,$7,$8,$9)
-RETURNING id, status, paused, created_at`, opts.Name, opts.CategoryID, description, goal, expID, active, opts.TimeoutSeconds, opts.PlanHeartbeatSeconds, coverageEnabled).Scan(&t.ID, &t.Status, &t.Paused, &t.CreatedAt); err != nil {
+	taskID, err := nextReusableTaskID(tx)
+	if err != nil {
 		return nil, err
+	}
+	if err := tx.QueryRow(`
+INSERT INTO tasks(id, name, category_id, description, goal, exploration_id, llm_profile_id, active_llm_profile_id, timeout_seconds, plan_heartbeat_seconds, coverage_enabled)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$7,$8,$9,$10)
+RETURNING status, paused, created_at`, taskID, opts.Name, opts.CategoryID, description, goal, expID, active, opts.TimeoutSeconds, opts.PlanHeartbeatSeconds, coverageEnabled).Scan(&t.Status, &t.Paused, &t.CreatedAt); err != nil {
+		return nil, err
+	}
+	t.ID = taskID
+	if _, err := tx.Exec(`SELECT setval(pg_get_serial_sequence('tasks','id'), (SELECT MAX(id) FROM tasks))`); err != nil {
+		return nil, err
+	}
+	if opts.OperatorRequest != "" {
+		if err := d.recordTaskOperatorInstruction(tx, t.ID, "task", opts.OperatorRequest); err != nil {
+			return nil, err
+		}
 	}
 	if opts.Language != "" {
 		if _, err := tx.Exec(`INSERT INTO settings(key,value) VALUES ($1,$2)`, "task_language."+strconv.FormatInt(t.ID, 10), string(opts.Language)); err != nil {
@@ -258,6 +274,67 @@ RETURNING id, status, paused, created_at`, opts.Name, opts.CategoryID, descripti
 		t.LLMFailoverState = "ready"
 	}
 	return t, tx.Commit()
+}
+
+// taskIDLock serializes allocation of the lowest free tasks.id. An advisory
+// transaction lock avoids taking a table lock that would deadlock with the
+// asset locks held during task deletion.
+const taskIDLock int64 = 814274273
+
+func nextReusableTaskID(tx *sql.Tx) (int64, error) {
+	if _, err := tx.Exec(`SELECT pg_advisory_xact_lock($1)`, taskIDLock); err != nil {
+		return 0, err
+	}
+	var id int64
+	err := tx.QueryRow(`
+SELECT COALESCE(MIN(gap.id), 1)
+FROM (
+  SELECT 1 AS id
+  WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE id = 1)
+  UNION ALL
+  SELECT task.id + 1
+  FROM tasks task
+  WHERE NOT EXISTS (SELECT 1 FROM tasks next WHERE next.id = task.id + 1)
+) gap`).Scan(&id)
+	return id, err
+}
+
+// releaseTaskIdentity detaches rows that keep a task id without a foreign key.
+// The numeric id can then be reused without attaching the deleted task's
+// history, grants, or asset ownership to the next task.
+func releaseTaskIdentity(tx *sql.Tx, id int64, llmRecordsDeleted bool) error {
+	taskKey := strconv.FormatInt(id, 10)
+	for _, query := range []struct {
+		sql  string
+		args []any
+	}{
+		{`UPDATE skill_usage SET task_id=NULL WHERE task_id=$1`, []any{id}},
+		{`UPDATE tool_usage SET task_id=NULL WHERE task_id=$1`, []any{id}},
+		{`DELETE FROM intercept_pending WHERE task_id=$1`, []any{taskKey}},
+		{`DELETE FROM task_tool_grants WHERE task_id=$1`, []any{taskKey}},
+		{`UPDATE assets SET task_ids=array_remove(task_ids, $1) WHERE $1 = ANY(task_ids)`, []any{id}},
+		{`UPDATE task_archives SET source_task_ids=array_remove(source_task_ids, $1) WHERE $1 = ANY(source_task_ids)`, []any{id}},
+	} {
+		if _, err := tx.Exec(query.sql, query.args...); err != nil {
+			return err
+		}
+	}
+	for _, table := range []string{"llm_usage", "llm_records"} {
+		if table == "llm_records" && llmRecordsDeleted {
+			continue
+		}
+		var present bool
+		if err := tx.QueryRow(`SELECT to_regclass($1) IS NOT NULL`, "public."+table).Scan(&present); err != nil {
+			return err
+		}
+		if !present {
+			continue
+		}
+		if _, err := tx.Exec(`UPDATE `+table+` SET task_id=NULL WHERE task_id=$1`, taskKey); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func insertTaskCompanies(tx *sql.Tx, taskID int64, companyIDs []int64, lang locale.Lang) error {
@@ -655,6 +732,9 @@ DELETE FROM assets a USING deletable d WHERE a.id=d.id`, id, expID)
 	// task — it is kept as historical accounting even after the task is gone.
 	if _, err := tx.Exec(`DELETE FROM settings WHERE key=$1`, "task_language."+strconv.FormatInt(id, 10)); err != nil {
 		return TaskDeleteResult{}, err
+	}
+	if err := releaseTaskIdentity(tx, id, deleteLLMRecords); err != nil {
+		return result, err
 	}
 	if _, err := tx.Exec(`DELETE FROM tasks WHERE id=$1`, id); err != nil {
 		return result, err
